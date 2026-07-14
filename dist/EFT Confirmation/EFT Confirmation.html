@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EFT Payment Confirmation Monitoring — Irish Life SecureShare</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--il-primary:#5C61AC;--il-teal:#55C2B6;--il-cyan:#00B1D9;--il-rose:#E03E52;--il-amber:#FAB812;--il-slate:#53565A;--card:#ffffff;--text:#25323b;--muted:#69757f;--line:#e4e6ef;--shadow:0 14px 34px rgba(37,50,59,0.08);--radius:14px;}
+    *{box-sizing:border-box;}
+    body{margin:0;font-family:"Manrope","Trebuchet MS",sans-serif;color:var(--text);background:radial-gradient(circle at 0% 0%,rgba(85,194,182,0.15),transparent 36%),radial-gradient(circle at 100% 0%,rgba(92,97,172,0.2),transparent 38%),linear-gradient(180deg,#fbfcff 0%,#f4f6fb 55%,#f2f4fa 100%);min-height:100vh;}
+    .shell{max-width:1680px;margin:0 auto;padding:20px 20px 28px;}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 18px;background:linear-gradient(92deg,#3e458f 0%,var(--il-primary) 45%,#4d98be 100%);border-radius:16px;box-shadow:var(--shadow);color:#fff;margin-bottom:14px;}
+    .brand{display:flex;align-items:center;gap:14px;}
+    .brand img{height:42px;width:auto;object-fit:contain;border-radius:6px;background:rgba(255,255,255,0.08);padding:4px;}
+    .brand h1{margin:0;font-size:1.08rem;font-weight:800;letter-spacing:0.2px;}
+    .brand p{margin:2px 0 0;opacity:0.92;font-size:0.82rem;}
+    .badge{border:1px solid rgba(255,255,255,0.35);border-radius:999px;padding:7px 12px;font-size:0.78rem;font-weight:700;white-space:nowrap;background:rgba(255,255,255,0.08);}
+    .tabs{display:flex;gap:8px;padding:10px;border-radius:14px;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);margin-bottom:14px;flex-wrap:wrap;}
+    .tab{border:none;border-radius:10px;background:transparent;color:var(--il-slate);font-weight:700;padding:10px 14px;cursor:pointer;font-family:inherit;font-size:0.87rem;}
+    .tab.active{color:#fff;background:linear-gradient(90deg,var(--il-primary),#4b7fb8);box-shadow:0 6px 18px rgba(92,97,172,0.35);}
+    .page{display:none;}.page.active{display:block;}
+    .row{display:grid;grid-template-columns:repeat(12,1fr);gap:12px;margin-bottom:12px;}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;min-width:0;}
+    .card h2{margin:0 0 8px;font-size:0.96rem;font-weight:800;color:#2f3e48;}
+    .hint{color:var(--muted);font-size:0.78rem;margin-top:6px;}
+    .kpi{grid-column:span 3;padding:14px;background:linear-gradient(160deg,rgba(255,255,255,0.95),rgba(248,250,255,0.98));}
+    .kpi .label{font-size:0.74rem;letter-spacing:0.2px;color:var(--muted);text-transform:uppercase;font-weight:700;margin-bottom:6px;}
+    .kpi .value{font-size:1.6rem;font-weight:800;color:#25323b;margin-bottom:4px;}
+    .kpi .sub{font-size:0.75rem;color:#7b8690;}
+    .filter-card{grid-column:span 12;}
+    .filter-grid{display:grid;grid-template-columns:repeat(6,minmax(140px,1fr));gap:10px;}
+    .f{display:flex;flex-direction:column;gap:4px;font-size:0.78rem;color:var(--muted);font-weight:700;text-transform:uppercase;}
+    .f select,.f input{width:100%;border-radius:10px;border:1px solid #d9deeb;padding:9px 10px;font-family:inherit;font-size:0.86rem;color:#2d3b45;background:#fff;outline:none;}
+    .f select:focus,.f input:focus{border-color:#8f95d0;box-shadow:0 0 0 3px rgba(92,97,172,0.15);}
+    .col-8{grid-column:span 8;}.col-6{grid-column:span 6;}.col-4{grid-column:span 4;}.col-12{grid-column:span 12;}
+    .chart-container{position:relative;width:100%;height:200px;margin-bottom:8px;}
+    .chart-container canvas{max-height:200px!important;width:100%!important;height:200px!important;}
+    .table-wrap{max-height:380px;overflow:auto;border:1px solid var(--line);border-radius:10px;background:#fff;}
+    table{width:100%;border-collapse:collapse;font-size:0.78rem;min-width:1020px;}
+    th,td{padding:8px 9px;border-bottom:1px solid #edf0f7;text-align:left;vertical-align:top;}
+    th{position:sticky;top:0;z-index:2;background:linear-gradient(90deg,#5C61AC,#4f84b9);color:#fff;font-size:0.74rem;letter-spacing:0.2px;text-transform:uppercase;}
+    .tag{display:inline-block;padding:3px 8px;border-radius:999px;font-weight:700;font-size:0.72rem;border:1px solid transparent;white-space:nowrap;}
+    .tag.good{background:rgba(114,208,139,0.16);color:#20622f;border-color:rgba(114,208,139,0.45);}
+    .tag.bad{background:rgba(255,123,137,0.15);color:#8c1f31;border-color:rgba(255,123,137,0.35);}
+    .tag.warn{background:rgba(250,184,18,0.18);color:#6b4a00;border-color:rgba(250,184,18,0.4);}
+    .tag.info{background:rgba(0,177,217,0.12);color:#005f7a;border-color:rgba(0,177,217,0.35);}
+    .foot{color:#73808a;font-size:0.76rem;margin-top:6px;}
+    code{font-size:0.76rem;background:#f0f1fa;padding:2px 5px;border-radius:4px;color:#3b418a;}
+    @media(max-width:1180px){.kpi{grid-column:span 6;}.col-8,.col-4{grid-column:span 12;}.filter-grid{grid-template-columns:repeat(3,1fr);}}
+    @media(max-width:760px){.shell{padding:12px;}.topbar{flex-direction:column;align-items:flex-start;}.kpi{grid-column:span 12;}.filter-grid{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+<div class="shell">
+  <header class="topbar">
+    <div class="brand">
+      <img src="./assets/Top Left IL Logo.png" alt="Irish Life" />
+      <div>
+        <h1>EFT Payment Confirmation Monitoring</h1>
+        <p>Prototype | Bank confirmation and business follow-up</p>
+      </div>
+    </div>
+    <div class="badge" id="lastRefresh">Last refresh: —</div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-page="breakdown">1. EFT Confirmation Review</button>
+    <button class="tab" data-page="actionlist">2. Business Follow-up Queue</button>
+  </nav>
+
+  <!-- PAGE 1: EFT BREAKDOWN & CONFIRMATION -->
+  <section id="page-breakdown" class="page active">
+    <div class="row">
+      <article class="card filter-card">
+        <div class="filter-grid">
+          <label class="f">Month<select id="bkMonth"><option value="All">All months</option></select></label>
+          <label class="f">Scheme<select id="bkScheme"><option value="All">All schemes</option></select></label>
+          <label class="f">Confirmation
+            <select id="bkConfirm">
+              <option value="All">All</option>
+              <option value="Y">Y — Payment Confirmed</option>
+              <option value="N">N — Not Yet Confirmed</option>
+            </select>
+          </label>
+          <label class="f">Work Type
+            <select id="bkWorkType">
+              <option value="All">All</option>
+              <option value="Cash / Direct Debits">Cash / Direct Debits</option>
+              <option value="SP">SP (Single Premium)</option>
+            </select>
+          </label>
+          <label class="f">Team<select id="bkTeam"><option value="All">All teams</option></select></label>
+          <label class="f">Context
+            <select id="bkContext">
+              <option value="All">All</option>
+              <option value="DC">DC</option>
+              <option value="DB">DB</option>
+            </select>
+          </label>
+        </div>
+        <div style="margin-top:8px;display:flex;justify-content:flex-end;">
+          <button id="exportCsvBreakdown" style="background:linear-gradient(90deg,var(--il-primary),#4b7fb8);color:#fff;border:none;border-radius:10px;padding:8px 18px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;">Export CSV</button>
+        </div>
+      </article>
+    </div>
+    <div class="row">
+      <article class="card kpi"><div class="label">Total EFT Uploads</div><div class="value" id="kBkTotal">—</div><div class="sub">Work items in selected view</div></article>
+      <article class="card kpi"><div class="label">Confirmed (Y)</div><div class="value" id="kBkConfirmed">—</div><div class="sub">Payment confirmation received</div></article>
+      <article class="card kpi"><div class="label">Not Confirmed (N)</div><div class="value" id="kBkNotConfirmed">—</div><div class="sub">Outstanding — action required</div></article>
+      <article class="card kpi"><div class="label">Confirmation Rate</div><div class="value" id="kBkRate">—</div><div class="sub">% confirmed in selected view</div></article>
+    </div>
+    <div class="row">
+      <article class="card col-8">
+        <h2>EFT Confirmation Trend by Month</h2>
+        <div class="chart-container"><canvas id="chartBkTrend"></canvas></div>
+        <div class="hint" id="bkHint">Confirmed (Y) vs Not Confirmed (N) by month.</div>
+      </article>
+      <article class="card col-4">
+        <h2>Confirmation Y / N Split</h2>
+        <div class="chart-container"><canvas id="chartBkMix"></canvas></div>
+        <div class="hint">Y / N confirmation split for current filter selection.</div>
+      </article>
+    </div>
+    <div class="row">
+      <article class="card col-12">
+        <h2>EFT Breakdown Upload Summary</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Date Created</th><th>Reference</th><th>Scheme Name</th><th>Scheme No.</th>
+              <th>Amount In (EUR)</th><th>Payment Type</th><th>Contact</th><th>Team</th>
+              <th>Confirmation (Y/N)</th><th>Payment Date</th><th>Bank Log Check</th><th>Completed By</th>
+            </tr></thead>
+            <tbody id="bkBody"></tbody>
+          </table>
+        </div>
+        <div class="foot">EFT = Electronic Funds Transfer. Business users review Y confirmations against the bank log, while N responses remain in follow-up until resolved. Refreshes are expected evening, morning, and afternoon.</div>
+      </article>
+    </div>
+  </section>
+
+  <!-- PAGE 2: BUSINESS FOLLOW-UP QUEUE -->
+  <section id="page-actionlist" class="page">
+    <div class="row">
+      <article class="card filter-card">
+        <div class="filter-grid">
+          <label class="f">Month<select id="alMonth"><option value="All">All months</option></select></label>
+          <label class="f">Scheme<select id="alScheme"><option value="All">All schemes</option></select></label>
+          <label class="f">Follow-up Status
+            <select id="alAuto">
+              <option value="All">All</option>
+              <option value="Outstanding">Outstanding</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Verified to Finance">Verified to Finance</option>
+            </select>
+          </label>
+          <label class="f">Confirmation
+            <select id="alConfirm">
+              <option value="All">All</option>
+              <option value="Y">Y — Confirmed</option>
+              <option value="N">N — Not Confirmed</option>
+            </select>
+          </label>
+          <label class="f">Follow-up Owner
+            <select id="alWorkType">
+              <option value="All">All</option>
+            </select>
+          </label>
+          <label class="f">Auto Download Ready
+            <select id="alAutoDownload">
+              <option value="All">All</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+          </label>
+        </div>
+        <div style="margin-top:8px;display:flex;justify-content:flex-end;">
+          <button id="exportCsvActionList" style="background:linear-gradient(90deg,var(--il-primary),#4b7fb8);color:#fff;border:none;border-radius:10px;padding:8px 18px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;">Export CSV</button>
+          <button id="exportCsvAutoActionList" style="margin-left:8px;background:linear-gradient(90deg,var(--il-teal),#3ba296);color:#fff;border:none;border-radius:10px;padding:8px 18px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;">Export Auto Download CSV</button>
+        </div>
+      </article>
+    </div>
+    <div class="row">
+      <article class="card kpi"><div class="label">Outstanding</div><div class="value" id="kAlInScope">—</div><div class="sub">Waiting on business follow-up</div></article>
+      <article class="card kpi"><div class="label">In Progress</div><div class="value" id="kAlOutScope">—</div><div class="sub">Actively being worked</div></article>
+      <article class="card kpi"><div class="label">Verified to Finance</div><div class="value" id="kAlReview">—</div><div class="sub">Business check complete</div></article>
+      <article class="card kpi"><div class="label">Payment Not Received</div><div class="value" id="kAlUnconfirmed">—</div><div class="sub">No confirmation yet</div></article>
+    </div>
+    <div class="row">
+      <article class="card col-8">
+        <h2>Business Follow-up Status by Month</h2>
+        <div class="chart-container"><canvas id="chartAlScope"></canvas></div>
+        <div class="hint" id="alHint">Outstanding vs in progress vs verified-to-Finance items by month.</div>
+      </article>
+      <article class="card col-4">
+        <h2>Follow-up Distribution</h2>
+        <div class="chart-container"><canvas id="chartAlDist"></canvas></div>
+        <div class="hint">Business follow-up status split for current filter selection.</div>
+      </article>
+    </div>
+    <div class="row">
+      <article class="card col-12">
+        <h2>Business Follow-up Queue — Mark as Verified</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Date Created</th><th>Reference</th><th>Scheme Name</th><th>Scheme No.</th>
+              <th>Amount In (EUR)</th><th>Confirmation</th><th>Payment Date</th>
+              <th>Contact</th><th>Follow-up Owner</th><th>Follow-up Status</th><th>Days Confirmed</th><th>Eligible for Auto</th><th>☑ Cash Confirmed</th><th>Confirmed By</th><th>Confirmed At</th><th>Reason / Notes</th>
+            </tr></thead>
+            <tbody id="alBody"></tbody>
+          </table>
+        </div>
+        <div class="foot">This queue supports the business review step discussed in the meeting. Y responses should be matched to the bank log and then verified by the cash team. N responses remain in follow-up until the payment position is resolved. Eligible for Auto is rule-based. Cash Confirmed is manual sign-off; only rows with both flags are included in automated download for Approps. Auto Download Ready means Eligible for Auto AND Cash Confirmed.</div>
+      </article>
+    </div>
+  </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+// DATA: modelled from real VRDD CSV fields and scheme numbers from KRI data
+// Real EFT context: these are CADD work items of type "Cash / Direct Debits" where
+// confirmation = Y means the payment was received and confirmed in SecureShare.
+// Automation scope: standard EFT CADD items confirmed within 2 days = In Scope.
+// SP, CHAPS, BACS or items with pend reasons = Out of Scope or Review.
+const EFT_RAW_DATA=[
+  // Jan 2026
+  {month:"2026-01",dateCreated:"03/01/2026",ref:"158201M",schemeName:"Google Ireland Limited",schemeNo:"603616",context:"DC",amount:1243000,workType:"Cash / Direct Debits",broker:"Mercer (Elect Existing Business)",team:"Mercer/Marsh",confirm:"Y",dateCompleted:"05/01/2026",completedBy:"K819",autoScope:"In Scope",notes:"Standard EFT CADD — confirmed within 2 days"},
+  {month:"2026-01",dateCreated:"05/01/2026",ref:"158202M",schemeName:"Intel Ireland DC Plan",schemeNo:"603123",context:"DC",amount:1502000,workType:"Cash / Direct Debits",broker:"Unio (BONDS)",team:"Invesco",confirm:"Y",dateCompleted:"06/01/2026",completedBy:"K819",autoScope:"In Scope",notes:"Standard EFT CADD — confirmed next day"},
+  {month:"2026-01",dateCreated:"07/01/2026",ref:"158210M",schemeName:"Maples Group",schemeNo:"606849",context:"DC",amount:400000,workType:"SP",broker:"Unio (BONDS)",team:"Invesco",confirm:"N",dateCompleted:"WIP",completedBy:"",autoScope:"Out of Scope",notes:"SP work type — manual process, not EFT automation candidate"},
+  {month:"2026-01",dateCreated:"08/01/2026",ref:"158215M",schemeName:"Aer Lingus",schemeNo:"603645",context:"DC",amount:1320000,workType:"Cash / Direct Debits",broker:"Mercer (Elect Existing Business)",team:"Mercer/Marsh",confirm:"Y",dateCompleted:"09/01/2026",completedBy:"K819",autoScope:"In Scope",notes:"Standard EFT CADD — confirmed next day"},
+  {month:"2026-01",dateCreated:"10/01/2026",ref:"158220M",schemeName:"I.N.T.O. AVC Plan",schemeNo:"608398",context:"DC",amount:3200000,workType:"SP",broker:"Mercer (Elect Existing Business)",team:"Mercer/Marsh",confirm:"Y",dateCompleted:"12/01/2026",completedBy:"A221",autoScope:"Out of Scope",notes:"SP work type — requires manual approp sign-off"},
+  {month:"2026-01",dateCreated:"12/01/2026",ref:"158225M",schemeName:"Nurses AVC Scheme",schemeNo:"601441",context:"DC",amount:4300000,workType:"SP",broker:"Mercer (Elect Existing Business)",team:"Mercer/Marsh",confirm:"Y",dateCompleted:"14/01/2026",completedBy:"A221",autoScope:"Out of Scope",notes:"SP work type — requires manual approp sign-off"},
+  // Feb 2026
+  {month:"2026-02",dateCreated:"03/02/2026",ref:"159101M",schemeName:"Stryker Ireland DC Pension P",schemeNo:"603990",context:"DC",amount:3700000,workType:"Cash / Direct Debits",broker:"Unio (BONDS)",team:"Invesco",confirm:"Y",dateCompleted:"04/02/2026",completedBy:"K819",autoScope:"In Scope",notes:"Standard EFT CADD — confirmed same day"},
+  {month:"2026-02",dateCreated:"07/02/2026",ref:"159122M",schemeName:"Nurses AVC Scheme",schemeNo:"601441",context:"DC",amount:4300000,workType:"SP",broker:"Mercer (Elect Existing Business)",team:"Mercer/Marsh",confirm:"N",dateCompleted:"WIP",completedBy:"",autoScope:"Out of Scope",notes:"SP work type — manual approp, More Detail TBC"},
+  {month:"2026-02",dateCreated:"10/02/2026",ref:"159140M",schemeName:"CHC Ireland DAC",schemeNo:"603000",context:"DC",amount:1100000,workType:"Cash / Direct Debits",broker:"Mercer (Elect Existing Business)",team:"Mercer/Marsh",confirm:"N",dateCompleted:"WIP",completedBy:"",autoScope:"Review",notes:"CB Approps not informed — needs review before automation"},
+  {month:"2026-02",dateCreated:"13/02/2026",ref:"159155M",schemeName:"I.N.T.O. AVC Plan",schemeNo:"608398",context:"DC",amount:3200000,workType:"Cash / Direct Debits",broker:"Mercer (Elect Existing Business)",team:"Mercer/Marsh",confirm:"Y",dateCompleted:"14/02/2026",completedBy:"A221",autoScope:"In Scope",notes:"Standard EFT CADD — confirmed next day"},
+  // March 2026
+  {month:"2026-03",dateCreated:"02/03/2026",ref:"160201M",schemeName:"Google Ireland Limited",schemeNo:"603616",context:"DC",amount:850000000,workType:"Cash / Direct Debits",broker:"Mercer (Elect Existing Business)",team:"Mercer/Marsh",confirm:"Y",dateCompleted:"03/03/2026",completedBy:"K819",autoScope:"In Scope",notes:"Standard EFT CADD — large RSP EUR850m confirmed next day"},
+  {month:"2026-03",dateCreated:"05/03/2026",ref:"160210M",schemeName:"Intel Ireland DC Plan",schemeNo:"603123",context:"DC",amount:1500000,workType:"SP",broker:"Unio (BONDS)",team:"Invesco",confirm:"Y",dateCompleted:"06/03/2026",completedBy:"K819",autoScope:"Out of Scope",notes:"SP work type — manual approp process"},
+  {month:"2026-03",dateCreated:"06/03/2026",ref:"160215M",schemeName:"PRB Scheme",schemeNo:"607205",context:"DC",amount:150000,workType:"SP",broker:"Unio (BONDS)",team:"Invesco",confirm:"N",dateCompleted:"WIP",completedBy:"",autoScope:"Out of Scope",notes:"SP — historical effective date 2021, exception"},
+  {month:"2026-03",dateCreated:"08/03/2026",ref:"160222M",schemeName:"PMI Software",schemeNo:"609811",context:"DC",amount:700000,workType:"Cash / Direct Debits",broker:"Unio (BONDS)",team:"Invesco",confirm:"N",dateCompleted:"WIP",completedBy:"",autoScope:"Review",notes:"WTHD — CADD but late upload, confirmation outstanding"},
+  {month:"2026-03",dateCreated:"10/03/2026",ref:"160230M",schemeName:"Allied Irish Banks Investment",schemeNo:"603414",context:"DC",amount:1300000,workType:"Cash / Direct Debits",broker:"Mercer (Elect Existing Business)",team:"Mercer/Marsh",confirm:"Y",dateCompleted:"11/03/2026",completedBy:"A221",autoScope:"In Scope",notes:"Standard EFT CADD — confirmed next day"},
+  {month:"2026-03",dateCreated:"15/03/2026",ref:"160241M",schemeName:"Kerry Group Plc",schemeNo:"603888",context:"DC",amount:2000000,workType:"SP",broker:"Mercer (Elect Existing Business)",team:"Mercer/Marsh",confirm:"N",dateCompleted:"WIP",completedBy:"",autoScope:"Review",notes:"Amount mismatch EUR2.0m vs preapprop EUR1.85m — review before automation"},
+  {month:"2026-03",dateCreated:"18/03/2026",ref:"160250M",schemeName:"Portwest Design",schemeNo:"603516",context:"DC",amount:2000000,workType:"Cash / Direct Debits",broker:"Unio (BONDS)",team:"Invesco",confirm:"Y",dateCompleted:"19/03/2026",completedBy:"K819",autoScope:"In Scope",notes:"Standard EFT CADD — confirmed next day"},
+  // April 2026 — from real VRDD CSV
+  {month:"2026-04",dateCreated:"04/04/2026",ref:"160923M",schemeName:"Vestas Ireland Limited",schemeNo:"603026",context:"DC",amount:640.41,workType:"Cash / Direct Debits",broker:"Mercer (Elect Existing Business)",team:"Mercer/Marsh",confirm:"Y",dateCompleted:"WIP",completedBy:"",autoScope:"Review",notes:"Very small amount EUR640 — review for automation threshold"},
+  {month:"2026-04",dateCreated:"04/04/2026",ref:"160934M",schemeName:"Thermo Fisher Scientific Cork",schemeNo:"601299",context:"DC",amount:1430108.43,workType:"Cash / Direct Debits",broker:"Unio (BONDS)",team:"Invesco",confirm:"Y",dateCompleted:"WIP",completedBy:"K819",autoScope:"In Scope",notes:"Standard EFT CADD — April 2026 contribution"},
+  {month:"2026-04",dateCreated:"04/04/2026",ref:"160935M",schemeName:"Thermo Fisher Scientific Cork",schemeNo:"601299",context:"DC",amount:477626.18,workType:"Cash / Direct Debits",broker:"Unio (BONDS)",team:"Invesco",confirm:"Y",dateCompleted:"WIP",completedBy:"K819",autoScope:"In Scope",notes:"Standard EFT CADD — April 2026 second tranche"},
+  {month:"2026-04",dateCreated:"10/04/2026",ref:"161002M",schemeName:"Dacia Leasing DL Romania",schemeNo:"603299",context:"DC",amount:800000,workType:"SP",broker:"Unio (BONDS)",team:"Invesco",confirm:"N",dateCompleted:"WIP",completedBy:"",autoScope:"Out of Scope",notes:"SP — awaiting broker confirmation, manual process"},
+];
+
+const EFT_DATA=EFT_RAW_DATA.map((row,index)=>({
+  ...row,
+  paymentType: row.workType==='SP' ? 'Single Premium' : 'EFT',
+  paymentDate: row.confirm==='Y' ? (row.dateCompleted && row.dateCompleted!=='WIP' ? row.dateCompleted : row.dateCreated) : '',
+  contact: row.broker,
+  actionOwner: row.confirm==='Y' ? 'Cash Team' : 'Business Team',
+  followUpStatus: row.confirm==='Y' ? 'Verified to Finance' : (row.autoScope==='Review' || index % 3 === 0 ? 'In Progress' : 'Outstanding'),
+  bankCheck: row.confirm==='Y' ? 'Matched on bank log' : 'Pending bank log check'
+}));
+
+const charts={};
+const CURRENT_USER='Cash Team';
+const eftCashConfirmations={};
+function fmtAmt(v){if(!Number.isFinite(+v))return'—';return'EUR '+(+v).toLocaleString('en-IE',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function pct(v){if(!Number.isFinite(v))return'—';return(v*100).toFixed(1)+'%';}
+function uniq(arr){return[...new Set(arr.filter(Boolean))].sort();}
+function parseDate(dateStr){if(!dateStr||dateStr==='WIP')return null;const[d,m,y]=String(dateStr).split('/');if(!d||!m||!y)return null;return new Date(`${y}-${m}-${d}T00:00:00`);}
+function daysBetween(dateFrom,dateTo){const a=parseDate(dateFrom);const b=parseDate(dateTo);if(!a||!b)return null;return Math.floor(Math.abs(b-a)/(1000*60*60*24));}
+function daysConfirmed(row){if(row.confirm!=='Y')return null;const end=row.dateCompleted&&row.dateCompleted!=='WIP'?row.dateCompleted:row.paymentDate;return daysBetween(row.dateCreated,end);}
+function isEftEligibleForAuto(row){const d=daysConfirmed(row);return row.confirm==='Y'&&row.workType==='Cash / Direct Debits'&&d!==null&&d<=2;}
+function getEftConfirmation(ref){return eftCashConfirmations[ref]||{confirmed:false,confirmedBy:'',confirmedAt:''};}
+function setEftConfirmation(ref,confirmed){if(confirmed){eftCashConfirmations[ref]={confirmed:true,confirmedBy:CURRENT_USER,confirmedAt:new Date().toLocaleString('en-IE')};return;}eftCashConfirmations[ref]={confirmed:false,confirmedBy:'',confirmedAt:''};}
+function isEftIncludedInAutoDownload(row){const state=getEftConfirmation(row.ref);return isEftEligibleForAuto(row)&&state.confirmed;}
+EFT_DATA.forEach(row=>{
+  if(row.followUpStatus==='Verified to Finance'&&isEftEligibleForAuto(row)){
+    eftCashConfirmations[row.ref]={confirmed:true,confirmedBy:'Cash Team (Initial)',confirmedAt:'Initial load'};
+  }
+});
+function drawOrUpdate(id,type,data,options={}){
+  const base={responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:true,labels:{boxWidth:14,font:{size:11}}}},scales:{y:{beginAtZero:true}}};
+  const merged={...base,...options};
+  if(type==='doughnut'||type==='pie')delete merged.scales;
+  if(charts[id]){charts[id].config.type=type;charts[id].data=data;charts[id].options=merged;charts[id].update('none');return;}
+  charts[id]=new Chart(document.getElementById(id),{type,data,options:merged});
+}
+const ui={
+  tabs:[...document.querySelectorAll('.tab')],
+  pages:{breakdown:document.getElementById('page-breakdown'),actionlist:document.getElementById('page-actionlist')},
+  bkMonth:document.getElementById('bkMonth'),bkScheme:document.getElementById('bkScheme'),
+  bkConfirm:document.getElementById('bkConfirm'),bkWorkType:document.getElementById('bkWorkType'),
+  bkTeam:document.getElementById('bkTeam'),bkContext:document.getElementById('bkContext'),
+  alMonth:document.getElementById('alMonth'),alScheme:document.getElementById('alScheme'),
+  alAuto:document.getElementById('alAuto'),alConfirm:document.getElementById('alConfirm'),alWorkType:document.getElementById('alWorkType'),alAutoDownload:document.getElementById('alAutoDownload'),
+  exportCsvBreakdown:document.getElementById('exportCsvBreakdown'),exportCsvActionList:document.getElementById('exportCsvActionList'),exportCsvAutoActionList:document.getElementById('exportCsvAutoActionList'),
+};
+function csvCell(v){return `"${String(v ?? '').replaceAll('"','""')}"`;}
+function exportCsv(filename,rows,columns){
+  const lines=[columns.join(',')];
+  rows.forEach(row=>lines.push(columns.map(column=>csvCell(row[column])).join(',')));
+  const blob=new Blob([lines.join("\n")],{type:'text/csv;charset=utf-8;'});
+  const link=document.createElement('a');
+  link.href=URL.createObjectURL(blob);
+  link.download=filename;
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+function setupControls(){
+  const months=uniq(EFT_DATA.map(r=>r.month));
+  const schemes=uniq(EFT_DATA.map(r=>r.schemeName));
+  const teams=uniq(EFT_DATA.map(r=>r.team));
+  const owners=uniq(EFT_DATA.map(r=>r.actionOwner));
+  [ui.bkMonth,ui.alMonth].forEach(s=>months.forEach(m=>s.add(new Option(m,m))));
+  [ui.bkScheme,ui.alScheme].forEach(s=>schemes.forEach(v=>s.add(new Option(v,v))));
+  teams.forEach(t=>ui.bkTeam.add(new Option(t,t)));
+  owners.forEach(o=>ui.alWorkType.add(new Option(o,o)));
+  [ui.bkMonth,ui.bkScheme,ui.bkConfirm,ui.bkWorkType,ui.bkTeam,ui.bkContext].forEach(e=>e.addEventListener('change',refreshBreakdown));
+  [ui.alMonth,ui.alScheme,ui.alAuto,ui.alConfirm,ui.alWorkType,ui.alAutoDownload].forEach(e=>e.addEventListener('change',refreshActionList));
+  ui.exportCsvBreakdown.addEventListener('click',()=>exportCsv('eft_confirmation_review.csv',filteredBreakdown(),['month','dateCreated','ref','schemeName','schemeNo','context','amount','workType','paymentType','broker','team','confirm','paymentDate','bankCheck','contact','completedBy','autoScope','notes']));
+  ui.exportCsvActionList.addEventListener('click',()=>exportCsv('eft_business_follow_up_queue.csv',actionListExportRows(filteredActionList()),['month','dateCreated','ref','schemeName','schemeNo','context','amount','workType','paymentType','confirm','paymentDate','contact','actionOwner','followUpStatus','bankCheck','completedBy','autoScope','notes','daysConfirmed','eligibleForAuto','cashConfirmed','confirmedBy','confirmedAt','includeInAutoDownload']));
+  ui.exportCsvAutoActionList.addEventListener('click',()=>exportCsv('eft_approps_automated_download.csv',actionListExportRows(filteredActionList().filter(isEftIncludedInAutoDownload)),['month','dateCreated','ref','schemeName','schemeNo','context','amount','workType','paymentType','confirm','paymentDate','contact','actionOwner','followUpStatus','bankCheck','completedBy','autoScope','notes','daysConfirmed','eligibleForAuto','cashConfirmed','confirmedBy','confirmedAt']));
+  ui.tabs.forEach(t=>t.addEventListener('click',()=>{
+    ui.tabs.forEach(x=>x.classList.remove('active'));t.classList.add('active');
+    Object.values(ui.pages).forEach(p=>p.classList.remove('active'));ui.pages[t.dataset.page].classList.add('active');
+  }));
+}
+function filteredBreakdown(){
+  return EFT_DATA.filter(r=>
+    (ui.bkMonth.value==='All'||r.month===ui.bkMonth.value)&&
+    (ui.bkScheme.value==='All'||r.schemeName===ui.bkScheme.value)&&
+    (ui.bkConfirm.value==='All'||r.confirm===ui.bkConfirm.value)&&
+    (ui.bkWorkType.value==='All'||r.workType===ui.bkWorkType.value)&&
+    (ui.bkTeam.value==='All'||r.team===ui.bkTeam.value)&&
+    (ui.bkContext.value==='All'||r.context===ui.bkContext.value)
+  );
+}
+function filteredActionList(){
+  return EFT_DATA.filter(r=>
+    (ui.alMonth.value==='All'||r.month===ui.alMonth.value)&&
+    (ui.alScheme.value==='All'||r.schemeName===ui.alScheme.value)&&
+    (ui.alAuto.value==='All'||r.followUpStatus===ui.alAuto.value)&&
+    (ui.alConfirm.value==='All'||r.confirm===ui.alConfirm.value)&&
+    (ui.alWorkType.value==='All'||r.actionOwner===ui.alWorkType.value)&&
+    (ui.alAutoDownload.value==='All'||(ui.alAutoDownload.value==='Yes'?isEftIncludedInAutoDownload(r):!isEftIncludedInAutoDownload(r)))
+  );
+}
+function actionListExportRows(rows){
+  return rows.map(r=>{const state=getEftConfirmation(r.ref);const d=daysConfirmed(r);const eligible=isEftEligibleForAuto(r);return{...r,daysConfirmed:d==null?'':d,eligibleForAuto:eligible?'Yes':'No',cashConfirmed:state.confirmed?'Yes':'No',confirmedBy:state.confirmedBy||'',confirmedAt:state.confirmedAt||'',includeInAutoDownload:eligible&&state.confirmed?'Yes':'No'};});
+}
+function refreshBreakdown(){
+  const rows=filteredBreakdown();
+  const confirmed=rows.filter(r=>r.confirm==='Y').length;
+  const notConfirmed=rows.filter(r=>r.confirm==='N').length;
+  const rate=rows.length?confirmed/rows.length:null;
+  document.getElementById('kBkTotal').textContent=rows.length;
+  document.getElementById('kBkConfirmed').textContent=confirmed;
+  document.getElementById('kBkNotConfirmed').textContent=notConfirmed;
+  document.getElementById('kBkRate').textContent=pct(rate);
+  const months=uniq(rows.map(r=>r.month));
+  const byM={};months.forEach(m=>{byM[m]={Y:0,N:0};});
+  rows.forEach(r=>{byM[r.month][r.confirm]++;});
+  drawOrUpdate('chartBkTrend','bar',{labels:months.length?months:['No data'],datasets:[
+    {label:'Confirmed (Y)',data:months.map(m=>byM[m].Y),backgroundColor:'#55C2B6',stack:'s'},
+    {label:'Not Confirmed (N)',data:months.map(m=>byM[m].N),backgroundColor:'#E03E52',stack:'s'},
+  ]},{scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}}});
+  drawOrUpdate('chartBkMix','doughnut',{labels:['Confirmed (Y)','Not Confirmed (N)'],datasets:[{data:[confirmed,notConfirmed],backgroundColor:['#55C2B6','#E03E52']}]});
+  document.getElementById('bkHint').textContent=`${rows.length} upload${rows.length!==1?'s':''} | ${confirmed} confirmed, ${notConfirmed} outstanding.`;
+  document.getElementById('bkBody').innerHTML=rows.map(r=>`<tr>
+    <td>${r.dateCreated}</td><td><code>${r.ref}</code></td><td>${r.schemeName}</td><td>${r.schemeNo}</td>
+    <td style="text-align:right">${fmtAmt(r.amount)}</td><td>${r.paymentType}</td><td>${r.contact}</td><td>${r.team}</td>
+    <td>${r.confirm==='Y'?'<span class="tag good">Y — Confirmed</span>':'<span class="tag bad">N — Outstanding</span>'}</td>
+    <td>${r.paymentDate||'—'}</td><td>${r.bankCheck}</td><td>${r.completedBy||'—'}</td>
+  </tr>`).join('');
+}
+function refreshActionList(){
+  const rows=filteredActionList();
+  const outstanding=rows.filter(r=>r.followUpStatus==='Outstanding').length;
+  const inProgress=rows.filter(r=>r.followUpStatus==='In Progress').length;
+  const verified=rows.filter(r=>r.followUpStatus==='Verified to Finance').length;
+  const unconfirmed=rows.filter(r=>r.confirm==='N').length;
+  const autoReady=rows.filter(r=>isEftIncludedInAutoDownload(r)).length;
+  document.getElementById('kAlInScope').textContent=outstanding;
+  document.getElementById('kAlOutScope').textContent=inProgress;
+  document.getElementById('kAlReview').textContent=verified;
+  document.getElementById('kAlUnconfirmed').textContent=unconfirmed;
+  const months=uniq(rows.map(r=>r.month));
+  const byM={};months.forEach(m=>{byM[m]={'Outstanding':0,'In Progress':0,'Verified to Finance':0};});
+  rows.forEach(r=>{byM[r.month][r.followUpStatus]++;});
+  drawOrUpdate('chartAlScope','bar',{labels:months.length?months:['No data'],datasets:[
+    {label:'Outstanding',data:months.map(m=>byM[m]['Outstanding']),backgroundColor:'#E03E52',stack:'s'},
+    {label:'In Progress',data:months.map(m=>byM[m]['In Progress']),backgroundColor:'#FAB812',stack:'s'},
+    {label:'Verified to Finance',data:months.map(m=>byM[m]['Verified to Finance']),backgroundColor:'#55C2B6',stack:'s'},
+  ]},{scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}}});
+  drawOrUpdate('chartAlDist','doughnut',{labels:['Outstanding','In Progress','Verified to Finance'],datasets:[{data:[outstanding,inProgress,verified],backgroundColor:['#E03E52','#FAB812','#55C2B6']}]});
+  document.getElementById('alHint').textContent=`${rows.length} record${rows.length!==1?'s':''} | ${outstanding} outstanding, ${inProgress} in progress, ${verified} verified to Finance, ${autoReady} ready for auto download.`;
+  document.getElementById('alBody').innerHTML=rows.map(r=>{const state=getEftConfirmation(r.ref);const d=daysConfirmed(r);const eligible=isEftEligibleForAuto(r);return`<tr>
+    <td>${r.dateCreated}</td><td><code>${r.ref}</code></td><td>${r.schemeName}</td><td>${r.schemeNo}</td>
+    <td style="text-align:right">${fmtAmt(r.amount)}</td>
+    <td>${r.confirm==='Y'?'<span class="tag good">Y — Confirmed</span>':'<span class="tag bad">N — Outstanding</span>'}</td>
+    <td>${r.paymentDate||'—'}</td>
+    <td>${r.contact}</td>
+    <td>${r.actionOwner}</td>
+    <td>${scopeTag(r.followUpStatus)}</td>
+    <td style="text-align:center;font-weight:600;">${d==null?'—':d+' days'}</td>
+    <td>${eligible?'<span class="tag good">Yes</span>':'<span class="tag bad">No</span>'}</td>
+    <td style="text-align:center;"><input class="cash-confirm-eft" data-ref="${r.ref}" type="checkbox" ${state.confirmed?'checked':''} ${eligible?'':'disabled'} title="${eligible?'Cash team confirms inclusion in automated download':'Not eligible for automation'}" style="cursor:pointer;width:18px;height:18px;"/></td>
+    <td>${state.confirmedBy||'—'}</td>
+    <td>${state.confirmedAt||'—'}</td>
+    <td style="font-size:0.72rem">${r.notes}</td>
+  </tr>`}).join('');
+  document.querySelectorAll('.cash-confirm-eft').forEach(input=>input.addEventListener('change',e=>{const ref=e.target.dataset.ref;setEftConfirmation(ref,e.target.checked);refreshActionList();}));
+}
+function scopeTag(s){
+  if(s==='Verified to Finance')return'<span class="tag good">Verified to Finance</span>';
+  if(s==='In Progress')return'<span class="tag warn">In Progress</span>';
+  return'<span class="tag bad">Outstanding</span>';
+}
+setupControls();refreshBreakdown();refreshActionList();
+document.getElementById('lastRefresh').textContent=`Last refresh: ${new Date().toLocaleString('en-IE')}`;
+</script>
+</body>
+</html>
+
+

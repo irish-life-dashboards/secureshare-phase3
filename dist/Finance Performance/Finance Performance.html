@@ -1,0 +1,1864 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SecureShare Finance Performance Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --il-primary: #5C61AC;
+      --il-teal: #55C2B6;
+      --il-cyan: #00B1D9;
+      --il-rose: #E03E52;
+      --il-amber: #FAB812;
+      --il-slate: #53565A;
+      --bg: #f7f8fc;
+      --card: #ffffff;
+      --text: #25323b;
+      --muted: #69757f;
+      --line: #e4e6ef;
+      --good: #72D08B;
+      --bad: #FF7B89;
+      --shadow: 0 14px 34px rgba(37, 50, 59, 0.08);
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 0% 0%, rgba(85,194,182,0.15), transparent 36%),
+        radial-gradient(circle at 100% 0%, rgba(92,97,172,0.2), transparent 38%),
+        linear-gradient(180deg, #fbfcff 0%, #f4f6fb 55%, #f2f4fa 100%);
+      min-height: 100vh;
+    }
+
+    .shell {
+      max-width: 1820px;
+      margin: 0 auto;
+      padding: 20px 20px 28px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 18px;
+      background: linear-gradient(92deg, #3e458f 0%, var(--il-primary) 45%, #4d98be 100%);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      color: #fff;
+      margin-bottom: 14px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand img {
+      height: 42px;
+      width: auto;
+      object-fit: contain;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.08);
+      padding: 4px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.08rem;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+    }
+
+    .brand p {
+      margin: 2px 0 0;
+      opacity: 0.92;
+      font-size: 0.82rem;
+    }
+
+    .badge {
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      white-space: nowrap;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      padding: 10px;
+      border-radius: 14px;
+      background: #fff;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      border: none;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--il-slate);
+      font-weight: 700;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.87rem;
+    }
+
+    .tab.active {
+      color: #fff;
+      background: linear-gradient(90deg, var(--il-primary), #4b7fb8);
+      box-shadow: 0 6px 18px rgba(92,97,172,0.35);
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px;
+      min-width: 0;
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 0.96rem;
+      font-weight: 800;
+      color: #2f3e48;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 0.78rem;
+      margin-top: 6px;
+    }
+
+    .kpi {
+      grid-column: span 3;
+      padding: 14px;
+      background:
+        linear-gradient(160deg, rgba(255,255,255,0.95), rgba(248,250,255,0.98));
+    }
+
+    .kpi-row {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .kpi-row .kpi {
+      grid-column: span 1;
+    }
+
+    .kpi .label {
+      font-size: 0.74rem;
+      letter-spacing: 0.2px;
+      color: var(--muted);
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .kpi .value {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #25323b;
+      margin-bottom: 4px;
+    }
+
+    .kpi .sub {
+      font-size: 0.75rem;
+      color: #7b8690;
+    }
+
+    .filter-card { grid-column: span 12; }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(150px, 1fr));
+      gap: 10px;
+    }
+
+    .filter-grid.scheme-line {
+      grid-template-columns: repeat(9, minmax(0, 1fr));
+      align-items: end;
+    }
+
+    .f {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .f select, .f input {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid #d9deeb;
+      padding: 9px 10px;
+      font-family: inherit;
+      font-size: 0.86rem;
+      color: #2d3b45;
+      background: #fff;
+      outline: none;
+    }
+
+    .f select:focus, .f input:focus {
+      border-color: #8f95d0;
+      box-shadow: 0 0 0 3px rgba(92,97,172,0.15);
+    }
+
+    .multi-select {
+      position: relative;
+      width: 100%;
+      text-transform: none;
+    }
+
+    .multi-select-btn {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid #d9deeb;
+      padding: 9px 10px;
+      font-family: inherit;
+      font-size: 0.86rem;
+      color: #2d3b45;
+      background: #fff;
+      text-align: left;
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .multi-select-btn:focus {
+      border-color: #8f95d0;
+      box-shadow: 0 0 0 3px rgba(92,97,172,0.15);
+      outline: none;
+    }
+
+    .multi-select-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      min-width: 220px;
+      width: max-content;
+      max-width: 340px;
+      max-height: 210px;
+      overflow: auto;
+      border: 1px solid #d9deeb;
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: var(--shadow);
+      z-index: 20;
+      display: none;
+      padding: 8px;
+    }
+
+    .multi-select.open .multi-select-menu {
+      display: block;
+    }
+
+    .multi-select-option {
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 8px;
+      font-size: 0.83rem;
+      color: #2d3b45;
+      margin: 4px 0;
+      text-transform: none;
+      font-weight: 600;
+      white-space: nowrap;
+      width: 100%;
+      text-align: left;
+    }
+
+    .multi-select-option input {
+      flex: 0 0 auto;
+    }
+
+    .multi-select-option span {
+      display: inline-block;
+      margin: 0;
+      padding: 0;
+      line-height: 1.2;
+      text-align: left;
+    }
+
+    /* Compact Power BI-style month/period dropdowns across pages */
+    #scPeriodMulti .multi-select-menu,
+    #ovMonthMulti .multi-select-menu,
+    #arPeriodMulti .multi-select-menu,
+    #paMonthMulti .multi-select-menu {
+      left: auto;
+      right: 0;
+      width: 220px;
+      min-width: 220px;
+      max-width: min(280px, calc(100vw - 32px));
+      padding: 6px 0;
+    }
+
+    #scPeriodMenu .multi-select-option,
+    #ovMonthMenu .multi-select-option,
+    #arPeriodMenu .multi-select-option,
+    #paMonthMenu .multi-select-option {
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      margin: 0;
+      padding: 6px 8px;
+      font-weight: normal;
+    }
+
+    #scPeriodMenu .multi-select-option input,
+    #ovMonthMenu .multi-select-option input,
+    #arPeriodMenu .multi-select-option input,
+    #paMonthMenu .multi-select-option input {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    #scPeriodMenu .multi-select-option span,
+    #ovMonthMenu .multi-select-option span,
+    #arPeriodMenu .multi-select-option span,
+    #paMonthMenu .multi-select-option span {
+      text-align: left;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .col-8 { grid-column: span 8; }
+    .col-6 { grid-column: span 6; }
+    .col-5 { grid-column: span 5; }
+    .col-4 { grid-column: span 4; }
+    .col-12 { grid-column: span 12; }
+
+    .chart-container {
+      position: relative;
+      width: 100%;
+      height: 230px;
+      margin-bottom: 8px;
+    }
+
+    .chart-container canvas {
+      max-height: 230px !important;
+      width: 100% !important;
+      height: 230px !important;
+    }
+
+    .table-wrap {
+      max-height: 430px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+      min-width: 860px;
+    }
+
+    th, td {
+      padding: 8px 9px;
+      border-bottom: 1px solid #edf0f7;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: linear-gradient(90deg, #5C61AC, #4f84b9);
+      color: #fff;
+      font-size: 0.74rem;
+      letter-spacing: 0.2px;
+      text-transform: uppercase;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.72rem;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .tag.good {
+      background: rgba(114,208,139,0.16);
+      color: #20622f;
+      border-color: rgba(114,208,139,0.45);
+    }
+
+    .tag.bad {
+      background: rgba(255,123,137,0.15);
+      color: #8c1f31;
+      border-color: rgba(255,123,137,0.35);
+    }
+
+    .foot {
+      color: #73808a;
+      font-size: 0.76rem;
+      margin-top: 6px;
+    }
+
+    .toggle-group {
+      display: flex;
+      gap: 4px;
+      margin-top: 6px;
+    }
+
+    .toggle-btn {
+      border: 1px solid #d9deeb;
+      background: #fff;
+      padding: 5px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #69757f;
+      transition: all 0.2s;
+    }
+
+    .toggle-btn.active {
+      background: var(--il-primary);
+      color: #fff;
+      border-color: var(--il-primary);
+    }
+
+    @media (max-width: 1180px) {
+      .kpi { grid-column: span 6; }
+      .kpi-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .kpi-row .kpi { grid-column: span 1; }
+      .col-8, .col-6, .col-5, .col-4 { grid-column: span 12; }
+      .filter-grid { grid-template-columns: repeat(2, 1fr); }
+      .filter-grid.scheme-line { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 760px) {
+      .shell { padding: 12px; }
+      .topbar { flex-direction: column; align-items: flex-start; }
+      .kpi { grid-column: span 12; }
+      .kpi-row { grid-template-columns: 1fr; }
+      .kpi-row .kpi { grid-column: span 1; }
+      .filter-grid { grid-template-columns: 1fr; }
+      .filter-grid.scheme-line { grid-template-columns: 1fr; }
+      .brand h1 { font-size: 0.96rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <img src="./assets/Top Left IL Logo.png" alt="Irish Life logo" />
+        <div>
+          <h1>SecureShare Finance Performance</h1>
+          <p>Prototype</p>
+        </div>
+      </div>
+      <div class="badge" id="lastRefresh">Last refresh: -</div>
+    </header>
+
+    <nav class="tabs">
+      <button class="tab active" data-page="overview">1. Settlement Loss/Gain Overview</button>
+      <button class="tab" data-page="preapprop">2. Preapprop Impact Tables</button>
+      <button class="tab" data-page="scheme">3. Scheme & Period Drill-down (timing gaps)</button>
+      <button class="tab" data-page="ar">4. Unallocated Cash</button>
+    </nav>
+
+    <section id="page-overview" class="page active">
+      <div class="row">
+        <article class="card filter-card">
+          <div class="filter-grid">
+            <label class="f">Business
+              <select id="ovBusiness">
+                <option value="All">All</option>
+                <option value="Group">Group</option>
+                <option value="Individual">Individual</option>
+              </select>
+            </label>
+            <label class="f">Months
+              <div class="multi-select" id="ovMonthMulti">
+                <button type="button" class="multi-select-btn" id="ovMonthButton">All months</button>
+                <div class="multi-select-menu" id="ovMonthMenu"></div>
+              </div>
+            </label>
+            <label class="f">Primary Driver
+              <select id="ovDriver">
+                <option value="All">All drivers</option>
+              </select>
+            </label>
+            <label class="f">Transaction size (&euro;)
+              <input type="number" id="ovAmtThreshold" placeholder="250000" value="250000" min="0" style="width:100%;box-sizing:border-box;">
+            </label>
+          </div>
+            <div style="margin-top:8px;display:flex;justify-content:flex-end;">
+              <button id="exportCsvOverview" style="background:linear-gradient(90deg,var(--il-primary),#4b7fb8);color:#fff;border:none;border-radius:10px;padding:8px 18px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;">Export CSV</button>
+            </div>
+        </article>
+      </div>
+
+      <div class="row kpi-row">
+        <article class="card kpi"><div class="label">Latest Group Net Cost</div><div class="value" id="kGroupLatest">-</div><div class="sub">Latest selected period</div></article>
+        <article class="card kpi"><div class="label">Latest Individual Net Cost</div><div class="value" id="kIndLatest">-</div><div class="sub">Latest selected period</div></article>
+        <article class="card kpi"><div class="label" id="kYtdLabel">YTD Total Net Cost</div><div class="value" id="kYtd">-</div><div class="sub">Cumulative in view</div></article>
+        <article class="card kpi"><div class="label">Avg Time to Pre-Approve</div><div class="value" id="kAvgPreApprov">-</div><div class="sub">Days between informed and preapprop added</div></article>
+        <article class="card kpi"><div class="label">SLA Met Rate</div><div class="value" id="kOverviewSlaRate">-</div><div class="sub">% of measured transactions</div></article>
+      </div>
+
+      <div class="row">
+        <article class="card col-12">
+          <h2>Transactions</h2>
+          <div class="table-wrap" style="max-height:360px;overflow:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Period</th>
+                  <th>Scheme</th>
+                  <th>Txn Amt</th>
+                  <th>Gross</th>
+                  <th>Net</th>
+                </tr>
+              </thead>
+              <tbody id="amtBody"></tbody>
+            </table>
+          </div>
+        </article>
+      </div>
+
+      <div class="row">
+        <article class="card col-8">
+          <h2>Settlement Net Cost Trend</h2>
+          <div class="chart-container"><canvas id="chartOverviewTrend"></canvas></div>
+          <div class="hint" id="ovHint">Trend by selected month range.</div>
+        </article>
+        <article class="card col-4">
+          <h2>Transaction Type Mix</h2>
+          <div class="toggle-group">
+            <button class="toggle-btn active" id="toggleOccurrence" data-mode="occurrence">Occurrence Count</button>
+            <button class="toggle-btn" id="toggleVolume" data-mode="volume">Volume (€ Amount)</button>
+          </div>
+          <div class="chart-container"><canvas id="chartOverviewDrivers"></canvas></div>
+          <div class="hint">Confirmed transaction-type breakdown: RP (Regular Premium), SP (Single Premium), Claims, and Switches. Switches show positive leg only for amount view.</div>
+        </article>
+      </div>
+
+      <div class="row">
+        <article class="card col-12">
+          <h2>Monthly Financial Snapshot</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th>Group Net</th>
+                  <th>Individual Net</th>
+                  <th>Total Net</th>
+                  <th>Primary Drivers (provisional)</th>
+                </tr>
+              </thead>
+              <tbody id="overviewBody"></tbody>
+            </table>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="page-scheme" class="page">
+      <div class="row">
+        <article class="card filter-card">
+          <div class="filter-grid scheme-line">
+            <label class="f">Scheme contains
+              <input id="scScheme" type="search" placeholder="e.g. 3616" />
+            </label>
+            <label class="f">Periods
+              <div class="multi-select" id="scPeriodMulti">
+                <button type="button" class="multi-select-btn" id="scPeriodButton">All periods</button>
+                <div class="multi-select-menu" id="scPeriodMenu"></div>
+              </div>
+            </label>
+            <label class="f">Driver
+              <select id="scDriver">
+                <option value="All">All drivers</option>
+              </select>
+            </label>
+            <label class="f">Drill-down View
+              <select id="scView">
+                <option value="scheme" selected>By scheme number</option>
+                <option value="day">By day of month</option>
+              </select>
+            </label>
+            <label class="f">Ranking
+              <select id="scSort">
+                <option value="abs" selected>Largest movements</option>
+                <option value="loss">Largest losses first</option>
+                <option value="gain">Largest gains first</option>
+              </select>
+            </label>
+            <label class="f">SLA target
+              <select id="scTarget">
+                <option value="1">1 day</option>
+                <option value="2" selected>2 days</option>
+                <option value="3">3 days</option>
+                <option value="5">5 days</option>
+              </select>
+            </label>
+            <label class="f">Eff vs System gap
+              <select id="scEffSysGap">
+                <option value="All" selected>All gaps</option>
+                <option value="0">0 days</option>
+                <option value="1">1 day</option>
+                <option value="2">2 days</option>
+                <option value="3">3 days</option>
+                <option value="4+">4+ days</option>
+                <option value="Unmeasured">Unmeasured</option>
+              </select>
+            </label>
+            <label class="f">Eff vs Pre-approp gap
+              <select id="scEffPreGap">
+                <option value="All" selected>All gaps</option>
+                <option value="0">0 days</option>
+                <option value="1">1 day</option>
+                <option value="2">2 days</option>
+                <option value="3">3 days</option>
+                <option value="4+">4+ days</option>
+                <option value="Unmeasured">Unmeasured</option>
+              </select>
+            </label>
+          </div>
+          <div style="margin-top:8px;display:flex;justify-content:flex-end;">
+            <button id="exportCsvScheme" style="background:linear-gradient(90deg,var(--il-primary),#4b7fb8);color:#fff;border:none;border-radius:10px;padding:8px 18px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;">Export CSV</button>
+          </div>
+        </article>
+      </div>
+
+      <div class="row">
+        <article class="card kpi"><div class="label">Scheme Overall Net Cost</div><div class="value" id="kScNet">-</div><div class="sub">Across current filter</div></article>
+        <article class="card kpi"><div class="label">Latest Selected Period Net</div><div class="value" id="kScLatest">-</div><div class="sub">Latest period in filtered set</div></article>
+        <article class="card kpi"><div class="label">Event Count</div><div class="value" id="kScEvents">-</div><div class="sub">Rows included</div></article>
+        <article class="card kpi"><div class="label">SLA Met Rate</div><div class="value" id="kScSla">-</div><div class="sub">Within selected SLA target</div></article>
+      </div>
+
+      <div class="row">
+        <article class="card col-8">
+          <h2>Scheme Net Cost Trend</h2>
+          <div class="chart-container"><canvas id="chartSchemeTrend"></canvas></div>
+          <div class="hint" id="schemeHint">Use scheme + period to focus results.</div>
+        </article>
+        <article class="card col-4">
+          <h2>SLA Profile</h2>
+          <div class="chart-container"><canvas id="chartSchemeSla"></canvas></div>
+          <div class="hint">Measured rows only.</div>
+        </article>
+      </div>
+
+          <div class="row">
+        <article class="card col-12">
+              <h2 id="schemeDetailTitle">Scheme Drill-down Detail â�- Top Losses & Gains by Scheme & Transaction Type</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                      <th id="schemeCol1">Period</th>
+                      <th id="schemeCol2">Scheme</th>
+                      <th id="schemeCol3">Transaction Type</th>
+                      <th id="schemeCol4">Net Cost</th>
+                      <th id="schemeCol5">Events</th>
+                      <th id="schemeCol6">Effective vs System (days)</th>
+                      <th id="schemeCol7">Pre-approp Gap (days)</th>
+                      <th id="schemeCol8">SLA Met %</th>
+                      <th id="schemeCol9">Reason (latest)</th>
+                </tr>
+              </thead>
+              <tbody id="schemeBody"></tbody>
+            </table>
+          </div>
+          <div class="foot">Effective vs System Date shows days between effective date and system date. Pre-approp Gap shows days between CB Approps informed date and preappropriation added date. Top losses and gains are highlighted when filtering by transaction type. Rachel and Amy will use this to identify large losses and drill into specific transaction type drivers at scheme level.</div>
+        </article>
+      </div>
+
+      <div class="row">
+        <article class="card col-6" id="txnSummaryCard">
+          <h2>Loss/Gain Summary by Transaction Type</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Transaction Type</th>
+                  <th>Total Losses</th>
+                  <th>Total Gains</th>
+                  <th>Net Movement</th>
+                  <th>Events</th>
+                </tr>
+              </thead>
+              <tbody id="txnLossBody"></tbody>
+            </table>
+          </div>
+        </article>
+        <article class="card col-6" id="daySummaryCard">
+          <h2>Day-of-Month Drill-down</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Day of Month</th>
+                  <th>Losses</th>
+                  <th>Gains</th>
+                  <th>Net Movement</th>
+                  <th>Events</th>
+                </tr>
+              </thead>
+              <tbody id="dayLossBody"></tbody>
+            </table>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="page-ar" class="page">
+      <div class="row">
+        <article class="card filter-card">
+          <div class="filter-grid">
+            <label class="f">Scheme
+              <select id="arScheme"><option value="All">All schemes</option></select>
+            </label>
+            <label class="f">Periods
+              <div class="multi-select" id="arPeriodMulti">
+                <button type="button" class="multi-select-btn" id="arPeriodButton">All periods</button>
+                <div class="multi-select-menu" id="arPeriodMenu"></div>
+              </div>
+            </label>
+          </div>
+          <div style="margin-top:8px;display:flex;justify-content:flex-end;">
+            <button id="exportCsvAr" style="background:linear-gradient(90deg,var(--il-primary),#4b7fb8);color:#fff;border:none;border-radius:10px;padding:8px 18px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;">Export CSV</button>
+          </div>
+        </article>
+      </div>
+
+      <div class="row">
+        <article class="card kpi"><div class="label">Opening Balance</div><div class="value" id="kArOpen">-</div><div class="sub">At selected from period</div></article>
+        <article class="card kpi"><div class="label">Net Movement</div><div class="value" id="kArMove">-</div><div class="sub">Within selected period window</div></article>
+        <article class="card kpi"><div class="label">Closing Balance</div><div class="value" id="kArClose">-</div><div class="sub">At selected to period</div></article>
+        <article class="card kpi"><div class="label">Schemes in View</div><div class="value" id="kArSchemes">-</div><div class="sub">Distinct scheme count</div></article>
+      </div>
+
+      <div class="row">
+        <article class="card col-8">
+          <h2>Unallocated Cash Balance Trend</h2>
+          <div class="chart-container"><canvas id="chartArTrend"></canvas></div>
+          <div class="hint" id="arHint">Unallocated cash balance by selected periods.</div>
+        </article>
+        <article class="card col-4">
+          <h2>Net Movement by Scheme</h2>
+          <div class="chart-container"><canvas id="chartArMove"></canvas></div>
+          <div class="hint">Positive means balance increase in selected range.</div>
+        </article>
+      </div>
+
+      <div class="row">
+        <article class="card col-12">
+          <h2>Unallocated Cash Detail</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Period</th>
+                  <th>Scheme</th>
+                  <th>Opening</th>
+                  <th>Net Movement</th>
+                  <th>Closing</th>
+                  <th>Movement Type</th>
+                </tr>
+              </thead>
+              <tbody id="arBody"></tbody>
+            </table>
+          </div>
+          <div class="foot">Prototype assumption: unallocated cash balances are modelled for visibility design and will be replaced with source AR values in PBIX.</div>
+        </article>
+      </div>
+    </section>
+
+    <section id="page-preapprop" class="page">
+      <div class="row">
+        <article class="card filter-card">
+          <div class="filter-grid">
+            <label class="f">Business
+              <select id="paBusiness">
+                <option value="All">All</option>
+                <option value="Group">Group</option>
+                <option value="Individual">Individual</option>
+              </select>
+            </label>
+            <label class="f">Months
+              <div class="multi-select" id="paMonthMulti">
+                <button type="button" class="multi-select-btn" id="paMonthButton">All months</button>
+                <div class="multi-select-menu" id="paMonthMenu"></div>
+              </div>
+            </label>
+          </div>
+          <div style="margin-top:8px;display:flex;justify-content:flex-end;">
+            <button id="exportCsvPreapprop" style="background:linear-gradient(90deg,var(--il-primary),#4b7fb8);color:#fff;border:none;border-radius:10px;padding:8px 18px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;">Export CSV</button>
+          </div>
+        </article>
+      </div>
+
+      <div class="row kpi-row">
+        <article class="card kpi"><div class="label">Group Before Preapprop</div><div class="value" id="kPaGroupBefore">-</div><div class="sub">Cost total in selected months</div></article>
+        <article class="card kpi"><div class="label">Individual Before Preapprop</div><div class="value" id="kPaIndividualBefore">-</div><div class="sub">Cost total in selected months</div></article>
+        <article class="card kpi"><div class="label">Total Preapprop Impact</div><div class="value" id="kPaImpact">-</div><div class="sub">Group + Individual impact</div></article>
+        <article class="card kpi"><div class="label">Total Net After Preapprop</div><div class="value" id="kPaNet">-</div><div class="sub">Group + Individual net</div></article>
+        <article class="card kpi"><div class="label">Preapprop Effectiveness</div><div class="value" id="kPaEffectiveness">-</div><div class="sub">Impact magnitude vs before-preapprop</div></article>
+      </div>
+
+      <div class="row" id="paGroupRow">
+        <article class="card col-12">
+          <h2>Group Business Table (Calculated)</h2>
+          <div class="table-wrap">
+            <table>
+              <thead id="paGroupHead"></thead>
+              <tbody id="paGroupBody"></tbody>
+            </table>
+          </div>
+        </article>
+      </div>
+
+      <div class="row" id="paIndividualRow">
+        <article class="card col-12">
+          <h2>Individual Business Table (Calculated)</h2>
+          <div class="table-wrap">
+            <table>
+              <thead id="paIndividualHead"></thead>
+              <tbody id="paIndividualBody"></tbody>
+            </table>
+          </div>
+          <div class="foot">Individual detail rows carry category-level Cost values. Preapprop Impact and Net Cost are provided at monthly totals, in line with supplied source format.</div>
+        </article>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script>
+    const FINANCIAL_MONTHLY = [
+      { month: "2026-01", monthLabel: "2026-01", groupNetCost: -737715, individualNetCost: -649312 },
+      { month: "2026-02", monthLabel: "2026-02", groupNetCost: -129004, individualNetCost: -286328 },
+      { month: "2026-03", monthLabel: "2026-03", groupNetCost: 499139, individualNetCost: -681564 }
+    ];
+
+    const FINANCIAL_DRIVER_CLASSIFICATION = [
+      { month: "2026-01", business: "Individual", primaryDriver: "Operational Capacity", transactionType: "RP" },
+      { month: "2026-01", business: "Group", primaryDriver: "Market Movement", transactionType: "RP" },
+      { month: "2026-02", business: "Individual", primaryDriver: "Backdating", transactionType: "SP" },
+      { month: "2026-02", business: "Group", primaryDriver: "Claims Offset", transactionType: "Claims" },
+      { month: "2026-03", business: "Individual", primaryDriver: "Outflow Concentration", transactionType: "Switches" },
+      { month: "2026-03", business: "Group", primaryDriver: "Market Movement", transactionType: "RP" }
+    ];
+
+    const PREAPPROP_BREAKDOWN = [
+      { business: 'Group', category: 'Inflow', month: '2026-01', cost: -1231281, preappropImpact: 376619, netCost: -854663 },
+      { business: 'Group', category: 'Outflow', month: '2026-01', cost: -18413, preappropImpact: 221473, netCost: 203061 },
+      { business: 'Group', category: 'Switch', month: '2026-01', cost: 321727, preappropImpact: -406642, netCost: -84914 },
+      { business: 'Group', category: 'Other', month: '2026-01', cost: -1199, preappropImpact: 0, netCost: -1199 },
+      { business: 'Group', category: 'Inflow', month: '2026-02', cost: -544741, preappropImpact: 158049, netCost: -386692 },
+      { business: 'Group', category: 'Outflow', month: '2026-02', cost: 267905, preappropImpact: -58828, netCost: 209077 },
+      { business: 'Group', category: 'Switch', month: '2026-02', cost: -77873, preappropImpact: 125503, netCost: 47629 },
+      { business: 'Group', category: 'Other', month: '2026-02', cost: 982, preappropImpact: 0, netCost: 982 },
+      { business: 'Group', category: 'Inflow', month: '2026-03', cost: 2194222, preappropImpact: -871230, netCost: 1322992 },
+      { business: 'Group', category: 'Outflow', month: '2026-03', cost: -573261, preappropImpact: -25898, netCost: -599159 },
+      { business: 'Group', category: 'Switch', month: '2026-03', cost: -882568, preappropImpact: 668602, netCost: -213966 },
+      { business: 'Group', category: 'Other', month: '2026-03', cost: -10727, preappropImpact: 0, netCost: -10727 },
+      { business: 'Individual', category: 'Inflows', month: '2026-01', cost: -1463782, preappropImpact: null, netCost: null },
+      { business: 'Individual', category: 'Outflows', month: '2026-01', cost: 505649, preappropImpact: null, netCost: null },
+      { business: 'Individual', category: 'Switches', month: '2026-01', cost: -36156, preappropImpact: null, netCost: null },
+      { business: 'Individual', category: 'Other', month: '2026-01', cost: -9538, preappropImpact: null, netCost: null },
+      { business: 'Individual', category: 'Inflows', month: '2026-02', cost: -833168, preappropImpact: null, netCost: null },
+      { business: 'Individual', category: 'Outflows', month: '2026-02', cost: 534767, preappropImpact: null, netCost: null },
+      { business: 'Individual', category: 'Switches', month: '2026-02', cost: -76092, preappropImpact: null, netCost: null },
+      { business: 'Individual', category: 'Other', month: '2026-02', cost: 10756, preappropImpact: null, netCost: null },
+      { business: 'Individual', category: 'Inflows', month: '2026-03', cost: 2065006, preappropImpact: null, netCost: null },
+      { business: 'Individual', category: 'Outflows', month: '2026-03', cost: -1726282, preappropImpact: null, netCost: null },
+      { business: 'Individual', category: 'Switches', month: '2026-03', cost: -349152, preappropImpact: null, netCost: null },
+      { business: 'Individual', category: 'Other', month: '2026-03', cost: 25235, preappropImpact: null, netCost: null }
+    ];
+
+    const PREAPPROP_TOTALS = [
+      { business: 'Group', month: '2026-01', cost: -929166, preappropImpact: 191450, netCost: -737715 },
+      { business: 'Group', month: '2026-02', cost: -353728, preappropImpact: 224724, netCost: -129004 },
+      { business: 'Group', month: '2026-03', cost: 727666, preappropImpact: -228526, netCost: 499139 },
+      { business: 'Individual', month: '2026-01', cost: -1003826, preappropImpact: 354515, netCost: -649312 },
+      { business: 'Individual', month: '2026-02', cost: -363736, preappropImpact: 77409, netCost: -286328 },
+      { business: 'Individual', month: '2026-03', cost: 14808, preappropImpact: -696372, netCost: -681564 }
+    ];
+
+    // Transaction Type helpers - infer from work type in reason field
+    function inferTransactionType(reason) {
+      const txt = String(reason || '').toLowerCase();
+      if (txt.includes('sp ') || txt.includes('single premium')) return 'SP';
+      if (txt.includes('claim')) return 'Claims';
+      if (txt.includes('switch') || txt.includes('swth')) return 'Switches';
+      return 'RP'; // Default to Regular Premium
+    }
+
+    const KRI_SCHEME_DRILLDOWN = [
+      { period: "2026-01", schemeNumber: "8398", transactionAmt: 3200000, grossCost: -21560, netCost: -17249, reason: "I.N.T.O. AVC Plan scheme, RSP of EUR3.2m with effective date 02/01/2026 and system date 05/01/2026. CB Approps informed on 03/01/2026. Preapprop was added on 04/01/2026." },
+      { period: "2026-01", schemeNumber: "1441", transactionAmt: 4300000, grossCost: -24100, netCost: -19269, reason: "Nurses AVC Scheme scheme, RSP of EUR4.3m with effective date 02/01/2026 and system date 05/01/2026. CB Approps informed on 03/01/2026. Preapprop was added on 05/01/2026." },
+      { period: "2026-02", schemeNumber: "3645", transactionAmt: 1300000, grossCost: 7600, netCost: 10151, reason: "Aer Lingus scheme, RSP of EUR1.3m with effective date 04/02/2026 and system date 06/02/2026. CB Approps informed on 05/02/2026. Preapprop was added on 06/02/2026." },
+      { period: "2026-02", schemeNumber: "3990", transactionAmt: 3700000, grossCost: 24800, netCost: 31390, reason: "Stryker scheme, RSP of EUR3.7m with effective date 11/02/2026 and system date 13/02/2026." },
+      { period: "2026-02", schemeNumber: "6849", transactionAmt: 400000, grossCost: -20800, netCost: -16638, reason: "Maples Group scheme, SP of EUR0.4m, not informed, loss due to price movements." },
+      { period: "2026-03", schemeNumber: "2945", transactionAmt: 180000, grossCost: -41300, netCost: -33040, reason: "Irish Life and Canada Life scheme, RSP of EUR0.18m with effective date 23/03/2026 and system date 27/03/2026." },
+      { period: "2026-03", schemeNumber: "3000", transactionAmt: 215000, grossCost: 19800, netCost: 25541, reason: "CHC Ireland DAC scheme, SWTH of EUR0.22m with effective date 06/03/2026 and system date 12/03/2026. CB Approps informed on 08/03/2026. Preapprop was added on 10/03/2026." },
+      { period: "2026-03", schemeNumber: "3123", transactionAmt: 95000, grossCost: 8900, netCost: 11619, reason: "Intel Ireland DC Plan, RSP of EUR0.10m with effective date 11/03/2026 and system date 16/03/2026." },
+      { period: "2026-03", schemeNumber: "3123", transactionAmt: 140000, grossCost: 10300, netCost: 13440, reason: "Intel Ireland DC Plan, RSP of EUR0.14m with effective date 25/03/2026 and system date 27/03/2026." },
+      { period: "2026-03", schemeNumber: "3616", transactionAmt: 25000000, grossCost: 64500, netCost: 82229, reason: "Google Ireland Limited, RSP of EUR25m with effective date 26/03/2026 and system date 27/03/2026. CB Approps informed on 26/03/2026. Preapprop was added on 27/03/2026." },
+      { period: "2026-03", schemeNumber: "3645", transactionAmt: 1800000, grossCost: 8500, netCost: 11022, reason: "Aer Lingus scheme, RSP of EUR1.8m with effective date 18/03/2026 and system date 23/03/2026." },
+      { period: "2026-03", schemeNumber: "3888", transactionAmt: 2100000, grossCost: 10600, netCost: 13833, reason: "Kerry Group Plc, RSP of EUR2.1m with effective date 18/03/2026 and system date 23/03/2026." },
+      { period: "2026-03", schemeNumber: "7205", transactionAmt: 85000, grossCost: -29900, netCost: -23975, reason: "PRB scheme, SP of EUR0.09m with effective date 20/08/2021 and system date 05/03/2026." },
+      { period: "2026-03", schemeNumber: "8398", transactionAmt: 3100000, grossCost: -30500, netCost: -24424, reason: "I.N.T.O. AVC Plan, RSP of EUR3.1m with effective date 30/03/2026 and system date 31/03/2026." },
+      { period: "2026-03", schemeNumber: "3990", transactionAmt: 3700000, grossCost: 18700, netCost: 23819, reason: "Stryker scheme, RSP of EUR3.7m with effective date 11/03/2026 and system date 16/03/2026." },
+      { period: "2026-03", schemeNumber: "9811", transactionAmt: 75000, grossCost: -25300, netCost: -20287, reason: "PMI Software, WTHD of EUR0.08m with effective date 02/03/2026 and system date 06/03/2026." }
+    ];
+
+    const charts = {};
+
+    const ui = {
+      tabs: [...document.querySelectorAll('.tab')],
+      pages: {
+        overview: document.getElementById('page-overview'),
+        scheme: document.getElementById('page-scheme'),
+        ar: document.getElementById('page-ar'),
+        preapprop: document.getElementById('page-preapprop')
+      },
+      ovBusiness: document.getElementById('ovBusiness'),
+      ovMonthMulti: document.getElementById('ovMonthMulti'),
+      ovMonthButton: document.getElementById('ovMonthButton'),
+      ovMonthMenu: document.getElementById('ovMonthMenu'),
+      ovDriver: document.getElementById('ovDriver'),
+      ovAmtThreshold: document.getElementById('ovAmtThreshold'),
+      scScheme: document.getElementById('scScheme'),
+      scPeriodMulti: document.getElementById('scPeriodMulti'),
+      scPeriodButton: document.getElementById('scPeriodButton'),
+      scPeriodMenu: document.getElementById('scPeriodMenu'),
+      scDriver: document.getElementById('scDriver'),
+      scView: document.getElementById('scView'),
+      scSort: document.getElementById('scSort'),
+      scTarget: document.getElementById('scTarget'),
+      scEffSysGap: document.getElementById('scEffSysGap'),
+      scEffPreGap: document.getElementById('scEffPreGap'),
+      arScheme: document.getElementById('arScheme'),
+      arPeriodMulti: document.getElementById('arPeriodMulti'),
+      arPeriodButton: document.getElementById('arPeriodButton'),
+      arPeriodMenu: document.getElementById('arPeriodMenu'),
+      paBusiness: document.getElementById('paBusiness'),
+      paMonthMulti: document.getElementById('paMonthMulti'),
+      paMonthButton: document.getElementById('paMonthButton'),
+      paMonthMenu: document.getElementById('paMonthMenu'),
+      exportCsvOverview: document.getElementById('exportCsvOverview'),
+      exportCsvScheme: document.getElementById('exportCsvScheme'),
+      exportCsvAr: document.getElementById('exportCsvAr'),
+      exportCsvPreapprop: document.getElementById('exportCsvPreapprop')
+    };
+
+    function fmtCurrency(v) {
+      if (!Number.isFinite(v)) return '-';
+      const s = v < 0 ? '-' : '';
+      return `${s}EUR ${Math.abs(v).toLocaleString()}`;
+    }
+
+    function pct(v) {
+      if (!Number.isFinite(v)) return '-';
+      return `${(v * 100).toFixed(1)}%`;
+    }
+
+    function uniq(arr) { return [...new Set(arr.filter(Boolean))].sort(); }
+
+    function csvCell(v) {
+      return `"${String(v ?? '').replaceAll('"', '""')}"`;
+    }
+
+    function exportCsv(filename, rows, columns) {
+      const lines = [columns.join(',')];
+      rows.forEach(row => lines.push(columns.map(column => csvCell(row[column])).join(',')));
+      const blob = new Blob([lines.join("\n")], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
+
+    function parseDateFromReason(txt, token) {
+      const rgx = new RegExp(`${token}\\s*(\\d{2}\\/\\d{2}\\/\\d{4})`, 'i');
+      const m = String(txt || '').match(rgx);
+      if (!m) return null;
+      const [d, mo, y] = m[1].split('/');
+      return new Date(`${y}-${mo}-${d}T00:00:00`);
+    }
+
+    function parseFlexibleDateToken(token) {
+      const m = String(token || '').match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+      if (!m) return null;
+      const [, d, mo, y] = m;
+      return new Date(`${y}-${String(mo).padStart(2, '0')}-${String(d).padStart(2, '0')}T00:00:00`);
+    }
+
+    function matchReasonDate(txt, patterns) {
+      const source = String(txt || '');
+      for (const pattern of patterns) {
+        const m = source.match(pattern);
+        if (m) return parseFlexibleDateToken(m[1]);
+      }
+      return null;
+    }
+
+    function deriveSlaDays(reason) {
+      const eff = parseDateFromReason(reason, 'effective date');
+      const sys = parseDateFromReason(reason, 'system date');
+      if (!eff || !sys) return null;
+      const diff = Math.floor((sys - eff) / 86400000);
+      return Number.isFinite(diff) ? Math.max(0, diff) : null;
+    }
+
+    function derivePreapprovalGapDays(reason) {
+      const informed = matchReasonDate(reason, [
+        /informed on\s*(\d{1,2}\/\d{1,2}\/\d{4})/i,
+        /informed\s*(\d{1,2}\/\d{1,2}\/\d{4})/i
+      ]);
+      const preapproval = matchReasonDate(reason, [
+        /Preapprop was added on\s*(\d{1,2}\/\d{1,2}\/\d{4})/i,
+        /Preapprop added\s*(\d{1,2}\/\d{1,2}\/\d{4})/i
+      ]);
+      if (!informed || !preapproval) return null;
+      const diff = Math.floor((preapproval - informed) / 86400000);
+      return Number.isFinite(diff) ? Math.max(0, diff) : null;
+    }
+
+    function deriveEffectiveToPreappropGapDays(reason) {
+      const effective = parseDateFromReason(reason, 'effective date');
+      const preapproval = matchReasonDate(reason, [
+        /Preapprop was added on\s*(\d{1,2}\/\d{1,2}\/\d{4})/i,
+        /Preapprop added\s*(\d{1,2}\/\d{1,2}\/\d{4})/i
+      ]);
+      if (!effective || !preapproval) return null;
+      const diff = Math.floor((preapproval - effective) / 86400000);
+      return Number.isFinite(diff) ? Math.max(0, diff) : null;
+    }
+
+    function gapFilterMatch(value, filterValue) {
+      if (filterValue === 'All') return true;
+      if (filterValue === 'Unmeasured') return !Number.isFinite(value);
+      if (!Number.isFinite(value)) return false;
+      if (filterValue.endsWith('+')) {
+        const lowerBound = Number(filterValue.replace('+', ''));
+        return value >= lowerBound;
+      }
+      const exactValue = Number(filterValue);
+      return value === exactValue;
+    }
+
+    function gapFilterLabel(filterValue) {
+      if (filterValue === 'All') return 'All gaps';
+      if (filterValue === 'Unmeasured') return 'Unmeasured';
+      if (filterValue.endsWith('+')) return `${filterValue} days`;
+      return `${filterValue} day${filterValue === '1' ? '' : 's'}`;
+    }
+
+    function deriveEffectiveDayOfMonth(reason) {
+      const eff = parseDateFromReason(reason, 'effective date');
+      return eff ? eff.getDate() : null;
+    }
+
+    function schemeSortComparator(a, b, mode) {
+      if (mode === 'loss') return a.netCost - b.netCost;
+      if (mode === 'gain') return b.netCost - a.netCost;
+      return Math.abs(b.netCost) - Math.abs(a.netCost);
+    }
+
+    function schemeSlaSummary(rows, target) {
+      const measured = rows.filter(r => r.measured);
+      const met = measured.filter(r => r.slaDays <= target);
+      return {
+        measuredCount: measured.length,
+        unmeasuredCount: Math.max(0, rows.length - measured.length),
+        metCount: met.length,
+        missedCount: Math.max(0, measured.length - met.length)
+      };
+    }
+
+    function drawOrUpdate(id, type, data, options = {}) {
+      const base = {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: false,
+        plugins: { legend: { display: true, labels: { boxWidth: 14 } } },
+        scales: { y: { beginAtZero: true } }
+      };
+      const merged = { ...base, ...options };
+      if (type === 'doughnut') delete merged.scales;
+      if (charts[id]) {
+        charts[id].config.type = type;
+        charts[id].data = data;
+        charts[id].options = merged;
+        charts[id].update('none');
+        return;
+      }
+      charts[id] = new Chart(document.getElementById(id), { type, data, options: merged });
+    }
+
+    function initMultiSelect(container, button, menu, values, allLabel, onChange) {
+      menu.innerHTML = [
+        `<label class="multi-select-option"><input type="checkbox" data-value="All" checked /> <span>${allLabel}</span></label>`,
+        ...values.map(v => `<label class="multi-select-option"><input type="checkbox" data-value="${v}" /> <span>${v}</span></label>`)
+      ].join('');
+      button.textContent = allLabel;
+
+      button.addEventListener('click', () => container.classList.toggle('open'));
+      document.addEventListener('click', e => {
+        if (!container.contains(e.target)) container.classList.remove('open');
+      });
+
+      menu.addEventListener('change', e => {
+        const target = e.target;
+        if (!(target instanceof HTMLInputElement)) return;
+        if (target.dataset.value === 'All') {
+          if (target.checked) {
+            menu.querySelectorAll('input[data-value]').forEach(cb => {
+              cb.checked = cb.getAttribute('data-value') === 'All';
+            });
+          }
+        } else {
+          const allCb = menu.querySelector('input[data-value="All"]');
+          if (allCb) allCb.checked = false;
+        }
+
+        const selected = Array.from(menu.querySelectorAll('input[data-value]:checked'))
+          .map(cb => cb.getAttribute('data-value'))
+          .filter(v => v && v !== 'All');
+
+        if (!selected.length) {
+          const allCb = menu.querySelector('input[data-value="All"]');
+          if (allCb) allCb.checked = true;
+          button.textContent = allLabel;
+        } else {
+          button.textContent = selected.join(', ');
+        }
+
+        onChange();
+      });
+    }
+
+    function selectedFromMulti(menu, allValues) {
+      const checked = Array.from(menu.querySelectorAll('input[data-value]:checked'))
+        .map(cb => cb.getAttribute('data-value'))
+        .filter(Boolean);
+      return checked.includes('All') || checked.length === 0 ? allValues : checked;
+    }
+
+    function setupControls() {
+      const ovMonths = uniq(FINANCIAL_MONTHLY.map(r => r.month));
+      initMultiSelect(ui.ovMonthMulti, ui.ovMonthButton, ui.ovMonthMenu, ovMonths, 'All months', refreshOverview);
+
+      const schemePeriods = uniq(KRI_SCHEME_DRILLDOWN.map(r => r.period));
+      initMultiSelect(ui.scPeriodMulti, ui.scPeriodButton, ui.scPeriodMenu, schemePeriods, 'All periods', refreshScheme);
+
+      const arPeriods = uniq(FINANCIAL_MONTHLY.map(r => r.month));
+      initMultiSelect(ui.arPeriodMulti, ui.arPeriodButton, ui.arPeriodMenu, arPeriods, 'All periods', refreshAr);
+
+      const paMonths = uniq(PREAPPROP_TOTALS.map(r => r.month));
+      initMultiSelect(ui.paMonthMulti, ui.paMonthButton, ui.paMonthMenu, paMonths, 'All months', refreshPreapprop);
+
+      ui.paBusiness.value = 'All';
+
+      uniq(FINANCIAL_DRIVER_CLASSIFICATION.map(d => d.transactionType)).forEach(d => ui.ovDriver.add(new Option(d, d)));
+      const drillDrivers = uniq(KRI_SCHEME_DRILLDOWN.map(r => inferTransactionType(r.reason)));
+      drillDrivers.forEach(d => ui.scDriver.add(new Option(d, d)));
+      uniq(KRI_SCHEME_DRILLDOWN.map(r => r.schemeNumber)).forEach(s => ui.arScheme.add(new Option(s, s)));
+
+      ui.tabs.forEach(t => t.addEventListener('click', () => switchPage(t.dataset.page)));
+      [ui.ovBusiness, ui.ovDriver].forEach(e => e.addEventListener('change', refreshOverview));
+      ui.ovAmtThreshold.addEventListener('input', refreshOverview);
+      ui.ovAmtThreshold.addEventListener('input', refreshOverview);
+        ui.ovAmtThreshold.addEventListener('input', refreshOverview);
+      document.getElementById('toggleOccurrence').addEventListener('click', () => window.updateDriverChart('occurrence'));
+      document.getElementById('toggleVolume').addEventListener('click', () => window.updateDriverChart('volume'));
+      [ui.scScheme, ui.scDriver, ui.scView, ui.scSort, ui.scTarget, ui.scEffSysGap, ui.scEffPreGap].forEach(e => e.addEventListener(e === ui.scScheme ? 'input' : 'change', refreshScheme));
+      [ui.arScheme].forEach(e => e.addEventListener('change', refreshAr));
+      [ui.paBusiness].forEach(e => e.addEventListener('change', refreshPreapprop));
+      ui.exportCsvOverview.addEventListener('click', () => exportCsv('finance_overview.csv', overviewExportRows(), ['month', 'groupNet', 'individualNet', 'totalNet', 'groupTxnType', 'individualTxnType']));
+      ui.exportCsvScheme.addEventListener('click', () => exportCsv('finance_scheme_drilldown.csv', schemeExportRows(), ['period', 'schemeNumber', 'txnType', 'netCost', 'events', 'avgEffectiveVsActualDays', 'avgPreApprovalGapDays', 'slaMetRate', 'latestReason']));
+      ui.exportCsvAr.addEventListener('click', () => exportCsv('finance_unallocated_cash.csv', arExportRows(), ['period', 'scheme', 'opening', 'netMovement', 'closing', 'movementType']));
+      ui.exportCsvPreapprop.addEventListener('click', () => exportCsv('finance_preapprop_tables.csv', preappropExportRows(), ['business', 'category', 'month', 'cost', 'preappropImpact', 'netCost']));
+    }
+
+    function rangeMonths(from, to, allMonths) {
+      if (from === 'All' || to === 'All') return allMonths;
+      const fromIdx = allMonths.indexOf(from);
+      const toIdx = allMonths.indexOf(to);
+      if (fromIdx === -1 || toIdx === -1) return allMonths;
+      const start = Math.min(fromIdx, toIdx);
+      const end = Math.max(fromIdx, toIdx);
+      return allMonths.slice(start, end + 1);
+    }
+
+    function switchPage(page) {
+      ui.tabs.forEach(t => t.classList.toggle('active', t.dataset.page === page));
+      Object.keys(ui.pages).forEach(k => ui.pages[k].classList.toggle('active', k === page));
+    }
+
+    function overviewRows() {
+      const b = ui.ovBusiness.value;
+      const allMonths = uniq(FINANCIAL_MONTHLY.map(r => r.month));
+      const selectedMonths = selectedFromMulti(ui.ovMonthMenu, allMonths);
+      const d = ui.ovDriver.value;
+      return FINANCIAL_MONTHLY
+        .filter(r => selectedMonths.includes(r.month))
+        .map(r => {
+          const gDriver = FINANCIAL_DRIVER_CLASSIFICATION.find(x => x.month === r.month && x.business === 'Group') || { primaryDriver: '-', transactionType: '-' };
+          const iDriver = FINANCIAL_DRIVER_CLASSIFICATION.find(x => x.month === r.month && x.business === 'Individual') || { primaryDriver: '-', transactionType: '-' };
+          const group = b === 'Group' ? r.groupNetCost : (b === 'Individual' ? 0 : r.groupNetCost);
+          const individual = b === 'Individual' ? r.individualNetCost : (b === 'Group' ? 0 : r.individualNetCost);
+          const fixedTotal = b === 'All' ? r.groupNetCost + r.individualNetCost : (b === 'Group' ? r.groupNetCost : r.individualNetCost);
+          const include = d === 'All' || gDriver.transactionType === d || iDriver.transactionType === d;
+          return {
+            ...r,
+            group: b === 'Individual' ? 0 : group,
+            individual: b === 'Group' ? 0 : individual,
+            total: fixedTotal,
+            gDriver: gDriver.primaryDriver,
+            iDriver: iDriver.primaryDriver,
+            gTxnType: gDriver.transactionType,
+            iTxnType: iDriver.transactionType,
+            include
+          };
+        })
+        .filter(r => r.include);
+    }
+
+    function amountFilteredRows() {
+      const thresholdVal = parseFloat(ui.ovAmtThreshold.value);
+      if (!Number.isFinite(thresholdVal) || thresholdVal < 0) return KRI_SCHEME_DRILLDOWN.slice();
+      return KRI_SCHEME_DRILLDOWN
+        .filter(r => r.transactionAmt < thresholdVal)
+        .slice()
+        .sort((a, b) => a.period.localeCompare(b.period) || a.schemeNumber.localeCompare(b.schemeNumber));
+    }
+
+    function overviewExportRows() {
+      return overviewRows().map(r => ({
+        month: r.month,
+        groupNet: r.group,
+        individualNet: r.individual,
+        totalNet: r.total,
+        groupTxnType: r.gTxnType,
+        individualTxnType: r.iTxnType
+      }));
+    }
+
+    function refreshOverview() {
+      const rows = overviewRows();
+      const latest = rows[rows.length - 1] || { month: '-', group: 0, individual: 0, total: 0 };
+      const ytd = rows.reduce((s, r) => s + r.total, 0);
+      
+      // Apply Overview filters to KRI_SCHEME_DRILLDOWN for KPI calculations
+      const allMonths = uniq(FINANCIAL_MONTHLY.map(r => r.month));
+      const selectedMonths = selectedFromMulti(ui.ovMonthMenu, allMonths);
+      const driverFilter = ui.ovDriver.value;
+      
+      const filteredKriForKpis = KRI_SCHEME_DRILLDOWN
+        .filter(r => selectedMonths.includes(r.period))
+        .filter(r => driverFilter === 'All' || inferTransactionType(r.reason) === driverFilter);
+      
+      const preGapRows = filteredKriForKpis
+        .map(r => derivePreapprovalGapDays(r.reason))
+        .filter(v => Number.isFinite(v));
+      const preGapAvg = preGapRows.length ? (preGapRows.reduce((s, v) => s + v, 0) / preGapRows.length) : null;
+      
+      const schemeRowsAll = filteredKriForKpis.map(r => ({ slaDays: deriveSlaDays(r.reason), measured: Number.isFinite(deriveSlaDays(r.reason)), met: Number.isFinite(deriveSlaDays(r.reason)) && deriveSlaDays(r.reason) <= 2 }));
+      const measuredCount = schemeRowsAll.filter(r => r.measured).length;
+      const metCount = schemeRowsAll.filter(r => r.met).length;
+      const slaRate = measuredCount > 0 ? metCount / measuredCount : 0;
+
+      document.getElementById('kGroupLatest').textContent = fmtCurrency(latest.group);
+      document.getElementById('kIndLatest').textContent = fmtCurrency(latest.individual);
+      const b = ui.ovBusiness.value;
+      const ytdLabel = b === 'Group' ? 'YTD Group Net Cost' : (b === 'Individual' ? 'YTD Individual Net Cost' : 'YTD Total Net Cost');
+      document.getElementById('kYtdLabel').textContent = ytdLabel;
+      document.getElementById('kYtd').textContent = fmtCurrency(ytd);
+      const preApprovMsg = Number.isFinite(preGapAvg) ? preGapAvg.toFixed(1) + ' days' : (driverFilter === 'All' ? 'No sample data' : `No ${driverFilter} data`);
+      document.getElementById('kAvgPreApprov').textContent = preApprovMsg;
+      document.getElementById('kOverviewSlaRate').textContent = Number.isFinite(slaRate) ? pct(slaRate) : '-';
+      document.getElementById('ovHint').textContent = rows.length <= 1 ? 'Single period selected; showing point-in-time values.' : 'Trend by selected month range.';
+
+      const thresholdVal = parseFloat(ui.ovAmtThreshold.value);
+      const filteredKri = amountFilteredRows();
+      const thresholdText = Number.isFinite(thresholdVal) ? fmtCurrency(thresholdVal) : 'an amount';
+
+      const amtBody = document.getElementById('amtBody');
+      amtBody.innerHTML = filteredKri.length
+        ? filteredKri.map(r => `<tr><td>${r.period}</td><td>${r.schemeNumber}</td><td>${fmtCurrency(r.transactionAmt)}</td><td>${fmtCurrency(r.grossCost || 0)}</td><td>${fmtCurrency(r.netCost)}</td></tr>`).join('')
+        : `<tr><td colspan="5" style="text-align:center;color:#777;">No transactions found below ${thresholdText.toLowerCase()}.</td></tr>`;
+
+      drawOrUpdate('chartOverviewTrend', rows.length <= 1 ? 'bar' : 'line', {
+        labels: rows.map(r => r.month),
+        datasets: [
+          { label: 'Group Net', data: rows.map(r => r.group), borderColor: '#5C61AC', backgroundColor: 'rgba(92,97,172,0.22)', fill: false, tension: 0.25 },
+          { label: 'Individual Net', data: rows.map(r => r.individual), borderColor: '#00B1D9', backgroundColor: 'rgba(0,177,217,0.2)', fill: false, tension: 0.25 },
+          { label: 'Total Net', data: rows.map(r => r.total), borderColor: '#E03E52', backgroundColor: 'rgba(224,62,82,0.18)', fill: false, tension: 0.25 }
+        ]
+      });
+
+      function updateDriverChart(mode) {
+        let chartData, chartLabel;
+        if (mode === 'volume') {
+          const txnTypeVolume = {};
+          rows.forEach(r => {
+            [{ type: r.gTxnType, amt: r.group }, { type: r.iTxnType, amt: r.individual }].forEach(x => {
+              if (x.amt >= 0) txnTypeVolume[x.type] = (txnTypeVolume[x.type] || 0) + x.amt;
+            });
+          });
+          const labels = Object.keys(txnTypeVolume);
+          const colors = { 'RP': '#e8f4f8', 'SP': '#fff4e6', 'Claims': '#ffe6e6', 'Switches': '#f0e6ff' };
+          chartData = {
+            labels,
+            datasets: [{ label: 'Volume (â-)', data: labels.map(l => txnTypeVolume[l]), backgroundColor: labels.map(l => colors[l] || '#ddd') }]
+          };
+          chartLabel = 'Volume';
+        } else {
+          const txnTypeCounts = {};
+          rows.forEach(r => {
+            [r.gTxnType, r.iTxnType].forEach(x => { txnTypeCounts[x] = (txnTypeCounts[x] || 0) + 1; });
+          });
+          const labels = Object.keys(txnTypeCounts);
+          const colors = { 'RP': '#e8f4f8', 'SP': '#fff4e6', 'Claims': '#ffe6e6', 'Switches': '#f0e6ff' };
+          chartData = {
+            labels,
+            datasets: [{ label: 'Occurrence', data: labels.map(l => txnTypeCounts[l]), backgroundColor: labels.map(l => colors[l] || '#ddd') }]
+          };
+          chartLabel = 'Occurrence';
+        }
+        drawOrUpdate('chartOverviewDrivers', 'bar', chartData);
+        document.querySelectorAll('#toggleOccurrence, #toggleVolume').forEach(b => b.classList.remove('active'));
+        (mode === 'volume' ? document.getElementById('toggleVolume') : document.getElementById('toggleOccurrence')).classList.add('active');
+      }
+      updateDriverChart('occurrence');
+      window.updateDriverChart = updateDriverChart;
+
+      const body = document.getElementById('overviewBody');
+      body.innerHTML = rows.map(r => `
+        <tr>
+          <td>${r.month}</td>
+          <td>${fmtCurrency(r.group)}</td>
+          <td>${fmtCurrency(r.individual)}</td>
+          <td>${fmtCurrency(r.total)}</td>
+          <td>Group: <strong>${r.gTxnType}</strong> | Individual: <strong>${r.iTxnType}</strong></td>
+        </tr>
+      `).join('');
+    }
+
+    function schemeRows() {
+      const scheme = ui.scScheme.value.trim();
+      const allPeriods = uniq(KRI_SCHEME_DRILLDOWN.map(r => r.period));
+      const selectedPeriods = selectedFromMulti(ui.scPeriodMenu, allPeriods);
+      const driver = ui.scDriver.value;
+      const target = Number(ui.scTarget.value);
+      const effSysGapFilter = ui.scEffSysGap.value;
+      const effPreGapFilter = ui.scEffPreGap.value;
+
+      return KRI_SCHEME_DRILLDOWN
+        .filter(r => (!scheme || r.schemeNumber.includes(scheme)) && selectedPeriods.includes(r.period))
+        .map(r => {
+          const slaDays = deriveSlaDays(r.reason);
+          const preGapDays = deriveEffectiveToPreappropGapDays(r.reason);
+          const measured = Number.isFinite(slaDays);
+          const txnType = inferTransactionType(r.reason);
+          const effectiveDay = deriveEffectiveDayOfMonth(r.reason);
+          return {
+            ...r,
+            txnType,
+            effectiveDay,
+            slaDays,
+            preGapDays,
+            measured,
+            met: measured ? slaDays <= target : null
+          };
+        })
+        .filter(r => driver === 'All' || r.txnType === driver)
+        .filter(r => gapFilterMatch(r.slaDays, effSysGapFilter))
+        .filter(r => gapFilterMatch(r.preGapDays, effPreGapFilter));
+    }
+
+    function aggregateScheme(rows) {
+      const map = new Map();
+      rows.forEach(r => {
+        const key = `${r.period}|${r.schemeNumber}|${r.txnType}`;
+        if (!map.has(key)) map.set(key, { period: r.period, schemeNumber: r.schemeNumber, txnType: r.txnType, netCost: 0, events: 0, measured: 0, met: 0, slaTotal: 0, preMeasured: 0, preTotal: 0, latestReason: '' });
+        const b = map.get(key);
+        b.netCost += r.netCost;
+        b.events += 1;
+        b.latestReason = r.reason || b.latestReason;
+        if (r.measured) {
+          b.measured += 1;
+          b.slaTotal += r.slaDays;
+          if (r.met) b.met += 1;
+        }
+        if (Number.isFinite(r.preGapDays)) {
+          b.preMeasured += 1;
+          b.preTotal += r.preGapDays;
+        }
+      });
+      return [...map.values()]
+        .map(x => ({ ...x, avgSla: x.measured ? x.slaTotal / x.measured : null, avgPreGap: x.preMeasured ? x.preTotal / x.preMeasured : null, metRate: x.measured ? x.met / x.measured : null }))
+        .sort((a, b) => schemeSortComparator(a, b, ui.scSort.value) || a.period.localeCompare(b.period) || a.schemeNumber.localeCompare(b.schemeNumber));
+    }
+
+    function aggregateByDayOfMonth(rows) {
+      const map = new Map();
+      rows.forEach(r => {
+        if (!Number.isFinite(r.effectiveDay)) return;
+        const key = String(r.effectiveDay);
+        if (!map.has(key)) map.set(key, { day: r.effectiveDay, losses: 0, gains: 0, netCost: 0, events: 0 });
+        const b = map.get(key);
+        b.netCost += r.netCost;
+        b.events += 1;
+        if (r.netCost < 0) b.losses += Math.abs(r.netCost);
+        if (r.netCost > 0) b.gains += r.netCost;
+      });
+      return [...map.values()].sort((a, b) => schemeSortComparator(a, b, ui.scSort.value) || a.day - b.day);
+    }
+
+    function summarizeTransactionLossGain(rows) {
+      const map = new Map();
+      rows.forEach(r => {
+        const key = r.txnType;
+        if (!map.has(key)) map.set(key, { txnType: key, losses: 0, gains: 0, netCost: 0, events: 0 });
+        const b = map.get(key);
+        b.netCost += r.netCost;
+        b.events += 1;
+        if (r.netCost < 0) b.losses += Math.abs(r.netCost);
+        if (r.netCost > 0) b.gains += r.netCost;
+      });
+      return [...map.values()].sort((a, b) => schemeSortComparator(a, b, ui.scSort.value) || a.txnType.localeCompare(b.txnType));
+    }
+
+    function aggregateByDayAndTransaction(rows) {
+      const map = new Map();
+      rows.forEach(r => {
+        if (!Number.isFinite(r.effectiveDay)) return;
+        const key = `${r.effectiveDay}|${r.txnType}`;
+        if (!map.has(key)) {
+          map.set(key, {
+            day: r.effectiveDay,
+            txnType: r.txnType,
+            netCost: 0,
+            events: 0,
+            measured: 0,
+            met: 0,
+            slaTotal: 0,
+            preMeasured: 0,
+            preTotal: 0,
+            exampleScheme: r.schemeNumber,
+            latestReason: r.reason || ''
+          });
+        }
+        const b = map.get(key);
+        b.netCost += r.netCost;
+        b.events += 1;
+        b.exampleScheme = r.schemeNumber;
+        b.latestReason = r.reason || b.latestReason;
+        if (r.measured) {
+          b.measured += 1;
+          b.slaTotal += r.slaDays;
+          if (r.met) b.met += 1;
+        }
+        if (Number.isFinite(r.preGapDays)) {
+          b.preMeasured += 1;
+          b.preTotal += r.preGapDays;
+        }
+      });
+
+      return [...map.values()]
+        .map(x => ({
+          ...x,
+          avgSla: x.measured ? x.slaTotal / x.measured : null,
+          avgPreGap: x.preMeasured ? x.preTotal / x.preMeasured : null,
+          metRate: x.measured ? x.met / x.measured : null
+        }))
+        .sort((a, b) => schemeSortComparator(a, b, ui.scSort.value) || a.day - b.day || a.txnType.localeCompare(b.txnType));
+    }
+
+    function schemeExportRows() {
+      return aggregateScheme(schemeRows()).map(r => ({
+        period: r.period,
+        schemeNumber: r.schemeNumber,
+        txnType: r.txnType,
+        netCost: r.netCost,
+        events: r.events,
+        avgEffectiveVsActualDays: Number.isFinite(r.avgSla) ? r.avgSla.toFixed(1) : '',
+        avgPreApprovalGapDays: Number.isFinite(r.avgPreGap) ? r.avgPreGap.toFixed(1) : '',
+        slaMetRate: r.metRate == null ? '' : pct(r.metRate),
+        latestReason: r.latestReason || ''
+      }));
+    }
+
+    function refreshScheme() {
+      const rows = schemeRows();
+      const agg = aggregateScheme(rows);
+      const dayTxnAgg = aggregateByDayAndTransaction(rows);
+      const dayAgg = aggregateByDayOfMonth(rows);
+      const txnSummary = summarizeTransactionLossGain(rows);
+      const overall = rows.reduce((s, r) => s + r.netCost, 0);
+      const latest = agg[agg.length - 1];
+      const target = Number(ui.scTarget.value);
+      const sla = schemeSlaSummary(rows, target);
+
+      document.getElementById('kScNet').textContent = fmtCurrency(overall);
+      document.getElementById('kScLatest').textContent = latest ? `${latest.period} | ${fmtCurrency(latest.netCost)}` : '-';
+      document.getElementById('kScEvents').textContent = rows.length.toLocaleString();
+      document.getElementById('kScSla').textContent = sla.measuredCount ? pct(sla.metCount / sla.measuredCount) : '-';
+
+      const byPeriod = {};
+      agg.forEach(r => { byPeriod[r.period] = (byPeriod[r.period] || 0) + r.netCost; });
+      const pLabels = Object.keys(byPeriod).sort();
+
+      drawOrUpdate('chartSchemeTrend', pLabels.length <= 1 ? 'bar' : 'line', {
+        labels: pLabels.length ? pLabels : ['No data'],
+        datasets: [{ label: 'Net Cost', data: pLabels.length ? pLabels.map(p => byPeriod[p]) : [0], borderColor: '#5C61AC', backgroundColor: 'rgba(92,97,172,0.2)', fill: pLabels.length > 1, tension: 0.2 }]
+      });
+
+      drawOrUpdate('chartSchemeSla', 'doughnut', {
+        labels: ['SLA Met', 'SLA Missed', 'Unmeasured'],
+        datasets: [{
+          data: [sla.metCount, sla.missedCount, sla.unmeasuredCount],
+          backgroundColor: ['#72D08B', '#FF7B89', '#DAD5CD']
+        }]
+      });
+
+      const schemeHintBase = ui.scScheme.value.trim() ? 'Filtered by scheme text entry.' : 'Use scheme + period to focus results.';
+      const driverHint = ui.scDriver.value === 'All' ? 'All transaction types in view.' : `Driver filter active: ${ui.scDriver.value}.`;
+      const viewHint = ui.scView.value === 'day' ? 'Ranking is currently focused on day-of-month patterns.' : 'Ranking is currently focused on scheme numbers.';
+      const effSysHint = ui.scEffSysGap.value === 'All' ? '' : ` Effective vs System filter: ${gapFilterLabel(ui.scEffSysGap.value)}.`;
+      const effPreHint = ui.scEffPreGap.value === 'All' ? '' : ` Effective vs Pre-approp filter: ${gapFilterLabel(ui.scEffPreGap.value)}.`;
+      document.getElementById('schemeHint').textContent = `${schemeHintBase} ${driverHint} ${viewHint} SLA target = ${target} day${target === 1 ? '' : 's'}.${effSysHint}${effPreHint}`;
+
+      const isDayView = ui.scView.value === 'day';
+      document.getElementById('txnSummaryCard').style.display = '';
+      document.getElementById('daySummaryCard').style.display = '';
+
+      const title = document.getElementById('schemeDetailTitle');
+      const headers = {
+        c1: document.getElementById('schemeCol1'),
+        c2: document.getElementById('schemeCol2'),
+        c3: document.getElementById('schemeCol3'),
+        c4: document.getElementById('schemeCol4'),
+        c5: document.getElementById('schemeCol5'),
+        c6: document.getElementById('schemeCol6'),
+        c7: document.getElementById('schemeCol7'),
+        c8: document.getElementById('schemeCol8'),
+        c9: document.getElementById('schemeCol9')
+      };
+
+      if (isDayView) {
+        title.textContent = 'Day-of-Month Drill-down Detail â�- Top Losses & Gains by Day & Transaction Type';
+        headers.c1.textContent = 'Day of Month';
+        headers.c2.textContent = 'Transaction Type';
+        headers.c3.textContent = 'Net Movement';
+        headers.c4.textContent = 'Events';
+        headers.c5.textContent = 'Avg Effective vs System (days)';
+        headers.c6.textContent = 'Avg Pre-approp Gap (days)';
+        headers.c7.textContent = 'SLA Met %';
+        headers.c8.textContent = 'Example Scheme';
+        headers.c9.textContent = 'Reason (latest)';
+
+        document.getElementById('schemeBody').innerHTML = dayTxnAgg.map(r => `
+          <tr>
+            <td>${r.day}</td>
+            <td><span style="background:${r.txnType==='RP'?'#e8f4f8':r.txnType==='SP'?'#fff4e6':r.txnType==='Claims'?'#ffe6e6':'#f0e6ff'};padding:3px 8px;border-radius:4px;font-weight:600;font-size:0.85em;">${r.txnType}</span></td>
+            <td>${fmtCurrency(r.netCost)}</td>
+            <td>${r.events.toLocaleString()}</td>
+            <td>${Number.isFinite(r.avgSla) ? r.avgSla.toFixed(1) : '-'}</td>
+            <td>${Number.isFinite(r.avgPreGap) ? r.avgPreGap.toFixed(1) : '-'}</td>
+            <td>${r.metRate == null ? '-' : pct(r.metRate)}</td>
+            <td>${r.exampleScheme}</td>
+            <td>${(r.latestReason || '').slice(0, 120)}${(r.latestReason || '').length > 120 ? '...' : ''}</td>
+          </tr>
+        `).join('') || '<tr><td colspan="9">No effective-date day pattern found in current selection.</td></tr>';
+      } else {
+        title.textContent = 'Scheme Drill-down Detail â�- Top Losses & Gains by Scheme & Transaction Type';
+        headers.c1.textContent = 'Period';
+        headers.c2.textContent = 'Scheme';
+        headers.c3.textContent = 'Transaction Type';
+        headers.c4.textContent = 'Net Cost';
+        headers.c5.textContent = 'Events';
+        headers.c6.textContent = 'Effective vs System (days)';
+        headers.c7.textContent = 'Pre-approp Gap (days)';
+        headers.c8.textContent = 'SLA Met %';
+        headers.c9.textContent = 'Reason (latest)';
+
+        document.getElementById('schemeBody').innerHTML = agg.map(r => `
+          <tr>
+            <td>${r.period}</td>
+            <td>${r.schemeNumber}</td>
+            <td><span style="background:${r.txnType==='RP'?'#e8f4f8':r.txnType==='SP'?'#fff4e6':r.txnType==='Claims'?'#ffe6e6':'#f0e6ff'};padding:3px 8px;border-radius:4px;font-weight:600;font-size:0.85em;">${r.txnType}</span></td>
+            <td>${fmtCurrency(r.netCost)}</td>
+            <td>${r.events.toLocaleString()}</td>
+            <td>${Number.isFinite(r.avgSla) ? r.avgSla.toFixed(1) : '-'}</td>
+            <td>${Number.isFinite(r.avgPreGap) ? r.avgPreGap.toFixed(1) : '-'}</td>
+            <td>${r.metRate == null ? '-' : pct(r.metRate)}</td>
+            <td>${(r.latestReason || '').slice(0, 120)}${(r.latestReason || '').length > 120 ? '...' : ''}</td>
+          </tr>
+        `).join('');
+      }
+
+      document.getElementById('txnLossBody').innerHTML = txnSummary.map(r => `
+        <tr>
+          <td><strong>${r.txnType}</strong></td>
+          <td>${fmtCurrency(-r.losses)}</td>
+          <td>${fmtCurrency(r.gains)}</td>
+          <td>${fmtCurrency(r.netCost)}</td>
+          <td>${r.events.toLocaleString()}</td>
+        </tr>
+      `).join('') || '<tr><td colspan="5">No rows in current selection.</td></tr>';
+
+      document.getElementById('dayLossBody').innerHTML = dayAgg.map(r => `
+        <tr>
+          <td>${r.day}</td>
+          <td>${fmtCurrency(-r.losses)}</td>
+          <td>${fmtCurrency(r.gains)}</td>
+          <td>${fmtCurrency(r.netCost)}</td>
+          <td>${r.events.toLocaleString()}</td>
+        </tr>
+      `).join('') || '<tr><td colspan="5">No effective-date day pattern found in current selection.</td></tr>';
+    }
+
+    function buildArRows() {
+      const baseByScheme = {};
+      uniq(KRI_SCHEME_DRILLDOWN.map(r => r.schemeNumber)).forEach(s => {
+        const num = Number(s);
+        baseByScheme[s] = 300000 + ((Number.isFinite(num) ? num : 0) % 17) * 42000;
+      });
+
+      const periods = uniq(FINANCIAL_MONTHLY.map(r => r.month));
+      const movements = {};
+      KRI_SCHEME_DRILLDOWN.forEach(r => {
+        const k = `${r.period}|${r.schemeNumber}`;
+        movements[k] = (movements[k] || 0) + r.netCost;
+      });
+
+      const rows = [];
+      Object.keys(baseByScheme).forEach(scheme => {
+        let rolling = baseByScheme[scheme];
+        periods.forEach(period => {
+          const net = movements[`${period}|${scheme}`] || 0;
+          const opening = rolling;
+          const closing = opening + net;
+          rows.push({ scheme, period, opening, net, closing });
+          rolling = closing;
+        });
+      });
+      return rows;
+    }
+
+    const AR_ROWS = buildArRows();
+
+    function selectedPreappropMonths() {
+      const allMonths = uniq(PREAPPROP_TOTALS.map(r => r.month));
+      return selectedFromMulti(ui.paMonthMenu, allMonths);
+    }
+
+    function selectedPreappropBusiness() {
+      return ui.paBusiness.value;
+    }
+
+    function preappropExportRows() {
+      const months = selectedPreappropMonths();
+      const business = selectedPreappropBusiness();
+      const detail = PREAPPROP_BREAKDOWN.filter(r => months.includes(r.month) && (business === 'All' || r.business === business));
+      const totals = PREAPPROP_TOTALS
+        .filter(r => months.includes(r.month) && (business === 'All' || r.business === business))
+        .map(r => ({ ...r, category: 'Total' }));
+      return [...detail, ...totals];
+    }
+
+    function renderPreappropTable(business, headId, bodyId) {
+      const months = selectedPreappropMonths();
+      const categories = uniq(PREAPPROP_BREAKDOWN.filter(r => r.business === business).map(r => r.category));
+      const head = document.getElementById(headId);
+      const body = document.getElementById(bodyId);
+
+      const headers = ['Category'];
+      months.forEach(m => {
+        headers.push(`${m} Cost`, `${m} Preapprop Impact`, `${m} Net Cost`);
+      });
+      head.innerHTML = `<tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
+
+      const rowsHtml = categories.map(category => {
+        const cells = [`<td><strong>${category}</strong></td>`];
+        months.forEach(month => {
+          const r = PREAPPROP_BREAKDOWN.find(x => x.business === business && x.category === category && x.month === month);
+          cells.push(`<td>${r ? fmtCurrency(r.cost) : '-'}</td>`);
+          cells.push(`<td>${r && Number.isFinite(r.preappropImpact) ? fmtCurrency(r.preappropImpact) : '-'}</td>`);
+          cells.push(`<td>${r && Number.isFinite(r.netCost) ? fmtCurrency(r.netCost) : '-'}</td>`);
+        });
+        return `<tr>${cells.join('')}</tr>`;
+      });
+
+      const totalCells = ['<td><strong>Total</strong></td>'];
+      months.forEach(month => {
+        const t = PREAPPROP_TOTALS.find(x => x.business === business && x.month === month);
+        totalCells.push(`<td><strong>${t ? fmtCurrency(t.cost) : '-'}</strong></td>`);
+        totalCells.push(`<td><strong>${t ? fmtCurrency(t.preappropImpact) : '-'}</strong></td>`);
+        totalCells.push(`<td><strong>${t ? fmtCurrency(t.netCost) : '-'}</strong></td>`);
+      });
+      rowsHtml.push(`<tr>${totalCells.join('')}</tr>`);
+
+      body.innerHTML = rowsHtml.join('');
+    }
+
+    function refreshPreapprop() {
+      const months = selectedPreappropMonths();
+      const business = selectedPreappropBusiness();
+      const selectedTotals = PREAPPROP_TOTALS.filter(r => months.includes(r.month) && (business === 'All' || r.business === business));
+      const groupBefore = selectedTotals.filter(r => r.business === 'Group').reduce((s, r) => s + r.cost, 0);
+      const individualBefore = selectedTotals.filter(r => r.business === 'Individual').reduce((s, r) => s + r.cost, 0);
+      const impactTotal = selectedTotals.reduce((s, r) => s + r.preappropImpact, 0);
+      const netTotal = selectedTotals.reduce((s, r) => s + r.netCost, 0);
+      const beforeTotalAbs = Math.abs(groupBefore) + Math.abs(individualBefore);
+      const effectiveness = beforeTotalAbs ? Math.abs(impactTotal) / beforeTotalAbs : null;
+
+      document.getElementById('kPaGroupBefore').textContent = business === 'Individual' ? '-' : fmtCurrency(groupBefore);
+      document.getElementById('kPaIndividualBefore').textContent = business === 'Group' ? '-' : fmtCurrency(individualBefore);
+      document.getElementById('kPaImpact').textContent = fmtCurrency(impactTotal);
+      document.getElementById('kPaNet').textContent = fmtCurrency(netTotal);
+      document.getElementById('kPaEffectiveness').textContent = effectiveness == null ? '-' : pct(effectiveness);
+
+      document.getElementById('paGroupRow').style.display = business === 'Individual' ? 'none' : '';
+      document.getElementById('paIndividualRow').style.display = business === 'Group' ? 'none' : '';
+
+      if (business !== 'Individual') renderPreappropTable('Group', 'paGroupHead', 'paGroupBody');
+      if (business !== 'Group') renderPreappropTable('Individual', 'paIndividualHead', 'paIndividualBody');
+    }
+
+    function arRowsFiltered() {
+      const scheme = ui.arScheme.value;
+      const allPeriods = uniq(FINANCIAL_MONTHLY.map(r => r.month));
+      const selectedPeriods = selectedFromMulti(ui.arPeriodMenu, allPeriods);
+      return AR_ROWS.filter(r => (scheme === 'All' || r.scheme === scheme) && selectedPeriods.includes(r.period));
+    }
+
+    function arExportRows() {
+      return arRowsFiltered().map(r => ({
+        period: r.period,
+        scheme: r.scheme,
+        opening: r.opening,
+        netMovement: r.net,
+        closing: r.closing,
+        movementType: r.net >= 0 ? 'Increase' : 'Decrease'
+      }));
+    }
+
+    function refreshAr() {
+      const rows = arRowsFiltered();
+      const allPeriods = uniq(FINANCIAL_MONTHLY.map(r => r.month));
+      const selectedPeriods = selectedFromMulti(ui.arPeriodMenu, allPeriods).sort();
+      const firstPeriod = selectedPeriods[0];
+      const lastPeriod = selectedPeriods[selectedPeriods.length - 1];
+      const schemes = uniq(rows.map(r => r.scheme));
+      const opening = rows.reduce((s, r) => s + (r.period === firstPeriod ? r.opening : 0), 0);
+      const movement = rows.reduce((s, r) => s + r.net, 0);
+      const closing = rows.reduce((s, r) => s + (r.period === lastPeriod ? r.closing : 0), 0);
+
+      document.getElementById('kArOpen').textContent = fmtCurrency(opening);
+      document.getElementById('kArMove').textContent = fmtCurrency(movement);
+      document.getElementById('kArClose').textContent = fmtCurrency(closing);
+      document.getElementById('kArSchemes').textContent = schemes.length.toLocaleString();
+
+      const byPeriod = {};
+      rows.forEach(r => { byPeriod[r.period] = (byPeriod[r.period] || 0) + r.closing; });
+      const pLabels = Object.keys(byPeriod).sort();
+
+      drawOrUpdate('chartArTrend', pLabels.length <= 1 ? 'bar' : 'line', {
+        labels: pLabels.length ? pLabels : ['No data'],
+        datasets: [{ label: 'Closing Balance', data: pLabels.length ? pLabels.map(p => byPeriod[p]) : [0], borderColor: '#00B1D9', backgroundColor: 'rgba(0,177,217,0.2)', fill: pLabels.length > 1, tension: 0.2 }]
+      });
+
+      const moveByScheme = {};
+      rows.forEach(r => { moveByScheme[r.scheme] = (moveByScheme[r.scheme] || 0) + r.net; });
+      const sLabels = Object.keys(moveByScheme).sort((a, b) => Math.abs(moveByScheme[b]) - Math.abs(moveByScheme[a])).slice(0, 10);
+      drawOrUpdate('chartArMove', 'bar', {
+        labels: sLabels,
+        datasets: [{
+          label: 'Net Movement',
+          data: sLabels.map(s => moveByScheme[s]),
+          backgroundColor: sLabels.map(s => moveByScheme[s] >= 0 ? '#55C2B6' : '#E03E52')
+        }]
+      });
+
+      document.getElementById('arHint').textContent = `${firstPeriod || 'No period'} to ${lastPeriod || 'No period'} | ${ui.arScheme.value === 'All' ? 'All schemes' : 'Scheme ' + ui.arScheme.value}`;
+
+      document.getElementById('arBody').innerHTML = rows.map(r => `
+        <tr>
+          <td>${r.period}</td>
+          <td>${r.scheme}</td>
+          <td>${fmtCurrency(r.opening)}</td>
+          <td>${fmtCurrency(r.net)}</td>
+          <td>${fmtCurrency(r.closing)}</td>
+          <td>${r.net >= 0 ? '<span class="tag good">Increase</span>' : '<span class="tag bad">Decrease</span>'}</td>
+        </tr>
+      `).join('');
+    }
+
+    function refreshAll() {
+      refreshOverview();
+      refreshScheme();
+      refreshAr();
+      refreshPreapprop();
+      document.getElementById('lastRefresh').textContent = `Last refresh: ${new Date().toLocaleString()}`;
+    }
+
+    setupControls();
+    refreshAll();
+  </script>
+</body>
+</html>
+
+
+

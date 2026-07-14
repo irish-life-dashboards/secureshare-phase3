@@ -1,0 +1,256 @@
+================================================================================
+  SECURESHARE FINANCE PERFORMANCE - DATA SEED & STRUCTURE GUIDE
+  Date: May 29, 2026
+  Purpose: Reference for creating tables in Power BI Desktop
+================================================================================
+
+TABLE 1: fin_settlement_monthly
+================================================================================
+Purpose: Financial settlement costs by month, split by business type
+Source: Amy's latest settlement-loss attachment (Jan-Feb-Mar 2026)
+Grain: One row per month
+
+Columns:
+  MonthKey          | Data Type: Text       | Values: "2026-01", "2026-02", "2026-03"
+  GroupCost         | Data Type: Whole Number
+  GroupPreappropImpact | Data Type: Whole Number
+  GroupNetCost      | Data Type: Whole Number
+  IndividualCost    | Data Type: Whole Number
+  IndividualPreappropImpact | Data Type: Whole Number
+  IndividualNetCost | Data Type: Whole Number
+  TotalNetCost      | Data Type: Whole Number   | Formula: GroupNetCost + IndividualNetCost
+  SourceVersion     | Data Type: Text       | Value: "Latest_Attachment_v1"
+
+Seed Data:
+MonthKey | GroupCost | GroupPreappropImpact | GroupNetCost | IndividualCost | IndividualPreappropImpact | IndividualNetCost | TotalNetCost | SourceVersion
+---------|-----------|----------------------|--------------|----------------|---------------------------|-------------------|--------------|-------------------
+2026-01  | -929166   | 191450               | -737715      | -1003826       | 354515                    | -649312           | -1387027     | Latest_Attachment_v1
+2026-02  | -353728   | 224724               | -129004      | -363736        | 77409                     | -286328           | -415332      | Latest_Attachment_v1
+2026-03  | 727666    | -228526              | 499139       | 14808          | -696372                   | -681564           | -182425      | Latest_Attachment_v1
+
+Action: Create in Power BI Desktop via Home > Enter Data OR Power Query
+
+================================================================================
+TABLE 2: financial_driver_classification
+================================================================================
+Purpose: Maps month + business to primary driver for Page 1 visualization
+Source: Derived from settlement supplementary data (not in initial attachment)
+Grain: One row per (Month, Business, Driver) combination
+
+Columns:
+  Month          | Data Type: Text | Values: "2026-01", "2026-02", "2026-03"
+  Business       | Data Type: Text | Values: "Group" OR "Individual"
+  PrimaryDriver  | Data Type: Text | Values: See seed data below
+
+Seed Data:
+Month    | Business     | PrimaryDriver
+---------|--------------|------------------------------------
+2026-01  | Group        | Market Movement
+2026-01  | Individual   | Operational Capacity
+2026-02  | Group        | Claims Offset
+2026-02  | Individual   | Backdating
+2026-03  | Group        | Market Movement
+2026-03  | Individual   | Outflow Concentration
+
+Action: Create in Power BI Desktop via Home > Enter Data
+
+================================================================================
+TABLE 3: kri_scheme_drilldown
+================================================================================
+Purpose: Detailed scheme-level settlement transactions with SLA derivation
+Source: Exact 3-month prototype seed used for the signed-off HTML prototype, with January and February rows verified against extracted KRI data and March rows kept exactly as used in the prototype rebuild.
+Grain: One row per period-scheme-transaction
+
+Columns:
+  Period           | Data Type: Text    | Values: "2026-01", "2026-02", "2026-03"
+  SchemeNumber     | Data Type: Text    | Values: see seed data
+  NetCost          | Data Type: Whole Number
+  Reason           | Data Type: Text    | Contains embedded dates in format "effective date DD/MM/YYYY and system date DD/MM/YYYY"
+  SlaDaysDerived   | Data Type: Whole Number | Calculated Column: DATEDIFF(EffectiveDate, SystemDate, DAY)
+  EffectiveDate    | Data Type: Date    | Extracted from Reason text via calculated column
+  SystemDate       | Data Type: Date    | Extracted from Reason text via calculated column
+
+Seed Data (Exact 16 rows used by the prototype across Jan-Feb-Mar):
+Period   | SchemeNumber | NetCost | Reason
+---------|--------------|---------|-------
+2026-01  | 8398         | -17249  | I.N.T.O. AVC Plan scheme, RSP of EUR3.2m with effective date 02/01/2026 and system date 05/01/2026. CB Approps were informed on 02/01/2026 (pm). Preapprop was added on 05/01/2026. Loss due to price movements.
+2026-01  | 1441         | -19269  | Nurses AVC Scheme scheme, RSP of EUR4.3m with effective date 02/01/2026 and system date 05/01/2026. CB Approps were informed on 02/01/2026 (pm). Preapprop was added on 05/01/2026. Loss due to price movements.
+2026-02  | 3645         | 10151   | Aer Lingus scheme, RSP of EUR1.3m with effective date 04/02/2026 and system date 06/02/2026. CB Approps were informed on 04/02/2026 (PM). Preapprop was added on 05/02/2026. Gain due to price movements.
+2026-02  | 3990         | 31390   | Stryker Ireland DC Pension P scheme, RSP of EUR3.7m with effective date 11/02/2026 and system date 13/02/2026. CB Approps were informed on 12/02/2026 (AM). Preapprop was added on 12/02/2026. Gain due to price movements.
+2026-02  | 6849         | -16638  | Maples Group scheme, SP of EUR0.4m with effective date 07/10/2025 was reversed and reinstated on other funds. CB Approps were not informed. Loss due to price movements. More Detail TBC.
+2026-03  | 2945         | -33040  | Irish Life and Canada Life scheme, RSP with effective date 23/03/2026 and system date 27/03/2026.
+2026-03  | 3000         | 25541   | CHC Ireland DAC scheme, SWTH with effective date 06/03/2026 and system date 12/03/2026.
+2026-03  | 3123         | 11619   | Intel Ireland DC Plan, RSP with effective date 11/03/2026 and system date 16/03/2026.
+2026-03  | 3123         | 13440   | Intel Ireland DC Plan, RSP with effective date 25/03/2026 and system date 27/03/2026.
+2026-03  | 3616         | 82229   | Google Ireland Limited, RSP with effective date 26/03/2026 and system date 27/03/2026.
+2026-03  | 3645         | 11022   | Aer Lingus scheme, RSP with effective date 18/03/2026 and system date 23/03/2026.
+2026-03  | 3888         | 13833   | Kerry Group Plc, RSP with effective date 18/03/2026 and system date 23/03/2026.
+2026-03  | 7205         | -23975  | PRB scheme, SP with effective date 20/08/2021 and system date 05/03/2026.
+2026-03  | 8398         | -24424  | I.N.T.O. AVC Plan, RSP with effective date 30/03/2026 and system date 31/03/2026.
+2026-03  | 3990         | 23819   | Stryker scheme, RSP with effective date 11/03/2026 and system date 16/03/2026.
+2026-03  | 9811         | -20287  | PMI Software, WTHD with effective date 02/03/2026 and system date 06/03/2026.
+
+Build Rule:
+- For the PBIX rebuild, this 16-row table is the source of truth because it matches the prototype exactly across January, February, and March.
+- Do not swap in the March-only 13-row KRI detail extract unless you intentionally want to change the approved prototype behaviour.
+
+Action: Create in Power BI Desktop via Home > Enter Data, then add calculated columns for SlaDaysDerived, EffectiveDate, SystemDate
+
+================================================================================
+TABLE 4: ar_scheme_money
+================================================================================
+Purpose: Accounts Receivable / Scheme money visibility over time
+Source: AR system + scheme balance reconciliation (prototype-modeled values)
+Grain: One row per (Period, Scheme) combination
+
+Columns:
+  Period          | Data Type: Text    | Values: "2026-01", "2026-02", "2026-03"
+  SchemeNumber    | Data Type: Text    | Schemes from kri_scheme_drilldown
+  OpeningBalance  | Data Type: Decimal | Calculated by: Previous(ClosingBalance) OR seed value
+  NetMovement     | Data Type: Decimal | From kri_scheme_drilldown[NetCost] sum per period-scheme
+  ClosingBalance  | Data Type: Decimal | Calculated as: Opening + NetMovement
+  MovementType    | Data Type: Text    | Derived: IF(NetMovement >= 0, "Increase", "Decrease")
+
+Seed Data (Sample - calculate opening balances based on scheme number):
+Period   | SchemeNumber | OpeningBalance | NetMovement | ClosingBalance | MovementType
+---------|--------------|----------------|-------------|----------------|-------------
+2026-01  | 8398         | 300000         | -17249      | 282751         | Decrease
+2026-01  | 1441         | 300000         | -19269      | 280731         | Decrease
+2026-02  | 3645         | 300000         | 10151       | 310151         | Increase
+2026-02  | 3990         | 300000         | 31390       | 331390         | Increase
+2026-02  | 6849         | 300000         | -16638      | 283362         | Decrease
+2026-03  | 2945         | 300000         | -33040      | 266960         | Decrease
+2026-03  | 3000         | 300000         | 25541       | 325541         | Increase
+...     | ...          | ...            | ...         | ...            | ...
+
+Note: For Page 3, you can either:
+  Option A: Import actual AR data and scheme balances
+  Option B: Auto-generate from kri_scheme_drilldown by aggregating NetCost as NetMovement
+
+Action: Create in Power BI Desktop via Home > Enter Data OR import from AR system
+
+================================================================================
+CALCULATED COLUMNS TO ADD IN POWER QUERY
+================================================================================
+
+TABLE: kri_scheme_drilldown - Column: EffectiveDate
+DAX Formula:
+=VAR ReasonText = [Reason]
+VAR SearchPos = SEARCH("effective date ", ReasonText)
+VAR ExtractText = MID(ReasonText, SearchPos + 15, 10)
+RETURN
+IF(
+  ISERROR(SearchPos),
+  BLANK(),
+  DATEVALUE(ExtractText)
+)
+
+TABLE: kri_scheme_drilldown - Column: SystemDate
+DAX Formula:
+=VAR ReasonText = [Reason]
+VAR SearchPos = SEARCH("system date ", ReasonText)
+VAR ExtractText = MID(ReasonText, SearchPos + 13, 10)
+RETURN
+IF(
+  ISERROR(SearchPos),
+  BLANK(),
+  DATEVALUE(ExtractText)
+)
+
+TABLE: kri_scheme_drilldown - Column: SlaDaysDerived
+DAX Formula:
+=IF(
+  AND(NOT(ISBLANK([EffectiveDate])), NOT(ISBLANK([SystemDate]))),
+  INT([SystemDate] - [EffectiveDate]),
+  BLANK()
+)
+
+================================================================================
+STEP-BY-STEP DATA CREATION WORKFLOW
+================================================================================
+
+STEP 1: Financial Data (fin_settlement_monthly)
+  ✓ Open Power BI Desktop with SecureShare Finance Performance PBIX
+  ✓ Home > Enter Data
+  ✓ Create table with seed data from TABLE 1 above
+  ✓ Name it: fin_settlement_monthly
+  ✓ Click Load
+
+STEP 2: Driver Classification (financial_driver_classification)
+  ✓ Home > Enter Data
+  ✓ Create table with seed data from TABLE 2 above
+  ✓ Name it: financial_driver_classification
+  ✓ Click Load
+
+STEP 3: Scheme Drill-down (kri_scheme_drilldown)
+  ✓ Home > Enter Data (OR import from KRI report Excel)
+  ✓ Create table with seed data from TABLE 3 above
+  ✓ Name it: kri_scheme_drilldown
+  ✓ Add three calculated columns (use formulas above):
+     - EffectiveDate
+     - SystemDate
+     - SlaDaysDerived
+  ✓ Click Load
+
+STEP 4: AR / Scheme Money (ar_scheme_money)
+  ✓ Home > Enter Data (OR import from AR system)
+  ✓ Create/import table from TABLE 4 above
+  ✓ Name it: ar_scheme_money
+  ✓ Click Load
+
+STEP 5: Create Relationships
+  ✓ Model Tab > Manage Relationships
+  ✓ fin_settlement_monthly[MonthKey] → tbl_DateTable[Date] (1:1)
+  ✓ kri_scheme_drilldown[Period] → tbl_DateTable[Date] (Many:1)
+  ✓ financial_driver_classification[Month] → tbl_DateTable[Date] (Many:1)
+  ✓ ar_scheme_money[Period] → tbl_DateTable[Date] (Many:1)
+
+STEP 6: Add Measures
+  ✓ Select tbl_Measures table
+  ✓ Paste all DAX code from DAX_Measures_Complete.txt
+  ✓ Click Apply
+
+STEP 7: Verify Model
+  ✓ Data View: Check all tables are populated correctly
+  ✓ Model View: Verify relationships are correct
+  ✓ Fields: Confirm all measures appear under tbl_Measures
+
+================================================================================
+VALIDATION CHECKLIST
+================================================================================
+
+Data Integrity:
+  ☐ fin_settlement_monthly has 3 rows (3 months)
+  ☐ kri_scheme_drilldown has 16 rows
+  ☐ SlaDaysDerived column is populated (should have most rows filled, 1 row may be blank if no dates in reason)
+  ☐ ar_scheme_money row count = unique(Period, Scheme) combinations
+
+Key Metrics Before Report Build:
+  ☐ Fin Total Net Cost = -1985584 (sum of TotalNetCost: -1387027 + -415332 + -182425)
+  ☐ Fin Group Net Cost = -367580 (sum: -737715 + -129004 + 499139)
+  ☐ Fin Individual Net Cost = -1618004 (sum: -649312 + -286328 + -681564)
+  ☐ Fin YTD Total Net Cost = -1985584 (should equal Fin Total Net Cost for Jan-Mar)
+  ☐ Fin Event Count (for all periods) = 16
+
+SLA Metrics to Verify:
+  ☐ Fin SLA Measured Count > 0 (should be 15, since one row has incomplete reason)
+  ☐ Fin SLA Met Rate >= 0 and <= 1 (should be close to 100% for 2-day target)
+  ☐ Fin Avg SLA Days should be around 2-3 days
+
+================================================================================
+NOTES ON DATA GOVERNANCE
+================================================================================
+
+- Source of Truth: Amy's "Settlement losses Jan & Feb & March, Group & Individual Business" attachment
+- Derivation: TotalNetCost = GroupNetCost + IndividualNetCost (always)
+- SLA Derivation Rule: Extract effective date and system date from Reason text, compute days difference
+- SLA Target: 2 days (configurable in PBIX if needed)
+- AR Balances: Prototype-modeled. Replace with actual AR system values once PBIX is approved
+
+FUTURE DATA ENHANCEMENTS:
+- Real AR data integration
+- Single Leavers bot/non-bot classification (separate report)
+- VRDD appropriations detail (separate report)
+- EFT payment confirmation flags
+
+================================================================================

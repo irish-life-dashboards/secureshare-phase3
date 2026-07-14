@@ -1,0 +1,3187 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="updated" content="2026-04-28" />
+<title>SecureShare Phase 3 - Operational Reporting</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --il-primary: #5C61AC;
+  --il-teal: #55C2B6;
+  --il-cyan: #00B1D9;
+  --il-rose: #E03E52;
+  --il-amber: #FAB812;
+  --il-slate: #53565A;
+  --bg: #f4f6fb;
+  --surface: #ffffff;
+  --border: #e4e6ef;
+  --text: #25323b;
+  --muted: #69757f;
+  --accent: var(--il-primary);
+  --accent-2: #4b7fb8;
+  --good: #1a7f37;
+  --warn: #b76d00;
+  --bad: #b42318;
+  --gold: #b38600;
+  --chip: #f0f1fa;
+  --shadow: 0 14px 34px rgba(37,50,59,0.08);
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  background: radial-gradient(circle at 0% 0%, rgba(85,194,182,0.15), transparent 36%),
+              radial-gradient(circle at 100% 0%, rgba(92,97,172,0.2), transparent 38%),
+              linear-gradient(180deg, #fbfcff 0%, #f4f6fb 55%, #f2f4fa 100%);
+  color: var(--text);
+  font-family: "Manrope", "Trebuchet MS", sans-serif;
+  font-size: 13px;
+}
+button, input, select { font: inherit; }
+.topbar {
+  background: linear-gradient(92deg, #3e458f 0%, var(--il-primary) 45%, #4d98be 100%);
+  color: #fff;
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  max-width: 2048px;
+  margin: 0 auto 10px;
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.brand img {
+  height: 42px;
+  width: auto;
+  object-fit: contain;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.08);
+  padding: 4px;
+}
+.brand h1 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+.brand p {
+  margin: 2px 0 0;
+  opacity: 0.92;
+  font-size: 12px;
+}
+.meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.badge {
+  border: 1px solid rgba(255,255,255,.35);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(255,255,255,0.08);
+}
+.wrap {
+  display: grid;
+  grid-template-columns: 154px 1fr;
+  min-height: 0;
+  max-width: 2048px;
+  margin: 0 auto;
+  border: 1px solid var(--border);
+  border-top: 1px solid var(--border);
+  border-radius: 12px;
+  background: #f8faff;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+aside {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 8px;
+}
+aside h3 {
+  margin: 8px 0 4px;
+  font-size: 10px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.slicer {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #fff;
+  padding: 4px;
+}
+.row { display: flex; gap: 6px; }
+.row > * { flex: 1; }
+select, input[type="date"], input[type="search"] {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 6px;
+  background: #fff;
+}
+main {
+  padding: 8px;
+  display: grid;
+  grid-template-rows: auto auto auto 1fr auto;
+  gap: 6px;
+}
+.page-tabs {
+  display: flex;
+  gap: 6px;
+}
+.tab-btn {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #fff;
+  padding: 3px 10px;
+  cursor: pointer;
+  font-size: 11px;
+}
+.tab-btn.active {
+  border-color: var(--accent);
+  background: var(--chip);
+  color: var(--accent-2);
+  font-weight: 600;
+}
+.page-view.hidden {
+  display: none;
+}
+.filter-summary {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.pill {
+  background: var(--chip);
+  border: 1px solid #cfddf5;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 11px;
+}
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 6px;
+}
+.kpi {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+.kpi .label {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  font-size: 9px;
+}
+.kpi .value {
+  font-size: 27px;
+  font-weight: 700;
+  margin-top: 2px;
+}
+.kpi .sub {
+  font-size: 9px;
+  color: var(--muted);
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 10px;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px;
+}
+.card h2 {
+  margin: 0 0 4px;
+  font-size: 11px;
+}
+.card canvas {
+  display: block;
+  width: 100% !important;
+  height: 170px !important;
+}
+.c-trend { grid-column: span 7; }
+.c-status { grid-column: span 5; }
+.c-proc { grid-column: span 7; }
+.c-gold { grid-column: span 5; }
+.c-transform { grid-column: span 12; }
+.c-financial { grid-column: span 12; }
+.c-table { grid-column: span 12; padding: 0; overflow: hidden; }
+.card.c-financial-trend { grid-column: span 7; }
+.card.c-financial-snapshot { grid-column: span 5; }
+.c-scheme-top canvas { height: 320px !important; }
+.c-status canvas,
+.c-gold canvas {
+  height: 170px !important;
+}
+.table-head {
+  padding: 6px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+@media (max-width: 1200px) {
+  .c-financial-trend,
+  .c-financial-snapshot {
+    grid-column: span 12;
+  }
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10px;
+}
+th, td {
+  padding: 5px 6px;
+  border-bottom: 1px solid #edf0f7;
+  white-space: nowrap;
+  text-align: left;
+}
+th { color: var(--muted); background: #fafcff; }
+.status {
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 2px 7px;
+  font-size: 11px;
+  border: 1px solid transparent;
+}
+.s-complete { color: #0f6f34; background: #e8f7ec; border-color: #cbeed6; }
+.s-completed { color: #0f6f34; background: #d1ede1; border-color: #a8dcc4; font-weight: 700; }
+.s-complete-work { color: #8c5b00; background: #ffebcd; border-color: #ffd894; }
+.s-progress { color: #165a9a; background: #e8f2ff; border-color: #cae1ff; }
+.s-pending { color: #8c5b00; background: #fff5de; border-color: #ffe0a8; }
+.s-cancelled { color: #8b2e1e; background: #ffe0d6; border-color: #ffc9b5; }
+.s-submitted { color: #6f2da8; background: #f3e9ff; border-color: #e1c8ff; }
+.s-other { color: #5f6d82; background: #eef2f8; border-color: #dbe3ef; }
+.footer-note {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px;
+  color: var(--muted);
+  font-size: 10px;
+}
+button {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #fff;
+  padding: 4px 6px;
+  cursor: pointer;
+  font-size: 10px;
+}
+button:hover { border-color: var(--accent); }
+
+.chip {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  border: 1px solid #cfddf5;
+  background: #f0f1fa;
+  margin: 1px 4px 1px 0;
+}
+
+.chip.warn {
+  border-color: #ffd28a;
+  background: #fff3dc;
+  color: #8c5b00;
+}
+@media (min-width: 1600px) {
+  .kpis { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+}
+@media (max-width: 1400px) {
+  .kpis { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+}
+@media (max-width: 1200px) {
+  .topbar { border-radius: 0; margin: 0; max-width: none; }
+  .wrap { max-width: none; margin: 0; border-left: none; border-right: none; }
+  .wrap { grid-template-columns: 1fr; }
+  .kpis { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
+  .c-trend, .c-status, .c-proc, .c-gold { grid-column: span 12; }
+}
+/* ── New Entrant Visibility ── */
+.ne-matrix-table th, .ne-matrix-table td { padding: 4px 8px; border-bottom: 1px solid #edf0f7; font-size: 10px; white-space: nowrap; }
+.ne-matrix-table th { background: #fafcff; color: var(--muted); text-align: center; }
+.ne-month-cell { font-weight: 600; vertical-align: top; }
+.ne-via-cell { color: #2563eb; }
+.ne-num-cell { text-align: right; }
+.ne-total-cell { font-weight: 600; background: #f5f7fa; }
+#viewNE .kpis { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+#viewChannelVis .kpis { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <img src="./assets/Top Left IL Logo.png" alt="Irish Life" />
+    <div>
+      <h1>SecureShare Phase 3 - Operational Reporting</h1>
+      <p>Prototype | Business operational dashboard</p>
+    </div>
+  </div>
+  <div class="meta">
+    <span class="badge">Environment: DEV/UAT</span>
+    <span class="badge" id="lastRefresh">Last refresh: --</span>
+  </div>
+</header>
+<div class="wrap">
+  <aside>
+    <h3>Date Range</h3>
+    <div class="slicer">
+      <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:2px;">From</label>
+      <input id="dateFrom" type="date" style="margin-bottom:6px;" />
+      <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:2px;">To</label>
+      <input id="dateTo" type="date" />
+    </div>
+
+    <h3>Organisation Perspective</h3>
+    <div class="slicer">
+      <select id="perspective">
+        <option value="Employer">Employer</option>
+        <option value="Broker">Broker</option>
+      </select>
+    </div>
+
+    <h3>Organisation</h3>
+    <div class="slicer">
+      <select id="orgFilter"><option value="">All Organisations</option></select>
+    </div>
+
+    <h3>Work Context</h3>
+    <div class="slicer">
+      <select id="contextFilter"><option value="">All Contexts</option></select>
+    </div>
+
+    <h3>Status</h3>
+    <div class="slicer">
+      <select id="statusFilter"><option value="">All Statuses</option></select>
+    </div>
+
+    <h3>Gold Scheme</h3>
+    <div class="slicer">
+      <select id="goldFilter">
+        <option value="All">All</option>
+        <option value="Gold">Gold Only</option>
+        <option value="NonGold">Non-Gold Only</option>
+      </select>
+    </div>
+
+    <h3>Scheme Type</h3>
+    <div class="slicer">
+      <select id="schemeTypeFilter">
+        <option value="">All Types</option>
+        <option value="DC Pension">DC Pension</option>
+        <option value="MARS - Risk">MARS - Risk</option>
+      </select>
+    </div>
+
+    <h3>Payroll Company</h3>
+    <div class="slicer">
+      <select id="payrollFilter">
+        <option value="">All Payrolls</option>
+        <option value="Zellis">Zellis</option>
+        <option value="SD Worx Ireland Limited">SD Worx Ireland Limited</option>
+        <option value="PWC">PWC</option>
+        <option value="Darwin">Darwin</option>
+        <option value="Zedra">Zedra</option>
+        <option value="Humm Group">Humm Group</option>
+      </select>
+    </div>
+
+    <h3>Actions</h3>
+    <div class="slicer row">
+      <button id="resetFilters">Reset</button>
+      <button id="exportCsv">Export CSV</button>
+    </div>
+  </aside>
+
+  <main>
+    <div class="page-tabs">
+      <button class="tab-btn active" id="tabOverview" type="button">Overview</button>
+      <button class="tab-btn" id="tabFinancial" type="button">Financial</button>
+      <button class="tab-btn" id="tabScheme" type="button">Scheme Visibility</button>
+      <button class="tab-btn" id="tabChannelVis" type="button">Submission Visibility</button>
+      <button class="tab-btn" id="tabProcessVis" type="button">Process Visibility</button>
+      <button class="tab-btn" id="tabNE" type="button">New Entrant Visibility</button>
+    </div>
+
+    <div class="filter-summary" id="filterSummary"></div>
+
+    <section class="page-view" id="viewOverview">
+    <section class="kpis">
+      <div class="kpi"><div class="label">Submission Count</div><div class="value" id="kSubs">-</div><div class="sub">Total submissions</div></div>
+      <div class="kpi"><div class="label">Completion Rate %</div><div class="value" id="kCompRate">-</div><div class="sub">Completed / MIDAS submissions</div></div>
+      <div class="kpi"><div class="label">Active Schemes</div><div class="value" id="kSchemes">-</div><div class="sub">Distinct schemes</div></div>
+      <div class="kpi"><div class="label">Active Brokers</div><div class="value" id="kBrokerOrg">-</div><div class="sub">Distinct brokers</div></div>
+      <div class="kpi"><div class="label">Active Employers</div><div class="value" id="kEmpOrg">-</div><div class="sub">Distinct employers</div></div>
+      <div class="kpi"><div class="label">Last Activity Date</div><div class="value" id="kLastUsage">-</div><div class="sub">Max submission date</div></div>
+    </section>
+
+    <section class="grid">
+      <article class="card c-trend">
+        <h2>Submissions by Month</h2>
+        <canvas id="chartTrend" height="120"></canvas>
+      </article>
+      <article class="card c-status">
+        <h2>Status Distribution</h2>
+        <canvas id="chartStatus" height="120"></canvas>
+      </article>
+      <article class="card c-proc">
+        <h2>Processes Used (Work Type Description)</h2>
+        <canvas id="chartProcess" height="120"></canvas>
+      </article>
+      <article class="card c-gold">
+        <h2>Gold vs Non-Gold Submissions</h2>
+        <canvas id="chartGold" height="120"></canvas>
+      </article>
+      <article class="card c-table">
+        <div class="table-head">
+          <strong>Submission Detail</strong>
+          <input id="searchBox" type="search" placeholder="Search scheme, org, work type, submitter" style="max-width:360px;" />
+        </div>
+        <div style="max-height:300px; overflow:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>DateCreated</th>
+                <th>SchemeNumber</th>
+                <th>SchemeName</th>
+                <th>Broker_Org</th>
+                <th>WorkContext</th>
+                <th>WorkTypeCode</th>
+                <th>WorkTypeDescription</th>
+                <th>WorkStatus</th>
+                <th>Gold</th>
+                <th>SubmitterEmail</th>
+              </tr>
+            </thead>
+            <tbody id="detailBody"></tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+    </section>
+
+    <section class="page-view hidden" id="viewFinancial">
+      <div class="row" style="max-width: 840px; margin-bottom: 10px;">
+        <div class="slicer">
+          <select id="finBusinessFilter">
+            <option value="All">All Business</option>
+            <option value="Group">Group</option>
+            <option value="Individual">Individual</option>
+          </select>
+        </div>
+        <div class="slicer">
+          <select id="finMonthFilter">
+            <option value="All">All Months</option>
+          </select>
+        </div>
+        <div class="slicer">
+          <select id="finPrimaryDriverFilter">
+            <option value="All">All Drivers</option>
+          </select>
+        </div>
+      </div>
+      <section class="kpis">
+        <div class="kpi"><div class="label">Latest Group Net Cost</div><div class="value" id="kFinGroupNetLatest">-</div><div class="sub">From Amy attachment (latest month)</div></div>
+        <div class="kpi"><div class="label">Latest Individual Net Cost</div><div class="value" id="kFinIndividualNetLatest">-</div><div class="sub">From Amy attachment (latest month)</div></div>
+        <div class="kpi"><div class="label">Latest Total Net Cost</div><div class="value" id="kFinTotalNetLatest">-</div><div class="sub">Group + Individual</div></div>
+        <div class="kpi"><div class="label">YTD Total Net Cost</div><div class="value" id="kFinYtdNet">-</div><div class="sub">Jan-Mar cumulative</div></div>
+      </section>
+      <section class="grid">
+        <article class="card c-financial c-financial-trend">
+          <h2>Settlement Net Cost Trend (Jan-Mar 2026, Business and Month Filtered)</h2>
+          <canvas id="chartFinancial" height="120"></canvas>
+          <div id="finTrendHint" style="margin-top:8px; color: var(--muted); font-size: 12px;"></div>
+        </article>
+        <article class="card c-table c-financial-snapshot">
+          <div class="table-head">
+            <strong>Monthly Financial Snapshot</strong>
+            <span style="color: var(--muted); font-size: 12px;">Source: Amy latest attachment only</span>
+          </div>
+          <div style="max-height:240px; overflow:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th>Group Net</th>
+                  <th>Individual Net</th>
+                  <th>Total Net</th>
+                  <th>Primary Drivers (provisional)</th>
+                </tr>
+              </thead>
+              <tbody id="financialBody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section class="grid" style="margin-top: 12px;">
+        <article class="card c-financial">
+          <div class="table-head">
+            <strong>Scheme Drilldown</strong>
+            <span style="color: var(--muted); font-size: 12px;">Type a scheme number and pick a period to see overall net cost</span>
+          </div>
+          <div class="row" style="max-width: 840px; margin-bottom: 10px;">
+            <div class="slicer">
+              <input id="schemeFilter" type="search" placeholder="Scheme number" />
+            </div>
+            <div class="slicer">
+              <select id="schemePeriodFilter">
+                <option value="All">All Periods</option>
+              </select>
+            </div>
+          </div>
+          <section class="kpis">
+            <div class="kpi"><div class="label">Scheme Overall Net Cost</div><div class="value" id="kSchemeOverallNet">-</div><div class="sub">Filtered scheme total</div></div>
+            <div class="kpi"><div class="label">Latest Selected Period Net Cost</div><div class="value" id="kSchemeLatestPeriodNet">-</div><div class="sub">Latest period within filter</div></div>
+            <div class="kpi"><div class="label">Scheme Event Count</div><div class="value" id="kSchemeEventCount">-</div><div class="sub">Number of loss/gain rows</div></div>
+            <div class="kpi"><div class="label">SLA Met Rate</div><div class="value" id="kSchemeSlaRate">-</div><div class="sub">% within SLA window</div></div>
+          </section>
+          <div class="grid" style="margin-top: 10px;">
+            <article class="card" style="grid-column: span 7;">
+              <h2>Scheme Net Cost Trend</h2>
+              <canvas id="chartKriScheme" height="120"></canvas>
+              <div id="schemeTrendHint" style="margin-top:8px; color: var(--muted); font-size: 12px;"></div>
+            </article>
+            <article class="card c-table" style="grid-column: span 5;">
+              <div class="table-head">
+                <strong>Scheme Drilldown Detail</strong>
+                <span style="color: var(--muted); font-size: 12px;">Aggregated by scheme and period</span>
+              </div>
+              <div style="max-height:240px; overflow:auto;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Period</th>
+                      <th>Scheme Number</th>
+                      <th>Net Cost</th>
+                      <th>Events</th>
+                      <th>Avg SLA Days</th>
+                      <th>SLA Met %</th>
+                      <th>Latest Reason</th>
+                    </tr>
+                  </thead>
+                  <tbody id="schemeBody"></tbody>
+                </table>
+              </div>
+            </article>
+          </div>
+        </article>
+      </section>
+    </section>
+
+    <section class="page-view hidden" id="viewScheme">
+      <div class="row" style="max-width: 840px; margin-bottom: 10px;">
+        <div class="slicer">
+          <select id="schemeVisBrokerFilter">
+            <option value="">All Brokers</option>
+          </select>
+        </div>
+            <div class="slicer">
+              <select id="schemeVisDirectClientFilter">
+                <option value="">All Client Types</option>
+                <option value="Yes">Direct Client Only</option>
+                <option value="No">Broker Only</option>
+              </select>
+            </div>
+        <div class="slicer">
+          <input id="schemeVisSchemeNoFilter" type="search" placeholder="Scheme number" />
+        </div>
+        <div class="slicer">
+          <select id="schemeVisPaymentFilter">
+            <option value="">All Payment Methods</option>
+          </select>
+        </div>
+      </div>
+      <section class="kpis">
+        <div class="kpi"><div class="label">Active Schemes</div><div class="value" id="kSchemeActive">-</div><div class="sub">Distinct scheme number in filter context</div></div>
+        <div class="kpi"><div class="label">Multi-Channel Schemes</div><div class="value" id="kSchemeMulti">-</div><div class="sub">Schemes active in 2+ submission channels</div></div>
+        <div class="kpi"><div class="label">Avg Scheme Completion %</div><div class="value" id="kSchemeCompAvg">-</div><div class="sub">Average completion across schemes</div></div>
+        <div class="kpi"><div class="label">SecureShare %</div><div class="value" id="kSchemeGaps">-</div><div class="sub">Share of submissions received via SecureShare</div></div>
+      </section>
+
+      <section class="grid">
+        <article class="card c-financial c-scheme-top">
+          <h2>Top Schemes by Submission Volume</h2>
+          <canvas id="chartSchemeTop" height="120"></canvas>
+        </article>
+
+        <article class="card c-table">
+          <div class="table-head">
+            <strong>Scheme Submission Channel Coverage</strong>
+            <span style="color: var(--muted); font-size: 12px;">Shows submission channel usage per scheme</span>
+          </div>
+          <div style="max-height:300px; overflow:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Broker</th>
+                  <th>Scheme Number</th>
+                  <th>Scheme Name</th>
+                  <th>Direct Client</th>
+                  <th>Submissions</th>
+                  <th>Completed</th>
+                  <th>Completion %</th>
+                  <th>Submission Channels</th>
+                </tr>
+              </thead>
+              <tbody id="schemeVisibilityBody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+    </section>
+
+
+    <section class="page-view hidden" id="viewProcessVis">
+      <div class="row" style="gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px;">
+        <div>
+          <label style="display:block;font-size:.7rem;color:var(--muted);margin-bottom:2px;">Process</label>
+          <select id="processVisProcessFilter" style="padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:11px;min-width:220px;">
+            <option value="">(All Processes)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:.7rem;color:var(--muted);margin-bottom:2px;">Payment Method</label>
+          <select id="processVisPaymentFilter" style="padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:11px;min-width:220px;">
+            <option value="">(All Payment Methods)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:.7rem;color:var(--muted);margin-bottom:2px;">Scheme Number</label>
+          <input id="processVisSchemeNoFilter" type="search" placeholder="Scheme number" style="padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:11px;min-width:220px;" />
+        </div>
+      </div>
+      <section class="kpis">
+        <div class="kpi"><div class="label">Total Submissions</div><div class="value" id="kProcessTotal">-</div><div class="sub">All submissions in selected scope</div></div>
+        <div class="kpi"><div class="label">Cash Submissions</div><div class="value" id="kProcessCash">-</div><div class="sub">Rows classified as cash</div></div>
+        <div class="kpi"><div class="label">Cash Share</div><div class="value" id="kProcessCashShare">-</div><div class="sub">Cash / total submissions</div></div>
+        <div class="kpi"><div class="label">Completion Rate</div><div class="value" id="kProcessCompletion">-</div><div class="sub">Completed / total submissions</div></div>
+      </section>
+      <section class="grid" style="margin-top:16px;">
+        <article class="card" style="grid-column:span 7;">
+          <h2 style="font-size:.9rem;margin-bottom:4px;font-weight:600;">Top Processes by Submission Volume</h2>
+          <p style="font-size:.7rem;color:var(--muted);margin:0 0 8px;">Process groupings based on the work type text</p>
+          <canvas id="chartProcessBreakdown" height="120"></canvas>
+        </article>
+        <article class="card" style="grid-column:span 5;">
+          <h2 style="font-size:.9rem;margin-bottom:4px;font-weight:600;">Schemes in Current Process Filter</h2>
+          <p style="font-size:.7rem;color:var(--muted);margin:0 0 8px;">Top schemes by submission volume for selected process/payment filters</p>
+          <div style="max-height:220px;overflow:auto;border:1px solid var(--border);border-radius:8px;">
+            <table style="width:100%;border-collapse:collapse;font-size:10px;">
+              <thead>
+                <tr>
+                  <th style="padding:5px 6px;border-bottom:1px solid #edf0f7;text-align:left;background:#fafcff;color:var(--muted);">Scheme No.</th>
+                  <th style="padding:5px 6px;border-bottom:1px solid #edf0f7;text-align:left;background:#fafcff;color:var(--muted);">Scheme Name</th>
+                  <th style="padding:5px 6px;border-bottom:1px solid #edf0f7;text-align:left;background:#fafcff;color:var(--muted);">Submission Channels</th>
+                </tr>
+              </thead>
+              <tbody id="processSchemeListBody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+      <article class="card" style="margin-top:16px;overflow-x:auto;">
+        <h2 style="font-size:.9rem;margin-bottom:10px;font-weight:600;">Process Visibility Breakdown</h2>
+        <div style="max-height:500px;overflow:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:10px;">
+            <thead>
+              <tr>
+                <th style="padding:5px 6px;border-bottom:1px solid #edf0f7;text-align:left;background:#fafcff;color:var(--muted);">Process</th>
+                <th style="padding:5px 6px;border-bottom:1px solid #edf0f7;text-align:left;background:#fafcff;color:var(--muted);">Payment Method</th>
+                <th style="padding:5px 6px;border-bottom:1px solid #edf0f7;text-align:right;background:#fafcff;color:var(--muted);">Submissions</th>
+                <th style="padding:5px 6px;border-bottom:1px solid #edf0f7;text-align:right;background:#fafcff;color:var(--muted);">Completed</th>
+                <th style="padding:5px 6px;border-bottom:1px solid #edf0f7;text-align:right;background:#fafcff;color:var(--muted);">Completion %</th>
+                <th style="padding:5px 6px;border-bottom:1px solid #edf0f7;text-align:right;background:#fafcff;color:var(--muted);">Schemes</th>
+                <th style="padding:5px 6px;border-bottom:1px solid #edf0f7;text-align:right;background:#fafcff;color:var(--muted);">Brokers</th>
+                <th style="padding:5px 6px;border-bottom:1px solid #edf0f7;text-align:left;background:#fafcff;color:var(--muted);">Top Scheme</th>
+              </tr>
+            </thead>
+            <tbody id="processVisibilityBody"></tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
+    <section class="page-view hidden" id="viewNE">
+      <div class="row" style="gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px;">
+        <div>
+          <label style="display:block;font-size:.7rem;color:var(--muted);margin-bottom:2px;">Month</label>
+          <select id="neMonthFilter" style="padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:11px;min-width:220px;"></select>
+        </div>
+        <div>
+          <label style="display:block;font-size:.7rem;color:var(--muted);margin-bottom:2px;">Broker</label>
+          <select id="neBrokerFilter" style="padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:11px;min-width:220px;">
+            <option value="">(All)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:.7rem;color:var(--muted);margin-bottom:2px;">Scheme Number</label>
+          <input id="neSchemeNoFilter" type="search" placeholder="Scheme number" style="padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:11px;min-width:220px;" />
+        </div>
+      </div>
+      <section class="kpis ne-kpis">
+        <div class="kpi"><div class="label">Total Submissions</div><div class="value" id="kNETotal">-</div><div class="sub">All NE work types for selected month</div></div>
+        <div class="kpi"><div class="label">SecureShare %</div><div class="value" id="kNESSPct">-</div><div class="sub">Received via SecureShare portal</div></div>
+        <div class="kpi"><div class="label">Non-SecureShare %</div><div class="value" id="kNENonSSPct">-</div><div class="sub">Received via another known channel</div></div>
+        <div class="kpi"><div class="label">Source Unknown %</div><div class="value" id="kNEUnknownPct">-</div><div class="sub">No submission channel recorded</div></div>
+        <div class="kpi"><div class="label">Active Brokers</div><div class="value" id="kNEBrokers">-</div><div class="sub">Brokers with submissions this month</div></div>
+      </section>
+      <section class="grid" style="margin-top:16px;">
+        <article class="card" style="grid-column:span 7;">
+          <h2 style="font-size:.9rem;margin-bottom:4px;font-weight:600;">Suitability Breakdown</h2>
+          <p style="font-size:.7rem;color:var(--muted);margin:0 0 8px;">% share of NE submissions by channel type</p>
+          <canvas id="chartNESuitabilityBar" height="120"></canvas>
+        </article>
+        <article class="card" style="grid-column:span 5;">
+          <h2 style="font-size:.9rem;margin-bottom:4px;font-weight:600;">SecureShare Submission Share by Broker</h2>
+          <p style="font-size:.7rem;color:var(--muted);margin:0 0 8px;">Top NE brokers by SecureShare volume share (top 3 + Other)</p>
+          <canvas id="chartNEBrokerSSRate" height="120"></canvas>
+        </article>
+      </section>
+      <article class="card" style="margin-top:16px;overflow-x:auto;">
+        <h2 id="neTableTitle" style="font-size:.9rem;margin-bottom:10px;font-weight:600;">New Entrant Submissions by Channel</h2>
+        <div style="max-height:500px;overflow:auto;">
+          <table class="ne-matrix-table" id="neMatrixTable">
+            <thead id="neMatrixHead"></thead>
+            <tbody id="neMatrixBody"></tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
+    <section class="page-view hidden" id="viewChannelVis">
+      <div class="row" style="gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px;">
+        <div>
+          <label style="display:block;font-size:.7rem;color:var(--muted);margin-bottom:2px;">Broker</label>
+          <select id="channelVisBrokerFilter" style="padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:11px;min-width:220px;">
+            <option value="">(All Brokers)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:.7rem;color:var(--muted);margin-bottom:2px;">Scheme Number</label>
+          <input id="channelVisSchemeNoFilter" type="search" placeholder="Scheme number" style="padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:11px;min-width:220px;" />
+        </div>
+      </div>
+      <section class="kpis">
+        <div class="kpi"><div class="label">Total Submissions</div><div class="value" id="kChannelTotal">-</div><div class="sub">All submissions across all channels</div></div>
+        <div class="kpi"><div class="label">SecureShare %</div><div class="value" id="kChannelSSPct">-</div><div class="sub">Received via SecureShare portal</div></div>
+        <div class="kpi"><div class="label">Non-SecureShare %</div><div class="value" id="kChannelNonSSPct">-</div><div class="sub">Received via another known channel</div></div>
+        <div class="kpi"><div class="label">Not Recorded %</div><div class="value" id="kChannelUnknownPct">-</div><div class="sub">No submission channel recorded</div></div>
+        <div class="kpi"><div class="label">Active Brokers</div><div class="value" id="kChannelBrokers">-</div><div class="sub">Brokers with submissions in this channel</div></div>
+      </section>
+      <section class="grid" style="margin-top:16px;">
+        <article class="card" style="grid-column:span 7;">
+          <h2 style="font-size:.9rem;margin-bottom:4px;font-weight:600;">Submissions by Channel</h2>
+          <p style="font-size:.7rem;color:var(--muted);margin:0 0 8px;">Distribution of submissions across all channels</p>
+          <canvas id="chartChannelBreakdown" height="120"></canvas>
+        </article>
+        <article class="card" style="grid-column:span 5;">
+          <h2 style="font-size:.9rem;margin-bottom:4px;font-weight:600;">SecureShare Submission Share by Broker</h2>
+          <p style="font-size:.7rem;color:var(--muted);margin:0 0 8px;">Top brokers by SecureShare volume share (top 3 + Other)</p>
+          <canvas id="chartChannelBrokerSSRate" height="120"></canvas>
+        </article>
+      </section>
+      <article class="card" style="margin-top:16px;overflow-x:auto;">
+        <h2 style="font-size:.9rem;margin-bottom:10px;font-weight:600;">Submission Visibility</h2>
+        <div style="max-height:500px;overflow:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:10px;">
+            <thead>
+              <tr>
+                <th style="padding:5px 6px;border-bottom:1px solid #edf0f7;text-align:left;background:#fafcff;color:var(--muted);">Submission Channel</th>
+                <th style="padding:5px 6px;border-bottom:1px solid #edf0f7;text-align:right;background:#fafcff;color:var(--muted);">Submissions</th>
+                <th style="padding:5px 6px;border-bottom:1px solid #edf0f7;text-align:right;background:#fafcff;color:var(--muted);">% of Total</th>
+                <th style="padding:5px 6px;border-bottom:1px solid #edf0f7;text-align:right;background:#fafcff;color:var(--muted);">Active Brokers</th>
+                <th style="padding:5px 6px;border-bottom:1px solid #edf0f7;text-align:right;background:#fafcff;color:var(--muted);">Active Schemes</th>
+                <th style="padding:5px 6px;border-bottom:1px solid #edf0f7;text-align:left;background:#fafcff;color:var(--muted);">Processes Used</th>
+                <th style="padding:5px 6px;border-bottom:1px solid #edf0f7;text-align:right;background:#fafcff;color:var(--muted);">Avg Completion %</th>
+                <th style="padding:5px 6px;border-bottom:1px solid #edf0f7;text-align:left;background:#fafcff;color:var(--muted);">Top Brokers</th>
+              </tr>
+            </thead>
+            <tbody id="channelVisibilityBody"></tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
+    <section class="footer-note">
+      <strong>Data Sources & Currency</strong>
+      <ul>
+        <li><strong>MIDAS Submissions Data</strong> (midas_submissions_data.js): Export from stg_MIDAS_Submissions table. Current range: 2023-10-02 to 2026-04-30. <em>To refresh: Re-export from Power BI model and save as JS file.</em></li>
+        <li><strong>New Entrant Data</strong> (ne_submissions_data.js): Export of NE submissions by month/broker/scheme. Current range: January 2025 to July 2026.</li>
+        <li><strong>Master Scheme Data</strong> (dc_master_list_data.js): Reference table for scheme name resolution and attributes. Update as scheme master list changes.</li>
+        <li><strong>Sharpload Bulk Data</strong> (sharpload_bulk_data.js): Data transformation audit trail.</li>
+        <li>Last Refresh timestamp shown in top-right corner (browser local time).</li>
+        <li>To ensure data currency: (1) Export latest MIDAS/NE data from database, (2) Re-generate JS data files, (3) Reload report in browser.</li>
+      </ul>
+    </section>
+  </main>
+</div>
+
+<script src="./data/midas_submissions_data.js"></script>
+<script src="./data/sharpload_bulk_data.js"></script>
+<script src="./data/dc_master_list_data.js"></script>
+<script src="./data/ne_submissions_data.js"></script>
+<script>
+// Stephen James (07/08/26): Approved processes for Process Visibility view
+const APPROVED_PROCESSES = [
+  "New Entrant Bulk Auto",
+  "New Entrant Single Auto",
+  "Cash / Direct Debits",
+  "Auto Quote",
+  "Scheme Update"
+];
+
+const WORKFLOW_MAP = [
+  { workflow: "Cash / Direct Debits", code: "CADD", context: "DC", desc: "Breakdown" },
+  { workflow: "Cash / Direct Debits", code: "CADD", context: "DC", desc: "MultiplePayPoint" },
+  { workflow: "Cash / Direct Debits", code: "CADD", context: "DC", desc: "VARIABLEDD" },
+  { workflow: "Scheme Update", code: "SCUP", context: "DC", desc: "Salaries" },
+  { workflow: "New Entrant Bulk Auto", code: "NEBAUTO", context: "DC", desc: "DC" },
+  { workflow: "New Entrant Single Auto", code: "NESAUTO", context: "DC", desc: "PRSA" },
+  { workflow: "Bulk Quote", code: "BULKQTE", context: "DC", desc: "DC" },
+  { workflow: "Auto Quote", code: "AUTOQTE", context: "DC", desc: "DC" },
+  { workflow: "Query DC", code: "QRY", context: "DC", desc: "Individual Leavers - No Match Found" },
+  { workflow: "Query DC", code: "QRY", context: "DC", desc: "Individual Leavers - Multiple Found" },
+  { workflow: "Initial Vet", code: "INVET", context: "RISK ADMIN", desc: "RENEWALDATA" }
+];
+
+const PAYROLL_SCHEME_MAP = {
+  "Zellis":                  ["Aer Lingus", "Irish Airline", "IAG Cargo"],
+  "SD Worx Ireland Limited": ["Sappho Group Employee Benefits"],
+  "PWC":                     ["Neuberger Berman"],
+  "Darwin":                  ["Meta Platforms Ireland"],
+  "Zedra":                   ["Expel Cybersecurity Ireland", "Haier Smart Home"],
+  "Humm Group":              ["Flexifi Europe Services"]
+};
+
+const MASTER_DATA = window.DC_MASTER_DATA || null;
+const MASTER_SCHEMES = Array.isArray(MASTER_DATA?.schemes) ? MASTER_DATA.schemes : [];
+const MASTER_EMPLOYERS = Array.isArray(MASTER_DATA?.employers) ? MASTER_DATA.employers : [];
+const MASTER_BROKERS = Array.isArray(MASTER_DATA?.brokers) ? MASTER_DATA.brokers : [];
+const SHARPLOAD_ROWS = Array.isArray(window.SHARPLOAD_BULK_DATA) ? window.SHARPLOAD_BULK_DATA : [];
+const FINANCIAL_MONTHLY = [
+  {
+    month: "2026-01",
+    monthLabel: "2026-01",
+    groupCost: -929166,
+    groupPreappropImpact: 191450,
+    groupNetCost: -737715,
+    individualCost: -1003826,
+    individualPreappropImpact: 354515,
+    individualNetCost: -649312
+  },
+  {
+    month: "2026-02",
+    monthLabel: "2026-02",
+    groupCost: -353728,
+    groupPreappropImpact: 224724,
+    groupNetCost: -129004,
+    individualCost: -363736,
+    individualPreappropImpact: 77409,
+    individualNetCost: -286328
+  },
+  {
+    month: "2026-03",
+    monthLabel: "2026-03",
+    groupCost: 727666,
+    groupPreappropImpact: -228526,
+    groupNetCost: 499139,
+    individualCost: 14808,
+    individualPreappropImpact: -696372,
+    individualNetCost: -681564
+  }
+];
+const FINANCIAL_DRIVER_CLASSIFICATION = [
+  {
+    month: "2026-01",
+    business: "Individual",
+    primaryDriver: "Operational Capacity",
+    transactionType: "RP"
+  },
+  {
+    month: "2026-01",
+    business: "Group",
+    primaryDriver: "Market Movement",
+    transactionType: "RP"
+  },
+  {
+    month: "2026-02",
+    business: "Individual",
+    primaryDriver: "Backdating",
+    transactionType: "SP"
+  },
+  {
+    month: "2026-02",
+    business: "Group",
+    primaryDriver: "Claims Offset",
+    transactionType: "Claims"
+  },
+  {
+    month: "2026-03",
+    business: "Individual",
+    primaryDriver: "Outflow Concentration",
+    transactionType: "Switches"
+  },
+  {
+    month: "2026-03",
+    business: "Group",
+    primaryDriver: "Market Movement",
+    transactionType: "RP"
+  }
+];
+const KRI_SCHEME_DRILLDOWN = [
+  { period: "2026-01", schemeNumber: "8398", netCost: -17249, reason: "I.N.T.O. AVC Plan scheme, RSP of €3.2m with effective date 02/01/2026 and system date 05/01/2026. CB Approps were informed on 02/01/2026 (pm). Preapprop was added on 05/01/2026. Loss due to price movements." },
+  { period: "2026-01", schemeNumber: "1441", netCost: -19269, reason: "Nurses AVC Scheme scheme, RSP of €4.3m with effective date 02/01/2026 and system date 05/01/2026. CB Approps were informed on 02/01/2026 (pm). Preapprop was added on 05/01/2026. Loss due to price movements." },
+  { period: "2026-02", schemeNumber: "3645", netCost: 10151, reason: "Aer Lingus scheme, RSP of €1.3m with effective date 04/02/2026 and system date 06/02/2026. CB Approps were informed on 04/02/2026 (PM). Preapprop was added on 05/02/2026. Gain due to price movements." },
+  { period: "2026-02", schemeNumber: "3990", netCost: 31390, reason: "Stryker Ireland DC Pension P scheme, RSP of €3.7m with effective date 11/02/2026 and system date 13/02/2026. CB Approps were informed on 12/02/2026 (AM). Preapprop was added on 12/02/2026. Gain due to price movements." },
+  { period: "2026-02", schemeNumber: "6849", netCost: -16638, reason: "Maples Group scheme, SP of €0.4m with effective date 07/10/2025 was reversed and reinstated on other funds. CB Approps were not informed. Loss due to price movements. More Detail TBC" },
+  { period: "2026-02", schemeNumber: "9839", netCost: 11610, reason: "BKSW / RESW - Analysed Separately" },
+  { period: "2026-03", schemeNumber: "2549", netCost: -10374, reason: "Mediolanum International Fund scheme, SWTHs of €1.1m and €0.26m with effective date 03/03/2026 and system date 04/03/2026. CB Approps were informed on 03/03/2026 PM. Preapprop was added on 04/03/2026. Loss due to price movements." },
+  { period: "2026-03", schemeNumber: "2945", netCost: -33040, reason: "Irish Life and Canada Life D scheme, RSP of €4m with effective date 23/03/2026 and system date 27/03/2026. CB Approps were informed on 24/03/2026 PM. Preapprop was added on 25/03/2026. Loss due to price movements." },
+  { period: "2026-03", schemeNumber: "3000", netCost: 25541, reason: "CHC Ireland DAC. scheme, SWTH of €1.1m with effective date 06/03/2026 and system date 12/03/2026. CB Approps were informed on 09/03/2026. Preapprop was added on 09/03/2026. Gain due to price movements." },
+  { period: "2026-03", schemeNumber: "3123", netCost: 11619, reason: "Intel Ireland DC Plan scheme, RSP of €1.5m with effective date 11/03/2026 and system date 16/03/2026. CB Approps were informed on 11/03/2026 PM. Preapprop was added on 12/03/2026. Gain due to price movements." },
+  { period: "2026-03", schemeNumber: "3123", netCost: 13440, reason: "Intel Ireland DC Plan scheme, RSP of €1.5m with effective date 25/03/2026 and system date 27/03/2026. CB Approps were informed on 26/03/2026. Preapprop was added on 26/03/2026. Gain due to price movements." },
+  { period: "2026-03", schemeNumber: "3299", netCost: 21952, reason: "PricewaterhouseCoopers scheme, RSP of €2m with effective date 02/03/2026 and system date 06/03/2026. CB Approps were informed on 03/03/2026. Preapprop was added on 03/03/2026. Gain due to price movements." },
+  { period: "2026-03", schemeNumber: "3414", netCost: 12454, reason: "BKD & Partners Limited scheme, SWTH of €0m with effective date 04/03/2026 and system date 19/03/2026. CB Approps were informed on 04/03/2026 PM. Preapprop was added on 05/03/2026. Gain due to price movements." },
+  { period: "2026-03", schemeNumber: "3516", netCost: -13122, reason: "Irving Oil Ireland Limited scheme, SWTH of €0.7m with effective date 23/03/2026 and system date 24/03/2026. CB Approps were informed on 24/03/2026. Preapprop was added on 24/03/2026. Loss due to price movements." },
+  { period: "2026-03", schemeNumber: "3516", netCost: -15524, reason: "Irving Oil Ireland Limited scheme, SWTH of €0.7m with effective date 23/03/2026 and system date 24/03/2026. CB Approps were informed on 24/03/2026. Preapprop was added on 24/03/2026. Loss due to price movements." },
+  { period: "2026-03", schemeNumber: "3616", netCost: 82229, reason: "Google Ireland Limited scheme, RSP of €8.2m with effective date 26/03/2026 and system date 27/03/2026. CB Approps were informed on 26/03/2026. Preapprop was added on 27/03/2026. Gain due to price movements." },
+  { period: "2026-03", schemeNumber: "3616", netCost: 22019, reason: "Google Ireland Limited scheme, WTHD of €0.6m with effective date 20/03/2026 and system date 30/03/2026. CB Approps were informed on 09/03/2026, quoting effective date 09/03/2026. Preapprop was added on 10/03/2026. Gain due to price movements." },
+  { period: "2026-03", schemeNumber: "3645", netCost: 11022, reason: "Aer Lingus scheme, RSP of €1.3m with effective date 18/03/2026 and system date 23/03/2026. CB Approps were informed on 19/03/2026. Preapprop was added on 19/03/2026. Gain due to price movements." },
+  { period: "2026-03", schemeNumber: "3772", netCost: 12612, reason: "Dornan Engineering Limited scheme, SP of €1.1m with effective date 16/03/2026 and system date 23/03/2026. CB Approps were informed 16/03/2026. Preapprop added 19/03/2026. Gain due to price movements." },
+  { period: "2026-03", schemeNumber: "3860", netCost: -11769, reason: "Irish Life and Canada Life scheme, RSP of €1.4m with effective date 23/03/2026 and system date 27/03/2026. CB Approps were informed on 24/03/2026. Preapprop was added on 25/03/2026. Loss due to price movements." },
+  { period: "2026-03", schemeNumber: "3888", netCost: 13833, reason: "Kerry Group Plc scheme, RSP of €1.5m with effective date 18/03/2026 and system date 23/03/2026. CB Approps were informed on 19/03/2026. Preapprop was added on 19/03/2026. Gain due to price movements." },
+  { period: "2026-03", schemeNumber: "7205", netCost: -23975, reason: "PRB min 0.75% AMC scheme, SP of €0.1m with effective date 20/08/2021 and system date 05/03/2026. CB Approps were not informed. Loss due to price movements." },
+  { period: "2026-03", schemeNumber: "7205", netCost: -33605, reason: "PRB min 0.75% AMC scheme, SP of €0.1m with effective date 20/08/2021 and system date 05/03/2026. CB Approps were not informed. Loss due to price movements." },
+  { period: "2026-03", schemeNumber: "7227", netCost: 11219, reason: "PRB Canada Life no trail scheme, SP of €0.6m with effective date 02/03/2026 and system date 06/03/2026. CB Approps were not informed. Gain due to price movements." },
+  { period: "2026-03", schemeNumber: "7278", netCost: -13378, reason: "PERSONAL RETIREMENT BONDS (R scheme, SWTH of €0.7m with effective date 27/02/2026 and system date 06/03/2026. CB Approps were informed 06/03/2026 PM. Loss due to price movements." },
+  { period: "2026-03", schemeNumber: "8398", netCost: -24424, reason: "I.N.T.O. AVC Plan scheme, RSP of €3.2m with effective date 30/03/2026 and system date 31/03/2026. CB Approps were informed on 31/03/2026. Preapprop was added on 31/03/2026. Loss due to price movements." },
+  { period: "2026-03", schemeNumber: "8399", netCost: -13093, reason: "A.S.T.I. AVC Plan scheme, RSP of €1.9m with effective date 30/03/2026 and system date 31/03/2026. CB Approps were informed on 31/03/2026. Preapprop was added on 31/03/2026. Loss due to price movements." },
+  { period: "2026-03", schemeNumber: "3990", netCost: 23819, reason: "Stryker Ireland DC Pension P scheme, RSP of €3.4m with effective date 11/03/2026 and system date 16/03/2026. CB Approps were informed on 13/3/2026 PM. Preapprop was added on 16/03/2026. Gain due to price movements." },
+  { period: "2026-03", schemeNumber: "9819", netCost: -13405, reason: "Enet Defined Contribution Pl scheme, RSP of €0.2m with effective date 26/09/2025 and system date 02/03/2026. CB Approps were not informed. Loss due to price movements." },
+  { period: "2026-03", schemeNumber: "9811", netCost: -20287, reason: "PMI Software Ltd scheme, WTHD of €0.9m with effective date 02/03/2026 and system date 06/03/2026. CB Approps were informed on 05/03/2026 PM. Preapprop was added on 06/03/2026. Loss due to price movements." },
+  { period: "2026-03", schemeNumber: "5268", netCost: -13835, reason: "Project Management Limited scheme, ERET of €1.2m with effective date 06/03/2026 and system date 25/03/2026. CB Approps were informed on 24/03/2026 PM. Preapprop was added on 25/03/2026. Loss due to price movements." },
+  { period: "2026-03", schemeNumber: "7769", netCost: -11731, reason: "PRB Jardine Lloyd Thompson L scheme, SWTH of €0.9m with effective date 25/03/2026 and system date 27/03/2026. CB Approps were informed on 26/03/2026. Preapprop was added on 26/03/2026. Loss due to price movements." }
+];
+
+const FALLBACK_EMPLOYERS = ["Irish Life Group", "Westbrook Foods", "Dublin Logistics", "Harbor Engineering", "Greenline Care", "Northpoint Retail", "Clarity Pharma", "Connacht Manufacturing"];
+const FALLBACK_BROKERS = ["Aon", "Mercer", "Unio", "Cornmarket", "Willis Towers Watson", "Irish Life", "NFP Ireland"];
+const EMPLOYERS = MASTER_EMPLOYERS.length ? MASTER_EMPLOYERS : FALLBACK_EMPLOYERS;
+const BROKERS = MASTER_BROKERS.length ? MASTER_BROKERS : FALLBACK_BROKERS;
+const KRI_SLA_TARGET_DAYS = 2;
+const STATUSES = ["Submitted", "Complete Work", "Completed", "In Progress", "Pending"];
+const today = new Date();
+
+function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function dateAdd(d, days) { const x = new Date(d); x.setDate(x.getDate() + days); return x; }
+function iso(d) { return d.toISOString().slice(0, 10); }
+
+function normalizeGoldScheme(value) {
+  const v = String(value || "").trim().toLowerCase();
+  if (v === "yes" || v === "y" || v === "true" || v === "1" || v === "gold") return "Yes";
+  return "No";
+}
+
+function normalizeInputRow(r) {
+  // DAX exports wrap column names in [brackets] e.g. "[DateCreated]" — strip them
+  function g(key) {
+    if (r[key] !== undefined) return r[key];
+    const bracketed = `[${key}]`;
+    return r[bracketed] !== undefined ? r[bracketed] : undefined;
+  }
+  const dc = g("DateCreated");
+  const dcomp = g("DateCompleted");
+  return {
+    DateCreated: dc ? String(dc).slice(0, 10) : null,
+    DateCompleted: dcomp ? String(dcomp).slice(0, 10) : null,
+    SchemeNumber: g("SchemeNumber") || "",
+    SchemeName: g("SchemeName") || "",
+    Employer_Org: g("Employer_Org") || "",
+    Broker_Org: g("Broker_Org") || "",
+    SubmitterEmail: g("SubmitterEmail") || "",
+    WorkContext: g("WorkContext") || "",
+    WorkTypeCode: g("WorkTypeCode") || "",
+    WorkTypeDescription: g("WorkTypeDescription") || "",
+    WorkStatus: g("WorkStatus") || "",
+    GoldScheme: normalizeGoldScheme(g("GoldScheme"))
+  };
+}
+
+function parseSharploadDate(value) {
+  const text = String(value || "").trim();
+  if (!text) return null;
+  const parts = text.split("-");
+  if (parts.length === 3) {
+    const [day, month, year] = parts;
+    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+  }
+  const dt = new Date(text);
+  return Number.isNaN(dt.getTime()) ? null : iso(dt);
+}
+
+function toInt(value) {
+  const n = Number(String(value || "").replace(/,/g, "").trim());
+  return Number.isFinite(n) ? n : 0;
+}
+
+function normalizeSharploadRow(r) {
+  const skipped = toInt(r.NUM_DATA_RECORDS_SKIPPED);
+  const errored = Math.abs(toInt(r.NUM_DATA_RECORDS_ERRORED));
+  return {
+    MIDAS_NO: r.MIDAS_NO || "",
+    BATCH_ID: r.BATCH_ID || "",
+    BATCH_NAME: r.BATCH_NAME || "",
+    CREATED: parseSharploadDate(r.CREATED),
+    COMPLETED: parseSharploadDate(r.COMPLETED),
+    NUM_DATA_RECORDS_LOADED: toInt(r.NUM_DATA_RECORDS_LOADED),
+    NUM_DATA_RECORDS_VALID: toInt(r.NUM_DATA_RECORDS_VALID),
+    NUM_DATA_RECORDS_ERRORED: Math.max(errored, skipped),
+    NUM_DATA_RECORDS_SKIPPED: skipped,
+    CREATED_BY: r.CREATED_BY || "",
+    STATUS: r.STATUS || "",
+    WorkType: r['On Tableau'] || ""
+  };
+}
+
+function generateMockRows(n = 420) {
+  const rows = [];
+  const schemePool = MASTER_SCHEMES.length ? MASTER_SCHEMES : null;
+  for (let i = 0; i < n; i++) {
+    const wf = rand(WORKFLOW_MAP);
+    const created = dateAdd(today, -randInt(0, 365));
+    const status = Math.random() < 0.52 ? "Complete Work" : rand(STATUSES);
+    const completed = (status.includes("Complete") || status === "Completed") ? dateAdd(created, randInt(1, 18)) : null;
+    const scheme = schemePool ? rand(schemePool) : null;
+    const schemeNum = scheme?.SchemeNumber || String(randInt(600000, 609999));
+    const emp = scheme?.Employer_Org || rand(EMPLOYERS);
+    const broker = scheme?.Broker_Org || rand(BROKERS);
+    const orgToken = (emp || "user").split(" ")[0].toLowerCase().replace(/[^a-z0-9]/g, "") || "user";
+    const submitter = `${orgToken}.${rand(["amy","brian","chloe","dara","eoin","faye","gavin","hugh"])}@example.ie`;
+
+    rows.push({
+      DateCreated: iso(created),
+      DateCompleted: completed ? iso(completed) : null,
+      SchemeNumber: schemeNum,
+      SchemeName: scheme?.SchemeName || `${(emp || "Unknown").split(" ")[0]} Scheme ${String(schemeNum).slice(-3)}`,
+      Employer_Org: emp,
+      Broker_Org: broker,
+      SubmitterEmail: submitter,
+      WorkContext: wf.context,
+      WorkTypeCode: wf.code,
+      WorkTypeDescription: wf.desc,
+      WorkStatus: status,
+      GoldScheme: scheme ? normalizeGoldScheme(scheme.GoldScheme) : (Math.random() < 0.28 ? "Yes" : "No")
+    });
+  }
+  return rows;
+}
+
+const allRows = Array.isArray(window.MIDAS_SUBMISSIONS_DATA) && window.MIDAS_SUBMISSIONS_DATA.length
+  ? window.MIDAS_SUBMISSIONS_DATA.map(normalizeInputRow)
+  : generateMockRows();
+const sharploadRows = SHARPLOAD_ROWS.map(normalizeSharploadRow).filter(r => r.CREATED && r.STATUS.toUpperCase() === "COMPLETED");
+
+const ui = {
+  dateFrom: document.getElementById("dateFrom"),
+  dateTo: document.getElementById("dateTo"),
+  perspective: document.getElementById("perspective"),
+  orgFilter: document.getElementById("orgFilter"),
+  contextFilter: document.getElementById("contextFilter"),
+  statusFilter: document.getElementById("statusFilter"),
+  goldFilter: document.getElementById("goldFilter"),
+  searchBox: document.getElementById("searchBox"),
+  resetFilters: document.getElementById("resetFilters"),
+  exportCsv: document.getElementById("exportCsv"),
+  finBusinessFilter: document.getElementById("finBusinessFilter"),
+  finMonthFilter: document.getElementById("finMonthFilter"),
+  finPrimaryDriverFilter: document.getElementById("finPrimaryDriverFilter"),
+  schemeFilter: document.getElementById("schemeFilter"),
+  schemePeriodFilter: document.getElementById("schemePeriodFilter"),
+  schemeVisBrokerFilter: document.getElementById("schemeVisBrokerFilter"),
+  schemeVisDirectClientFilter: document.getElementById("schemeVisDirectClientFilter"),
+  schemeVisSchemeNoFilter: document.getElementById("schemeVisSchemeNoFilter"),
+  schemeVisPaymentFilter: document.getElementById("schemeVisPaymentFilter"),
+  channelVisBrokerFilter: document.getElementById("channelVisBrokerFilter"),
+  channelVisSchemeNoFilter: document.getElementById("channelVisSchemeNoFilter"),
+  processVisProcessFilter: document.getElementById("processVisProcessFilter"),
+  processVisPaymentFilter: document.getElementById("processVisPaymentFilter"),
+  processVisSchemeNoFilter: document.getElementById("processVisSchemeNoFilter"),
+  tabOverview: document.getElementById("tabOverview"),
+  tabFinancial: document.getElementById("tabFinancial"),
+  tabScheme: document.getElementById("tabScheme"),
+  viewOverview: document.getElementById("viewOverview"),
+  viewFinancial: document.getElementById("viewFinancial"),
+  viewScheme: document.getElementById("viewScheme"),
+  tabNE:        document.getElementById("tabNE"),
+  viewNE:       document.getElementById("viewNE"),
+  neMonthFilter: document.getElementById("neMonthFilter"),
+  neBrokerFilter: document.getElementById("neBrokerFilter"),
+  neSchemeNoFilter: document.getElementById("neSchemeNoFilter"),
+  tabChannelVis: document.getElementById("tabChannelVis"),
+  viewChannelVis: document.getElementById("viewChannelVis"),
+  tabProcessVis: document.getElementById("tabProcessVis"),
+  viewProcessVis: document.getElementById("viewProcessVis"),
+  schemeTypeFilter: document.getElementById("schemeTypeFilter"),
+  payrollFilter: document.getElementById("payrollFilter")
+};
+
+const charts = {};
+const MAX_TABLE_ROWS = 150;
+let currentPage = "overview";
+
+function uniq(values) { return [...new Set(values.filter(Boolean))].sort(); }
+function fmt(n) { return n.toLocaleString(); }
+function pct(v) { return `${(v * 100).toFixed(1)}%`; }
+function fmtCurrency(n) {
+  if (n == null || !Number.isFinite(n)) return "-";
+  const sign = n < 0 ? "-" : "";
+  return `${sign}EUR ${Math.abs(n).toLocaleString()}`;
+}
+function fmtSlaDays(n) {
+  return Number.isFinite(n) ? n.toFixed(1) : "-";
+}
+function debounce(fn, wait = 180) {
+  let t;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...args), wait);
+  };
+}
+
+function initFinancialFilters() {
+  if (!ui.finBusinessFilter || !ui.finMonthFilter || !ui.finPrimaryDriverFilter) return;
+  ui.finBusinessFilter.value = "All";
+  ui.finMonthFilter.innerHTML = '<option value="All">All Months</option>';
+  FINANCIAL_MONTHLY.forEach(r => ui.finMonthFilter.add(new Option(r.monthLabel, r.month)));
+  ui.finPrimaryDriverFilter.innerHTML = '<option value="All">All Drivers</option>';
+  uniq(FINANCIAL_DRIVER_CLASSIFICATION.map(r => r.transactionType))
+    .forEach(d => ui.finPrimaryDriverFilter.add(new Option(formatDriverType(d), formatDriverType(d))));
+}
+
+function initSchemeFilters() {
+  if (!ui.schemeFilter || !ui.schemePeriodFilter) return;
+  const periods = uniq(KRI_SCHEME_DRILLDOWN.map(r => r.period));
+  ui.schemeFilter.value = "";
+  ui.schemePeriodFilter.innerHTML = '<option value="All">All Periods</option>';
+  periods.forEach(p => ui.schemePeriodFilter.add(new Option(p, p)));
+}
+
+function initProcessFilters() {
+  if (ui.processVisProcessFilter) ui.processVisProcessFilter.innerHTML = '<option value="">(All Processes)</option>';
+  if (ui.processVisPaymentFilter) ui.processVisPaymentFilter.value = "";
+}
+
+function selectedFinancialBusiness() {
+  return ui.finBusinessFilter ? ui.finBusinessFilter.value : "All";
+}
+
+function selectedFinancialMonth() {
+  return ui.finMonthFilter ? ui.finMonthFilter.value : "All";
+}
+
+function selectedPrimaryDriver() {
+  return ui.finPrimaryDriverFilter ? ui.finPrimaryDriverFilter.value : "All";
+}
+
+function selectedSchemeNumber() {
+  return ui.schemeFilter ? ui.schemeFilter.value.trim() : "";
+}
+
+function selectedSchemePeriod() {
+  return ui.schemePeriodFilter ? ui.schemePeriodFilter.value : "All";
+}
+
+function selectedProcessName() {
+  return ui.processVisProcessFilter ? ui.processVisProcessFilter.value : "";
+}
+
+function selectedPaymentMethod() {
+  return ui.processVisPaymentFilter ? ui.processVisPaymentFilter.value : "";
+}
+
+function selectedProcessSchemeNumber() {
+  return ui.processVisSchemeNoFilter ? ui.processVisSchemeNoFilter.value.trim().toLowerCase() : "";
+}
+
+function selectedDateRangeMonths() {
+  return {
+    fromMonth: ui.dateFrom && ui.dateFrom.value ? ui.dateFrom.value.slice(0, 7) : null,
+    toMonth: ui.dateTo && ui.dateTo.value ? ui.dateTo.value.slice(0, 7) : null
+  };
+}
+
+function monthWithinSelectedDateRange(monthValue) {
+  const { fromMonth, toMonth } = selectedDateRangeMonths();
+  if (!fromMonth && !toMonth) return true;
+  if (fromMonth && monthValue < fromMonth) return false;
+  if (toMonth && monthValue > toMonth) return false;
+  return true;
+}
+
+function activeSubmissionMonths() {
+  return uniq(filteredRows().map(r => String(r.DateCreated || "").slice(0, 7)));
+}
+
+function monthVisibleInSubmissionContext(monthValue) {
+  if (!monthWithinSelectedDateRange(monthValue)) return false;
+  const months = activeSubmissionMonths();
+  if (!months.length) return false;
+  return months.includes(monthValue);
+}
+
+function parseReasonDate(value) {
+  const m = String(value || "").match(/(\d{2})\/(\d{2})\/(\d{4})/);
+  if (!m) return null;
+  const [, dd, mm, yyyy] = m;
+  return new Date(`${yyyy}-${mm}-${dd}T00:00:00`);
+}
+
+function deriveSlaDaysFromReason(reason) {
+  const text = String(reason || "");
+  const effMatch = text.match(/effective date\s*(\d{2}\/\d{2}\/\d{4})/i);
+  const sysMatch = text.match(/system date\s*(\d{2}\/\d{2}\/\d{4})/i);
+  if (!effMatch || !sysMatch) return null;
+  const effective = parseReasonDate(effMatch[1]);
+  const system = parseReasonDate(sysMatch[1]);
+  if (!effective || !system) return null;
+  const diffDays = Math.floor((system - effective) / 86400000);
+  return Number.isFinite(diffDays) ? Math.max(0, diffDays) : null;
+}
+
+function driverProfile(month, business) {
+  return FINANCIAL_DRIVER_CLASSIFICATION.find(d => d.month === month && d.business === business) || {
+    primaryDriver: "-",
+    transactionType: "-"
+  };
+}
+
+function formatDriverType(type) {
+  if (type === "RP") return "RP (Regular Premium)";
+  if (type === "SP") return "SP (Single Premium)";
+  if (type === "Claims") return "Claims";
+  if (type === "Switches") return "Switches";
+  return type || "-";
+}
+
+
+function normalizeDriverType(type) {
+  const value = String(type || "").trim();
+  if (value === "RP" || value === "RP (Regular Premium)") return "RP";
+  if (value === "SP" || value === "SP (Single Premium)") return "SP";
+  if (value === "Claims") return "Claims";
+  if (value === "Switches") return "Switches";
+  return value;
+}
+
+function financialRowsFiltered(baseRows = filteredRows()) {
+  const business = selectedFinancialBusiness();
+  const month = selectedFinancialMonth();
+  const driverType = normalizeDriverType(selectedPrimaryDriver());
+  function includeBusiness(monthValue, businessValue) {
+    if (driverType === "All") return true;
+    return driverProfile(monthValue, businessValue).transactionType === driverType;
+  }
+
+  return FINANCIAL_MONTHLY
+    .filter(r => month === "All" || r.month === month)
+    .map(r => {
+      const groupAllowed = business !== "Individual" && includeBusiness(r.month, "Group");
+      const individualAllowed = business !== "Group" && includeBusiness(r.month, "Individual");
+      const groupNetFiltered = groupAllowed ? r.groupNetCost : 0;
+      const individualNetFiltered = individualAllowed ? r.individualNetCost : 0;
+      return {
+        ...r,
+        groupAllowed,
+        individualAllowed,
+        groupNetFiltered,
+        individualNetFiltered,
+        totalNetFiltered: groupNetFiltered + individualNetFiltered
+      };
+    })
+    .filter(r => r.groupAllowed || r.individualAllowed);
+}
+
+function kriSchemeRowsFiltered(baseRows = filteredRows()) {
+  const scheme = selectedSchemeNumber();
+  const period = selectedSchemePeriod();
+  return KRI_SCHEME_DRILLDOWN.filter(r => {
+    if (scheme && !r.schemeNumber.includes(scheme)) return false;
+    if (period !== "All" && r.period !== period) return false;
+    return true;
+  }).map(r => {
+    const slaDays = deriveSlaDaysFromReason(r.reason);
+    return {
+      ...r,
+      slaDays,
+      slaMeasured: Number.isFinite(slaDays),
+      slaMet: Number.isFinite(slaDays) ? slaDays <= KRI_SLA_TARGET_DAYS : null
+    };
+  });
+}
+
+function aggregateKriSchemeRows(rows) {
+  const map = new Map();
+  rows.forEach(r => {
+    const key = `${r.schemeNumber}|${r.period}`;
+    if (!map.has(key)) {
+      map.set(key, {
+        schemeNumber: r.schemeNumber,
+        period: r.period,
+        netCost: 0,
+        eventCount: 0,
+        slaMeasuredCount: 0,
+        slaMetCount: 0,
+        slaDaysTotal: 0,
+        reasons: []
+      });
+    }
+    const bucket = map.get(key);
+    bucket.netCost += r.netCost;
+    bucket.eventCount += 1;
+    if (r.slaMeasured) {
+      bucket.slaMeasuredCount += 1;
+      bucket.slaDaysTotal += r.slaDays;
+      if (r.slaMet) bucket.slaMetCount += 1;
+    }
+    if (r.reason) bucket.reasons.push(r.reason);
+  });
+  return [...map.values()]
+    .map(r => ({
+      ...r,
+      avgSlaDays: r.slaMeasuredCount ? (r.slaDaysTotal / r.slaMeasuredCount) : null,
+      slaMetRate: r.slaMeasuredCount ? (r.slaMetCount / r.slaMeasuredCount) : null
+    }))
+    .sort((a, b) => a.period.localeCompare(b.period) || a.schemeNumber.localeCompare(b.schemeNumber));
+}
+
+function getDefaultDateRange() {
+  const todayStr = new Date().toISOString().split('T')[0];
+  const minDateMidas = allRows.reduce((m, r) => r.DateCreated < m ? r.DateCreated : m, "9999-12-31");
+  const maxDateMidas = allRows.reduce((m, r) => {
+    if (!r.DateCreated || r.DateCreated > todayStr) return m;
+    return r.DateCreated > m ? r.DateCreated : m;
+  }, "0000-00-00");
+
+  let minDateNe = "9999-12-31";
+  let maxDateNe = "0000-00-00";
+  if (typeof ne_submissions_data !== "undefined") {
+    const months = ne_submissions_data.map(r => String(r.YearMonth || "")).filter(Boolean).sort();
+    if (months.length) {
+      minDateNe = `${months[0]}-01`;
+      const latestYm = months[months.length - 1];
+      const [yyyy, mm] = latestYm.split("-").map(Number);
+      const lastDay = new Date(yyyy, mm, 0).getDate();
+      maxDateNe = `${latestYm}-${String(lastDay).padStart(2, "0")}`;
+      if (maxDateNe > todayStr) maxDateNe = todayStr;
+    }
+  }
+
+  return {
+    minDate: minDateMidas < minDateNe ? minDateMidas : minDateNe,
+    maxDate: maxDateMidas > maxDateNe ? maxDateMidas : maxDateNe
+  };
+}
+
+function initFilters() {
+  const { minDate, maxDate } = getDefaultDateRange();
+  ui.dateFrom.value = minDate;
+  ui.dateTo.value = maxDate;
+
+  uniq(allRows.map(r => r.WorkContext)).forEach(v => ui.contextFilter.add(new Option(v, v)));
+  uniq(allRows.map(r => r.WorkStatus)).forEach(v => ui.statusFilter.add(new Option(v, v)));
+  buildOrgOptions();
+}
+
+function buildOrgOptions() {
+  const orgs = ui.perspective.value === "Employer"
+    ? uniq(allRows.map(r => r.Employer_Org))
+    : uniq(allRows.map(r => r.Broker_Org));
+  ui.orgFilter.innerHTML = '<option value="">All Organisations</option>';
+  orgs.forEach(o => ui.orgFilter.add(new Option(o, o)));
+}
+
+function filteredRows() {
+  const from = ui.dateFrom.value;
+  const to = ui.dateTo.value;
+  const orgField = ui.perspective.value === "Employer" ? "Employer_Org" : "Broker_Org";
+  const q = ui.searchBox.value.trim().toLowerCase();
+
+  return allRows.filter(r => {
+    if (from && r.DateCreated < from) return false;
+    if (to && r.DateCreated > to) return false;
+    if (ui.orgFilter.value && r[orgField] !== ui.orgFilter.value) return false;
+    if (ui.contextFilter.value && r.WorkContext !== ui.contextFilter.value) return false;
+    if (ui.statusFilter.value && r.WorkStatus !== ui.statusFilter.value) return false;
+    if (ui.goldFilter.value === "Gold" && r.GoldScheme !== "Yes") return false;
+    if (ui.goldFilter.value === "NonGold" && r.GoldScheme !== "No") return false;
+    if (ui.schemeTypeFilter && ui.schemeTypeFilter.value === "DC Pension" && r.WorkContext !== "DC") return false;
+    if (ui.schemeTypeFilter && ui.schemeTypeFilter.value === "MARS - Risk" && !(r.WorkContext || "").toUpperCase().includes("RISK")) return false;
+    if (ui.payrollFilter && ui.payrollFilter.value) {
+      const patterns = PAYROLL_SCHEME_MAP[ui.payrollFilter.value] || [];
+      if (!patterns.some(p => (r.SchemeName || "").toLowerCase().includes(p.toLowerCase()))) return false;
+    }
+    if (q) {
+      const blob = `${r.SchemeNumber} ${r.SchemeName} ${r.Employer_Org} ${r.Broker_Org} ${r.WorkTypeDescription} ${r.SubmitterEmail}`.toLowerCase();
+      if (!blob.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function filteredNeRowsGlobal() {
+  if (typeof ne_submissions_data === "undefined") return [];
+
+  const from = ui.dateFrom ? ui.dateFrom.value : "";
+  const to = ui.dateTo ? ui.dateTo.value : "";
+  const fromYM = from ? from.slice(0, 7) : "";
+  const toYM = to ? to.slice(0, 7) : "";
+  const q = ui.searchBox ? ui.searchBox.value.trim().toLowerCase() : "";
+
+  // Build scheme-name lookup for filters that depend on scheme names (e.g. payroll).
+  const schemeNameLookup = new Map();
+  const normalizeSchemeNo = value => String(value || "").trim().replace(/^0+/, "") || "0";
+  allRows.forEach(r => {
+    const no = String(r.SchemeNumber || "").trim();
+    const nm = String(r.SchemeName || "").trim();
+    if (!no || !nm) return;
+    if (!schemeNameLookup.has(no)) schemeNameLookup.set(no, nm);
+    const normalized = normalizeSchemeNo(no);
+    if (!schemeNameLookup.has(normalized)) schemeNameLookup.set(normalized, nm);
+  });
+  MASTER_SCHEMES.forEach(s => {
+    const no = String(s.SchemeNumber || "").trim();
+    const nm = String(s.SchemeName || "").trim();
+    if (!no || !nm) return;
+    if (!schemeNameLookup.has(no)) schemeNameLookup.set(no, nm);
+    const normalized = normalizeSchemeNo(no);
+    if (!schemeNameLookup.has(normalized)) schemeNameLookup.set(normalized, nm);
+  });
+
+  return ne_submissions_data.filter(r => {
+    const ym = String(r.YearMonth || "");
+    if (fromYM && ym < fromYM) return false;
+    if (toYM && ym > toYM) return false;
+
+    // Perspective + Organisation filter
+    if (ui.orgFilter && ui.orgFilter.value) {
+      if (ui.perspective && ui.perspective.value === "Broker") {
+        if (String(r.BrokerName || "") !== ui.orgFilter.value) return false;
+      } else {
+        // NE export has no employer field; when Employer org is selected, NE cannot be matched exactly.
+        return false;
+      }
+    }
+
+    // Context filter (NE operationally maps to DC context only in this model)
+    if (ui.contextFilter && ui.contextFilter.value && ui.contextFilter.value !== "DC") return false;
+
+    // Filters without NE-equivalent attributes: enforce strict matching by excluding NE rows.
+    if (ui.statusFilter && ui.statusFilter.value) return false;
+    if (ui.goldFilter && ui.goldFilter.value !== "All") return false;
+    if (ui.schemeTypeFilter && ui.schemeTypeFilter.value === "MARS - Risk") return false;
+
+    if (ui.payrollFilter && ui.payrollFilter.value) {
+      const patterns = PAYROLL_SCHEME_MAP[ui.payrollFilter.value] || [];
+      const schemeNo = String(r.SchemeNo || "").trim();
+      const schemeName = schemeNameLookup.get(schemeNo) || schemeNameLookup.get(normalizeSchemeNo(schemeNo)) || "";
+      if (!patterns.some(p => schemeName.toLowerCase().includes(p.toLowerCase()))) return false;
+    }
+
+    if (q) {
+      const blob = `${r.SchemeNo || ""} ${r.BrokerName || ""} ${r.WorkTypeCode || ""} ${r.WorkTypeDesc || ""} ${r.Via || ""}`.toLowerCase();
+      if (!blob.includes(q)) return false;
+    }
+
+    return true;
+  });
+}
+
+function updateSummaryPills() {
+  const el = document.getElementById("filterSummary");
+  el.innerHTML = `
+    <span class="pill">Perspective: <strong>${ui.perspective.value}</strong></span>
+    <span class="pill">Date: <strong>${ui.dateFrom.value || "-"} to ${ui.dateTo.value || "-"}</strong></span>
+    <span class="pill">Organisation: <strong>${ui.orgFilter.value || "All"}</strong></span>
+    <span class="pill">Context: <strong>${ui.contextFilter.value || "All"}</strong></span>
+    <span class="pill">Status: <strong>${ui.statusFilter.value || "All"}</strong></span>
+    <span class="pill">Gold: <strong>${ui.goldFilter.value}</strong></span>
+    ${ui.schemeTypeFilter && ui.schemeTypeFilter.value ? `<span class="pill">Scheme Type: <strong>${ui.schemeTypeFilter.value}</strong></span>` : ""}
+    ${ui.payrollFilter && ui.payrollFilter.value ? `<span class="pill">Payroll: <strong>${ui.payrollFilter.value}</strong></span>` : ""}
+  `;
+}
+
+function computeMetrics(rows) {
+  const neRows = overviewNeRows();
+  const neSubmissions = neRows.reduce((sum, r) => {
+    const cnt = Number(r.SubmissionCount || 0);
+    return Number.isFinite(cnt) && cnt > 0 ? sum + cnt : sum;
+  }, 0);
+
+  const employerCount = new Set(rows.map(r => r.Employer_Org).filter(Boolean)).size;
+  const brokerCount = new Set([
+    ...rows.map(r => r.Broker_Org),
+    ...neRows.map(r => r.BrokerName)
+  ].filter(Boolean)).size;
+  const users = new Set(rows.map(r => r.SubmitterEmail).filter(Boolean)).size;
+  const schemes = new Set([
+    ...rows.map(r => r.SchemeNumber),
+    ...neRows.map(r => r.SchemeNo)
+  ].filter(Boolean)).size;
+  const submissions = rows.length + neSubmissions;
+
+  const lastUsageMidas = rows.reduce((m, r) => r.DateCreated > m ? r.DateCreated : m, "0000-00-00");
+  const lastUsageNeMonth = neRows.reduce((m, r) => {
+    const ym = String(r.YearMonth || "");
+    return ym > m ? ym : m;
+  }, "");
+  const lastUsageNe = lastUsageNeMonth ? `${lastUsageNeMonth}-01` : "0000-00-00";
+  const lastUsage = lastUsageMidas > lastUsageNe ? lastUsageMidas : lastUsageNe;
+  const daysSince = lastUsage === "0000-00-00" ? null : Math.floor((today - new Date(lastUsage)) / 86400000);
+
+  const completedRows = rows.filter(r => (r.WorkStatus || "").toUpperCase().includes("COMPLETE") || r.WorkStatus === "Completed");
+  // Completion % remains MIDAS row-based because NE data is aggregate and has no row-level completion status.
+  const completionRate = rows.length ? completedRows.length / rows.length : 0;
+
+  const turnDays = completedRows
+    .filter(r => r.DateCompleted)
+    .map(r => Math.max(0, Math.floor((new Date(r.DateCompleted) - new Date(r.DateCreated)) / 86400000)));
+  const avgTurn = turnDays.length ? turnDays.reduce((a, b) => a + b, 0) / turnDays.length : null;
+
+  return { employerCount, brokerCount, users, schemes, submissions, lastUsage, daysSince, completed: completedRows.length, completionRate, avgTurn };
+}
+
+function setKpi(id, value) { document.getElementById(id).textContent = value; }
+
+function updateKpis(rows) {
+  const m = computeMetrics(rows);
+  setKpi("kSubs", fmt(m.submissions));
+  setKpi("kCompRate", pct(m.completionRate));
+  setKpi("kSchemes", fmt(m.schemes));
+  setKpi("kBrokerOrg", fmt(m.brokerCount));
+  setKpi("kEmpOrg", fmt(m.employerCount));
+  setKpi("kLastUsage", m.lastUsage === "0000-00-00" ? "-" : m.lastUsage);
+
+  const finRows = financialRowsFiltered(rows);
+  const fin = latestFinancialValues(finRows);
+  const latestTotalNet = fin.groupNetFiltered + fin.individualNetFiltered;
+  const ytdTotalNet = finRows.reduce((sum, r) => sum + r.totalNetFiltered, 0);
+  setKpi("kFinGroupNetLatest", fmtCurrency(fin.groupNetFiltered));
+  setKpi("kFinIndividualNetLatest", fmtCurrency(fin.individualNetFiltered));
+  setKpi("kFinTotalNetLatest", fmtCurrency(latestTotalNet));
+  setKpi("kFinYtdNet", fmtCurrency(ytdTotalNet));
+}
+
+function updateSchemeSection(baseRows = filteredRows()) {
+  const rows = kriSchemeRowsFiltered(baseRows);
+  const aggregated = aggregateKriSchemeRows(rows);
+  const overallNet = rows.reduce((sum, r) => sum + r.netCost, 0);
+  const slaMeasuredCount = rows.reduce((sum, r) => sum + (r.slaMeasured ? 1 : 0), 0);
+  const slaMetCount = rows.reduce((sum, r) => sum + (r.slaMet ? 1 : 0), 0);
+  const latestPeriodRow = aggregated[aggregated.length - 1] || null;
+  const latestPeriodNet = latestPeriodRow ? latestPeriodRow.netCost : 0;
+
+  setKpi("kSchemeOverallNet", fmtCurrency(overallNet));
+  setKpi("kSchemeLatestPeriodNet", latestPeriodRow ? `${latestPeriodRow.period} | ${fmtCurrency(latestPeriodNet)}` : "-");
+  setKpi("kSchemeEventCount", fmt(rows.length));
+  setKpi("kSchemeSlaRate", slaMeasuredCount ? pct(slaMetCount / slaMeasuredCount) : "-");
+
+  const chartEl = document.getElementById("chartKriScheme");
+  const hintEl = document.getElementById("schemeTrendHint");
+  const tableBody = document.getElementById("schemeBody");
+  if (!chartEl || !hintEl || !tableBody) return;
+
+  const scheme = selectedSchemeNumber();
+  const period = selectedSchemePeriod();
+  const byPeriod = new Map();
+  const byScheme = new Map();
+  aggregated.forEach(r => {
+    byPeriod.set(r.period, (byPeriod.get(r.period) || 0) + r.netCost);
+    byScheme.set(r.schemeNumber, (byScheme.get(r.schemeNumber) || 0) + r.netCost);
+  });
+
+  let labels = [];
+  let data = [];
+  let chartType = "line";
+  let message = "";
+
+  if (scheme && period === "All") {
+    labels = [...new Set(aggregated.filter(r => r.schemeNumber.includes(scheme)).map(r => r.period))].sort();
+    data = labels.map(p => aggregated.filter(r => r.period === p && r.schemeNumber.includes(scheme)).reduce((sum, r) => sum + r.netCost, 0));
+    message = "Showing the selected scheme across all available periods.";
+  } else if (!scheme && period !== "All") {
+    labels = [...new Set(aggregated.filter(r => r.period === period).map(r => r.schemeNumber))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+    data = labels.map(s => aggregated.filter(r => r.period === period && r.schemeNumber === s).reduce((sum, r) => sum + r.netCost, 0));
+    chartType = "bar";
+    message = "Showing all schemes for the selected period.";
+  } else if (scheme && period !== "All") {
+    labels = [scheme];
+    data = [rows.reduce((sum, r) => sum + r.netCost, 0)];
+    chartType = "bar";
+    message = "Showing the selected scheme for the selected period.";
+  } else {
+    labels = [...byPeriod.keys()].sort();
+    data = labels.map(p => byPeriod.get(p) || 0);
+    message = "Enter a scheme number and choose a period to drill into overall net cost.";
+  }
+
+  if (labels.length <= 1) chartType = "bar";
+
+  drawOrUpdate("chartKriScheme", chartType, {
+    labels: labels.length ? labels : ["No data"],
+    datasets: [{
+      label: "Net Cost",
+      data: labels.length ? data : [0],
+      borderColor: "#1f6feb",
+      backgroundColor: chartType === "bar" ? "#1f6feb" : "rgba(31,111,235,.16)",
+      fill: chartType !== "bar",
+      tension: .2
+    }]
+  });
+  hintEl.textContent = message;
+
+  tableBody.innerHTML = aggregated.slice(0, MAX_TABLE_ROWS).map(r => `
+    <tr>
+      <td>${r.period}</td>
+      <td>${r.schemeNumber}</td>
+      <td>${fmtCurrency(r.netCost)}</td>
+      <td>${fmt(r.eventCount)}</td>
+      <td>${fmtSlaDays(r.avgSlaDays)}</td>
+      <td>${r.slaMetRate == null ? "-" : pct(r.slaMetRate)}</td>
+      <td>${(r.reasons[0] || "").slice(0, 120)}${r.reasons[0] && r.reasons[0].length > 120 ? "..." : ""}</td>
+    </tr>
+  `).join("");
+}
+
+function updateSchemeVisibility(rows) {
+  const body = document.getElementById("schemeVisibilityBody");
+  if (!body) return;
+
+  let brokerFilter = ui.schemeVisBrokerFilter ? ui.schemeVisBrokerFilter.value : "";
+  const directClientFilter = ui.schemeVisDirectClientFilter ? ui.schemeVisDirectClientFilter.value : "";
+  const schemeNoFilter = ui.schemeVisSchemeNoFilter ? ui.schemeVisSchemeNoFilter.value.trim().toLowerCase() : "";
+  let paymentFilter = ui.schemeVisPaymentFilter ? ui.schemeVisPaymentFilter.value : "";
+  const paymentMethodOrder = ["N/A", "DD", "EFT", "BACS", "Unknown"];
+  const paymentMethodLabel = method => method === "DD" ? "Direct Debit (DD)" : method;
+  const neRows = filteredNeRowsGlobal().filter(r => {
+    if (schemeNoFilter && !String(r.SchemeNo || "").toLowerCase().includes(schemeNoFilter)) return false;
+    return true;
+  });
+
+  if (ui.schemeVisPaymentFilter) {
+    const selected = ui.schemeVisPaymentFilter.value;
+    const methods = uniq(rows.map(r => {
+      const derived = classifyProcessRow(r);
+      return derived ? derived.paymentMethod : null;
+    })).sort((a, b) => {
+      const ai = paymentMethodOrder.indexOf(a);
+      const bi = paymentMethodOrder.indexOf(b);
+      return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi) || a.localeCompare(b);
+    });
+    ui.schemeVisPaymentFilter.innerHTML = '<option value="">All Payment Methods</option>';
+    methods.forEach(method => ui.schemeVisPaymentFilter.add(new Option(paymentMethodLabel(method), method)));
+    ui.schemeVisPaymentFilter.value = methods.includes(selected) ? selected : "";
+    paymentFilter = ui.schemeVisPaymentFilter.value;
+  }
+
+  if (ui.schemeVisBrokerFilter) {
+    const selected = ui.schemeVisBrokerFilter.value;
+    const brokers = uniq([
+      ...rows.map(r => r.Broker_Org),
+      ...neRows.map(r => r.BrokerName)
+    ]);
+    ui.schemeVisBrokerFilter.innerHTML = '<option value="">All Brokers</option>';
+    brokers.forEach(b => ui.schemeVisBrokerFilter.add(new Option(b, b)));
+    ui.schemeVisBrokerFilter.value = brokers.includes(selected) ? selected : "";
+    brokerFilter = ui.schemeVisBrokerFilter.value;
+  }
+
+  const byScheme = new Map();
+  const schemeNameLookup = new Map();
+  const normalizeSchemeNo = value => String(value || "").trim().replace(/^0+/, "") || "0";
+
+  rows.forEach(r => {
+    const no = String(r.SchemeNumber || "").trim();
+    const nm = String(r.SchemeName || "").trim();
+    if (!no || !nm) return;
+    if (!schemeNameLookup.has(no)) schemeNameLookup.set(no, nm);
+    const normalized = normalizeSchemeNo(no);
+    if (!schemeNameLookup.has(normalized)) schemeNameLookup.set(normalized, nm);
+  });
+
+  MASTER_SCHEMES.forEach(s => {
+    const no = String(s.SchemeNumber || "").trim();
+    const nm = String(s.SchemeName || "").trim();
+    if (!no || !nm) return;
+    if (!schemeNameLookup.has(no)) schemeNameLookup.set(no, nm);
+    const normalized = normalizeSchemeNo(no);
+    if (!schemeNameLookup.has(normalized)) schemeNameLookup.set(normalized, nm);
+  });
+
+  rows.forEach(r => {
+    const rowBroker = (r.Broker_Org || "").trim();
+    const rowSchemeNo = String(r.SchemeNumber || "").trim();
+    const derived = classifyProcessRow(r);
+    const isDirectClient = !rowBroker;
+    if (brokerFilter && rowBroker !== brokerFilter) return;
+    if (directClientFilter === "Yes" && !isDirectClient) return;
+    if (directClientFilter === "No" && isDirectClient) return;
+    if (schemeNoFilter && !rowSchemeNo.toLowerCase().includes(schemeNoFilter)) return;
+    if (paymentFilter && (!derived || derived.paymentMethod !== paymentFilter)) return;
+
+    const schemeNo = (r.SchemeNumber || "-").trim() || "-";
+    const rawSchemeName = String(r.SchemeName || "").trim();
+    const schemeName = rawSchemeName
+      || schemeNameLookup.get(schemeNo)
+      || schemeNameLookup.get(normalizeSchemeNo(schemeNo))
+      || "Unknown";
+    const brokerName = (r.Broker_Org || "Direct Client").trim() || "Direct Client";
+    const key = `${brokerName}|${schemeNo}|${schemeName}`;
+    if (!byScheme.has(key)) {
+      byScheme.set(key, {
+        brokerName,
+        schemeNo,
+        schemeName,
+        submissions: 0,
+        completed: 0,
+        completionBasis: 0,
+        channels: new Set(),
+        processes: new Set(),
+        secureShareSubmissions: 0,
+        directClient: isDirectClient
+      });
+    }
+    const item = byScheme.get(key);
+    item.submissions += 1;
+    item.completionBasis += 1;
+    if ((r.WorkStatus || "").toUpperCase().includes("COMPLETE")) item.completed += 1;
+    const channel = deriveSubmissionChannel(r);
+    item.channels.add(channel);
+    if (channel === "SecureShare") item.secureShareSubmissions += 1;
+    const processCode = String(r.WorkTypeCode || "").trim();
+    if (processCode) item.processes.add(processCode);
+  });
+
+  neRows.forEach(r => {
+    if (paymentFilter) return;
+    const rowBroker = String(r.BrokerName || "").trim();
+    const rowSchemeNo = String(r.SchemeNo || "").trim();
+    const isDirectClient = !rowBroker;
+    if (brokerFilter && rowBroker !== brokerFilter) return;
+    if (directClientFilter === "Yes" && !isDirectClient) return;
+    if (directClientFilter === "No" && isDirectClient) return;
+    if (!rowSchemeNo) return;
+
+    const schemeNo = rowSchemeNo;
+    const schemeName = schemeNameLookup.get(schemeNo) || schemeNameLookup.get(normalizeSchemeNo(schemeNo)) || "Unknown";
+    const brokerName = rowBroker || "Direct Client";
+    const key = `${brokerName}|${schemeNo}|${schemeName}`;
+    if (!byScheme.has(key)) {
+      byScheme.set(key, {
+        brokerName,
+        schemeNo,
+        schemeName,
+        submissions: 0,
+        completed: 0,
+        completionBasis: 0,
+        channels: new Set(),
+        processes: new Set(),
+        secureShareSubmissions: 0,
+        directClient: isDirectClient
+      });
+    }
+    const item = byScheme.get(key);
+    const cnt = Number(r.SubmissionCount || 0);
+    if (!Number.isFinite(cnt) || cnt <= 0) return;
+    item.submissions += cnt;
+    const channel = deriveSubmissionChannelFromVia(r.Via);
+    item.channels.add(channel);
+    if (channel === "SecureShare") item.secureShareSubmissions += cnt;
+  });
+
+  const items = [...byScheme.values()].map(s => {
+    const channelList = [...s.channels].sort();
+    const processList = s.processes ? [...s.processes].sort() : [];
+    return {
+      ...s,
+      channelList,
+      processList,
+      completion: s.completionBasis ? (s.completed / s.completionBasis) : null
+    };
+  }).sort((a, b) => b.submissions - a.submissions || a.brokerName.localeCompare(b.brokerName) || a.schemeName.localeCompare(b.schemeName));
+
+  // Roll up to distinct scheme number for KPI accuracy.
+  const schemeRollup = new Map();
+  items.forEach(x => {
+    if (!x.schemeNo) return;
+    if (!schemeRollup.has(x.schemeNo)) {
+      schemeRollup.set(x.schemeNo, {
+        channels: new Set(),
+        completed: 0,
+        completionBasis: 0
+      });
+    }
+    const agg = schemeRollup.get(x.schemeNo);
+    x.channelList.forEach(c => agg.channels.add(c));
+    agg.completed += x.completed || 0;
+    agg.completionBasis += x.completionBasis || 0;
+  });
+
+  const schemeEntries = [...schemeRollup.values()];
+  const active = schemeRollup.size;
+  const multi = schemeEntries.filter(x => x.channels.size >= 2).length;
+  const completionRows = schemeEntries.filter(x => x.completionBasis > 0);
+  const avgCompletion = completionRows.length
+    ? completionRows.reduce((sum, x) => sum + (x.completed / x.completionBasis), 0) / completionRows.length
+    : null;
+  const totalSubmissions = items.reduce((sum, x) => sum + x.submissions, 0);
+  const secureShareSubmissions = items.reduce((sum, x) => sum + x.secureShareSubmissions, 0);
+  const secureSharePct = totalSubmissions ? (secureShareSubmissions / totalSubmissions) : 0;
+
+  setKpi("kSchemeActive", fmt(active));
+  setKpi("kSchemeMulti", fmt(multi));
+  setKpi("kSchemeCompAvg", avgCompletion == null ? "-" : pct(avgCompletion));
+  setKpi("kSchemeGaps", pct(secureSharePct));
+
+  const top = items.slice(0, 12);
+  drawOrUpdate("chartSchemeTop", "bar", {
+    labels: top.map(x => compactLabel(x.schemeName)),
+    datasets: [{ label: "Submissions", data: top.map(x => x.submissions), backgroundColor: "#4b7fb8" }]
+  }, {
+    indexAxis: "y",
+    scales: {
+      x: {
+        beginAtZero: true,
+        ticks: { precision: 0 }
+      },
+      y: {
+        ticks: {
+          autoSkip: false,
+          font: { size: 11 }
+        }
+      }
+    },
+    datasets: {
+      bar: {
+        categoryPercentage: 0.72,
+        barPercentage: 0.78,
+        maxBarThickness: 18
+      }
+    },
+    plugins: {
+      legend: { display: true }
+    }
+  });
+
+  body.innerHTML = items.length ? items.slice(0, MAX_TABLE_ROWS).map(x => `
+    <tr>
+      <td>${x.brokerName}</td>
+      <td>${x.schemeNo}</td>
+      <td>${x.schemeName}</td>
+      <td>${x.directClient ? "Yes" : "No"}</td>
+      <td>${fmt(x.submissions)}</td>
+      <td>${fmt(x.completed)}</td>
+      <td>${x.completion == null ? "-" : pct(x.completion)}</td>
+      <td>${x.channelList.map(p => `<span class="chip">${p}</span>`).join("")}</td>
+    </tr>
+  `).join("") : `<tr><td colspan="8">No scheme-level data for selected filters.</td></tr>`;
+}
+
+function classifyProcessRow(r) {
+  const blob = `${r.WorkTypeCode || ""} ${r.WorkTypeDescription || ""} ${r.WorkContext || ""}`.toUpperCase();
+  const rawLabel = String(r.WorkTypeDescription || r.WorkTypeCode || "Unknown").trim() || "Unknown";
+  const isCash = blob.includes("CASH") || blob.includes("PAYMENT") || blob.includes("DIRECT DEBIT") || blob.includes("BACS") || blob.includes("EFT") || blob.includes("CADD") || blob.includes("VARIABLEDD") || blob.includes("MULTIPLEPAYPOINT") || blob.includes("BREAKDOWN");
+
+  let processName = null;
+  let paymentMethod = "N/A";
+
+  if (isCash) {
+    processName = "Cash / Direct Debits";
+    paymentMethod = "Unknown";
+    if (blob.includes("BACS")) paymentMethod = "BACS";
+    else if (blob.includes("EFT")) paymentMethod = "EFT";
+    else if (blob.includes("DIRECT DEBIT") || blob.includes("VARIABLEDD") || blob.includes("MULTIPLEPAYPOINT") || blob.includes("BREAKDOWN") || /\bDD\b/.test(blob) || blob.includes("CADD")) paymentMethod = "DD";
+  } else if (blob.includes("NEBAUTO")) {
+    processName = "New Entrant Bulk Auto";
+  } else if (blob.includes("NESAUTO")) {
+    processName = "New Entrant Single Auto";
+  } else if (blob.includes("AUTOQTE")) {
+    processName = "Auto Quote";
+  } else if (blob.includes("SCUP")) {
+    processName = "Scheme Update";
+  }
+
+  // Enforce approved processes whitelist
+  if (processName && !APPROVED_PROCESSES.includes(processName)) {
+    return null;
+  }
+
+  if (processName) {
+    return { processName, paymentMethod, isCash, rawLabel };
+  }
+
+  return null;
+}
+
+function updateProcessVisibility(rows) {
+  const body = document.getElementById("processVisibilityBody");
+  const schemeListBody = document.getElementById("processSchemeListBody");
+  if (!body) return;
+
+  const paymentMethodOrder = ["N/A", "DD", "EFT", "BACS", "Unknown"];
+  const paymentMethodLabel = method => {
+    if (method === "DD") return "Direct Debit (DD)";
+    return method;
+  };
+
+  const classified = rows.map(r => {
+    const derived = classifyProcessRow(r);
+    if (derived === null) return null;
+    const completed = (r.WorkStatus || "").toUpperCase().includes("COMPLETE");
+    return {
+      ...derived,
+      broker: (r.Broker_Org || "").trim(),
+      schemeNo: String(r.SchemeNumber || "").trim(),
+      schemeName: String(r.SchemeName || "").trim(),
+        channel: deriveSubmissionChannel(r),
+      completed
+    };
+  }).filter(r => r !== null);
+
+  if (ui.processVisProcessFilter) {
+    const selectedProcess = ui.processVisProcessFilter.value;
+    const processNames = uniq(
+      classified.map(derived => derived.processName)
+    );
+    ui.processVisProcessFilter.innerHTML = '<option value="">(All Processes)</option>';
+    processNames.forEach(name => ui.processVisProcessFilter.add(new Option(name, name)));
+    ui.processVisProcessFilter.value = processNames.includes(selectedProcess) ? selectedProcess : "";
+  }
+
+  if (ui.processVisPaymentFilter) {
+    const selectedPayment = ui.processVisPaymentFilter.value;
+    const methods = uniq(classified.map(r => r.paymentMethod)).sort((a, b) => {
+      const ai = paymentMethodOrder.indexOf(a);
+      const bi = paymentMethodOrder.indexOf(b);
+      return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi) || a.localeCompare(b);
+    });
+    ui.processVisPaymentFilter.innerHTML = '<option value="">(All Payment Methods)</option>';
+    methods.forEach(method => ui.processVisPaymentFilter.add(new Option(paymentMethodLabel(method), method)));
+    ui.processVisPaymentFilter.value = methods.includes(selectedPayment) ? selectedPayment : "";
+  }
+
+  const processFilter = selectedProcessName();
+  const paymentFilter = selectedPaymentMethod();
+  const schemeNoFilter = selectedProcessSchemeNumber();
+
+  const enriched = classified.filter(r => {
+    if (processFilter && r.processName !== processFilter) return false;
+    if (paymentFilter && r.paymentMethod !== paymentFilter) return false;
+    if (schemeNoFilter && !r.schemeNo.toLowerCase().includes(schemeNoFilter)) return false;
+    return true;
+  });
+
+  const byProcess = new Map();
+  enriched.forEach(r => {
+    const key = `${r.processName}|${r.paymentMethod}`;
+    if (!byProcess.has(key)) {
+      byProcess.set(key, {
+        processName: r.processName,
+        paymentMethod: r.paymentMethod,
+        submissions: 0,
+        completed: 0,
+        schemes: new Set(),
+        brokers: new Set(),
+        topSchemeCounts: new Map()
+      });
+    }
+    const item = byProcess.get(key);
+    item.submissions += 1;
+    if (r.completed) item.completed += 1;
+    if (r.schemeNo) {
+      item.schemes.add(r.schemeNo);
+      const schemeKey = r.schemeName || r.schemeNo;
+      item.topSchemeCounts.set(schemeKey, (item.topSchemeCounts.get(schemeKey) || 0) + 1);
+    }
+    if (r.broker) item.brokers.add(r.broker);
+  });
+
+  const items = [...byProcess.values()].sort((a, b) => b.submissions - a.submissions || a.processName.localeCompare(b.processName) || a.paymentMethod.localeCompare(b.paymentMethod));
+  const totalSubmissions = enriched.length;
+  const cashSubmissions = enriched.reduce((sum, r) => sum + (r.isCash ? 1 : 0), 0);
+  const completedSubmissions = enriched.reduce((sum, r) => sum + (r.completed ? 1 : 0), 0);
+
+  setKpi("kProcessTotal", fmt(totalSubmissions));
+  setKpi("kProcessCash", fmt(cashSubmissions));
+  setKpi("kProcessCashShare", pct(totalSubmissions ? cashSubmissions / totalSubmissions : 0));
+  setKpi("kProcessCompletion", pct(totalSubmissions ? completedSubmissions / totalSubmissions : 0));
+
+  const topProcesses = items.slice(0, 10);
+  drawOrUpdate("chartProcessBreakdown", "bar", {
+    labels: topProcesses.map(x => x.paymentMethod !== "N/A" ? `${x.processName} · ${x.paymentMethod}` : x.processName),
+    datasets: [{ label: "Submissions", data: topProcesses.map(x => x.submissions), backgroundColor: "#6b3fa0" }]
+  }, {
+    indexAxis: "y",
+    scales: {
+      x: { beginAtZero: true, ticks: { precision: 0 } },
+      y: { ticks: { autoSkip: false, font: { size: 11 } } }
+    },
+    plugins: { legend: { display: false } }
+  });
+
+  if (schemeListBody) {
+    const normalizeSchemeNo = value => String(value || "").trim().replace(/^0+/, "") || "0";
+    const schemeChannels = new Map();
+    const addChannel = (schemeNo, channel) => {
+      const raw = String(schemeNo || "").trim();
+      if (!raw) return;
+      const keys = [raw, normalizeSchemeNo(raw)];
+      keys.forEach(k => {
+        if (!schemeChannels.has(k)) schemeChannels.set(k, new Set());
+        schemeChannels.get(k).add(channel || "Source Unknown");
+      });
+    };
+
+    // Build channel coverage exactly like scheme visibility context (MIDAS + NE aggregate).
+    rows.forEach(r => addChannel(r.SchemeNumber, deriveSubmissionChannel(r)));
+    filteredNeRowsGlobal().forEach(r => addChannel(r.SchemeNo, deriveSubmissionChannelFromVia(r.Via)));
+
+    const byScheme = new Map();
+    enriched.forEach(r => {
+      if (!r.schemeNo && !r.schemeName) return;
+      const key = `${r.schemeNo || "-"}|${r.schemeName || "Unknown"}`;
+      if (!byScheme.has(key)) {
+        byScheme.set(key, {
+          schemeNo: r.schemeNo || "-",
+          schemeName: r.schemeName || "Unknown",
+          submissions: 0
+        });
+      }
+      const item = byScheme.get(key);
+      item.submissions += 1;
+    });
+
+    const schemeItems = [...byScheme.values()]
+      .sort((a, b) => b.submissions - a.submissions || a.schemeNo.localeCompare(b.schemeNo))
+      .slice(0, MAX_TABLE_ROWS);
+
+    schemeListBody.innerHTML = schemeItems.length
+      ? schemeItems.map(s => {
+          const channelSet = schemeChannels.get(String(s.schemeNo || "").trim())
+            || schemeChannels.get(normalizeSchemeNo(s.schemeNo))
+            || new Set();
+          const channelList = [...channelSet].sort();
+          return `
+            <tr>
+              <td style="padding:5px 6px;border-bottom:1px solid #edf0f7;">${s.schemeNo}</td>
+              <td style="padding:5px 6px;border-bottom:1px solid #edf0f7;white-space:normal;">${s.schemeName}</td>
+              <td style="padding:5px 6px;border-bottom:1px solid #edf0f7;white-space:normal;">${channelList.length ? channelList.map(ch => `<span class="chip">${ch}</span>`).join("") : "-"}</td>
+            </tr>
+          `;
+        }).join("")
+      : `<tr><td colspan="3" style="padding:6px;text-align:center;color:var(--muted);">No schemes in selected process filters.</td></tr>`;
+  }
+
+  body.innerHTML = items.length ? items.slice(0, MAX_TABLE_ROWS).map(x => {
+    const topSchemeEntry = [...x.topSchemeCounts.entries()].sort((a, b) => b[1] - a[1])[0];
+    return `
+      <tr>
+        <td>${x.processName}</td>
+        <td>${x.paymentMethod}</td>
+        <td style="text-align:right;">${fmt(x.submissions)}</td>
+        <td style="text-align:right;">${fmt(x.completed)}</td>
+        <td style="text-align:right;">${pct(x.submissions ? x.completed / x.submissions : 0)}</td>
+        <td style="text-align:right;">${fmt(x.schemes.size)}</td>
+        <td style="text-align:right;">${fmt(x.brokers.size)}</td>
+        <td style="white-space:normal;">${topSchemeEntry ? `${topSchemeEntry[0]} (${fmt(topSchemeEntry[1])})` : "-"}</td>
+      </tr>
+    `;
+  }).join("") : `<tr><td colspan="8">No process-level data for selected filters.</td></tr>`;
+}
+
+function latestFinancialValues(rows) {
+  const source = Array.isArray(rows) ? rows : FINANCIAL_MONTHLY;
+  return source[source.length - 1] || {
+    groupNetFiltered: 0,
+    individualNetFiltered: 0,
+    totalNetFiltered: 0
+  };
+}
+
+function filteredSharploadRows() {
+  const from = ui.dateFrom.value;
+  const to = ui.dateTo.value;
+  return sharploadRows.filter(r => {
+    if (from && r.CREATED < from) return false;
+    if (to && r.CREATED > to) return false;
+    return true;
+  });
+}
+
+function computeTransformationMetrics(rows) {
+  const loaded = rows.reduce((sum, r) => sum + r.NUM_DATA_RECORDS_LOADED, 0);
+  const success = rows.reduce((sum, r) => sum + r.NUM_DATA_RECORDS_VALID, 0);
+  const errors = rows.reduce((sum, r) => sum + r.NUM_DATA_RECORDS_ERRORED, 0);
+  const errorRate = loaded ? errors / loaded : 0;
+  return { loaded, success, errors, errorRate };
+}
+
+function countBy(rows, key) {
+  const map = new Map();
+  rows.forEach(r => map.set(r[key], (map.get(r[key]) || 0) + 1));
+  return [...map.entries()].sort((a, b) => b[1] - a[1]);
+}
+
+function overviewNeRows() {
+  return filteredNeRowsGlobal();
+}
+
+function deriveSubmissionChannel(r) {
+  const code = String(r.WorkTypeCode || "").toUpperCase();
+  const desc = String(r.WorkTypeDescription || "").toUpperCase();
+  const blob = `${code} ${desc}`;
+
+  if (!code && !desc) return "Not recorded";
+  if (code.includes("AUTO") || blob.includes("SECURESHARE")) return "SecureShare";
+  if (blob.includes("MAIL") || blob.includes("POST") || blob.includes("SCAN")) return "Mail / Scan";
+  if (blob.includes("DROPZONE") || blob.includes("INTERNAL")) return "Internal / Dropzone";
+  if (blob.includes("UW")) return "UW Mailbox";
+  if (blob.includes("CODE")) return "CODE";
+  if (blob.includes("CASH")) return "Cash";
+  // These rows have a known DB work type, but it does not map to a submission channel.
+  return "Non-channel work type";
+}
+
+function deriveSubmissionChannelFromVia(via) {
+  const raw = String(via || "").trim();
+  const v = raw.toUpperCase();
+  if (!raw || v === "NULL") return "Not recorded";
+  if (v === "SECURESHARE" || v.startsWith("SECURESHARE ")) return "SecureShare";
+  if (v.includes("MAIL") || v.includes("POST") || v.includes("SCAN")) return "Mail / Scan";
+  if (v.includes("DROPZONE") || v.includes("INTERNAL")) return "Internal / Dropzone";
+  if (v.includes("UW")) return "UW Mailbox";
+  if (v.includes("CODE")) return "CODE";
+  if (v.includes("CASH")) return "Cash";
+  return raw;
+}
+
+function monthKey(dateStr) { return dateStr.slice(0, 7); }
+function last12MonthKeys(refDate) {
+  const keys = [];
+  const end = new Date(refDate);
+  end.setDate(1);
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(end);
+    d.setMonth(d.getMonth() - i);
+    keys.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`);
+  }
+  return keys;
+}
+
+function updateCharts(rows) {
+  const neRows = overviewNeRows();
+
+  // Build the 12-month window from the latest available operational data month.
+  let latestMonth = "";
+  rows.forEach(r => {
+    const ym = monthKey(String(r.DateCreated || ""));
+    if (ym && ym > latestMonth) latestMonth = ym;
+  });
+  neRows.forEach(r => {
+    const ym = String(r.YearMonth || "");
+    if (ym && ym > latestMonth) latestMonth = ym;
+  });
+
+  const currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+  let endDate = latestMonth ? new Date(`${latestMonth}-01T00:00:00`) : currentMonthStart;
+  if (!Number.isFinite(endDate.getTime()) || endDate > currentMonthStart) {
+    endDate = currentMonthStart;
+  }
+  const months = last12MonthKeys(endDate);
+  const monthMap = new Map(months.map(m => [m, 0]));
+
+  rows.forEach(r => {
+    const k = monthKey(r.DateCreated);
+    if (monthMap.has(k)) monthMap.set(k, monthMap.get(k) + 1);
+  });
+  neRows.forEach(r => {
+    const ym = String(r.YearMonth || "");
+    const cnt = Number(r.SubmissionCount || 0);
+    if (!monthMap.has(ym) || !Number.isFinite(cnt) || cnt <= 0) return;
+    monthMap.set(ym, monthMap.get(ym) + cnt);
+  });
+  const monthEntries = [...monthMap.entries()];
+
+  const statusEntries = countBy(rows, "WorkStatus");
+  const processMap = new Map();
+  rows.forEach(r => {
+    const label = String(r.WorkTypeDescription || "").trim() || "Unknown";
+    processMap.set(label, (processMap.get(label) || 0) + 1);
+  });
+  neRows.forEach(r => {
+    const label = String(r.WorkTypeDesc || r.WorkTypeCode || "").trim() || "Unknown";
+    const cnt = Number(r.SubmissionCount || 0);
+    if (!Number.isFinite(cnt) || cnt <= 0) return;
+    processMap.set(label, (processMap.get(label) || 0) + cnt);
+  });
+  const procEntries = [...processMap.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const goldYes = rows.filter(r => r.GoldScheme === "Yes").length;
+  const goldNo = rows.length - goldYes;
+
+  drawOrUpdate("chartTrend", "line", {
+    labels: monthEntries.map(e => e[0]),
+    datasets: [{ label: "Submissions", data: monthEntries.map(e => e[1]), borderColor: "#1f6feb", backgroundColor: "rgba(31,111,235,.16)", fill: true, tension: .25 }]
+  });
+
+  drawOrUpdate("chartStatus", "bar", {
+    labels: statusEntries.map(e => e[0]),
+    datasets: [{ label: "Count", data: statusEntries.map(e => e[1]), backgroundColor: ["#1f6feb", "#1a7f37", "#b76d00", "#b42318", "#6f42c1"] }]
+  });
+
+  drawOrUpdate("chartProcess", "bar", {
+    labels: procEntries.map(e => e[0]),
+    datasets: [{ label: "Count", data: procEntries.map(e => e[1]), backgroundColor: "#0f3f93" }]
+  }, { indexAxis: "y" });
+
+  drawOrUpdate("chartGold", "doughnut", {
+    labels: ["Gold", "Non-Gold"],
+    datasets: [{ data: [goldYes, goldNo], backgroundColor: ["#d4a017", "#8aa0c8"] }]
+  });
+
+  const finRows = financialRowsFiltered(rows);
+  const finHint = document.getElementById("finTrendHint");
+  if (finRows.length <= 1) {
+    const single = finRows[0] || { monthLabel: "No data", groupNetFiltered: 0, individualNetFiltered: 0, totalNetFiltered: 0 };
+    drawOrUpdate("chartFinancial", "bar", {
+      labels: [single.monthLabel],
+      datasets: [
+        {
+          label: "Group Net Cost",
+          data: [single.groupNetFiltered],
+          backgroundColor: "#1f6feb"
+        },
+        {
+          label: "Individual Net Cost",
+          data: [single.individualNetFiltered],
+          backgroundColor: "#b76d00"
+        },
+        {
+          label: "Total Net Cost",
+          data: [single.totalNetFiltered],
+          backgroundColor: "#b42318"
+        }
+      ]
+    });
+    if (finHint) finHint.textContent = "Trend requires multiple months; showing selected period only.";
+  } else {
+    drawOrUpdate("chartFinancial", "line", {
+      labels: finRows.map(r => r.monthLabel),
+      datasets: [
+        {
+          label: "Group Net Cost",
+          data: finRows.map(r => r.groupNetFiltered),
+          borderColor: "#1f6feb",
+          backgroundColor: "rgba(31,111,235,.16)",
+          fill: false,
+          tension: .2
+        },
+        {
+          label: "Individual Net Cost",
+          data: finRows.map(r => r.individualNetFiltered),
+          borderColor: "#b76d00",
+          backgroundColor: "rgba(183,109,0,.16)",
+          fill: false,
+          tension: .2
+        },
+        {
+          label: "Total Net Cost",
+          data: finRows.map(r => r.totalNetFiltered),
+          borderColor: "#b42318",
+          backgroundColor: "rgba(180,35,24,.16)",
+          fill: false,
+          tension: .2
+        }
+      ]
+    });
+    if (finHint) finHint.textContent = "";
+  }
+}
+
+function drawOrUpdate(id, type, data, opts = {}) {
+  const existing = charts[id];
+  const baseOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: false,
+    normalized: true,
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: { precision: 0 }
+      }
+    },
+    plugins: { legend: { display: true } }
+  };
+
+  const mergedOptions = { ...baseOptions, ...opts };
+
+  if (type === "doughnut") {
+    delete mergedOptions.scales;
+  }
+
+  if (existing) {
+    existing.data = data;
+    existing.options = mergedOptions;
+    existing.update("none");
+    return;
+  }
+  charts[id] = new Chart(document.getElementById(id), {
+    type,
+    data,
+    options: mergedOptions
+  });
+}
+
+function compactLabel(text, maxLen = 34) {
+  const s = String(text || "").trim();
+  return s.length > maxLen ? `${s.slice(0, maxLen - 1)}…` : s;
+}
+
+const BROKER_SHARE_RANK_COLORS = ["#1a7f37", "#73c07d", "#e59898", "#cfd8dc"];
+
+function statusClass(s) {
+  const u = (s || "").toUpperCase();
+  if (u === "COMPLETED") return "s-completed";
+  if (u === "COMPLETE WORK") return "s-complete-work";
+  if (u.includes("PROGRESS")) return "s-progress";
+  if (u.includes("PEND")) return "s-pending";
+  if (u.includes("CANCEL")) return "s-cancelled";
+  if (u.includes("SUBMIT")) return "s-submitted";
+  if (u.includes("COMPLETE")) return "s-complete";
+  return "s-other";
+}
+
+function updateTable(rows) {
+  const body = document.getElementById("detailBody");
+  const schemeNameLookup = new Map();
+  const normalizeSchemeNo = value => String(value || "").trim().replace(/^0+/, "") || "0";
+  const isPlaceholder = value => {
+    const v = String(value || "").trim().toUpperCase();
+    return !v || v === "NULL";
+  };
+  const isPlaceholderSchemeNo = value => {
+    const v = String(value || "").trim().toUpperCase();
+    return !v || v === "NULL" || v === "000000";
+  };
+
+  rows.forEach(r => {
+    const no = String(r.SchemeNumber || "").trim();
+    const nm = String(r.SchemeName || "").trim();
+    if (!no || !nm) return;
+    if (!schemeNameLookup.has(no)) schemeNameLookup.set(no, nm);
+    const normalized = normalizeSchemeNo(no);
+    if (!schemeNameLookup.has(normalized)) schemeNameLookup.set(normalized, nm);
+  });
+
+  MASTER_SCHEMES.forEach(s => {
+    const no = String(s.SchemeNumber || "").trim();
+    const nm = String(s.SchemeName || "").trim();
+    if (!no || !nm) return;
+    if (!schemeNameLookup.has(no)) schemeNameLookup.set(no, nm);
+    const normalized = normalizeSchemeNo(no);
+    if (!schemeNameLookup.has(normalized)) schemeNameLookup.set(normalized, nm);
+  });
+
+  const neDetailRows = overviewNeRows().map(r => {
+    const ym = String(r.YearMonth || "");
+    const schemeNo = String(r.SchemeNo || "").trim();
+    const count = Number(r.SubmissionCount || 0);
+    return {
+      DateCreated: ym ? `${ym}-01` : "",
+      DateCompleted: null,
+      SchemeNumber: schemeNo,
+      SchemeName: schemeNameLookup.get(schemeNo) || schemeNameLookup.get(normalizeSchemeNo(schemeNo)) || "",
+      Employer_Org: "",
+      Broker_Org: String(r.BrokerName || "").trim(),
+      SubmitterEmail: "",
+      WorkContext: "NE",
+      WorkTypeCode: String(r.WorkTypeCode || "").trim(),
+      WorkTypeDescription: `${String(r.WorkTypeDesc || r.WorkTypeCode || "NE").trim()} (NE x${fmt(Number.isFinite(count) ? count : 0)})`,
+      WorkStatus: "NE Aggregate",
+      GoldScheme: ""
+    };
+  });
+
+  const mergedRows = [...rows, ...neDetailRows].sort((a, b) =>
+    (b.DateCreated || "").localeCompare(a.DateCreated || "") ||
+    String(a.SchemeNumber || "").localeCompare(String(b.SchemeNumber || ""))
+  );
+
+  const visibleRows = mergedRows.slice(0, MAX_TABLE_ROWS);
+
+  body.innerHTML = visibleRows.map(r => `
+    <tr>
+      <td>${r.DateCreated}</td>
+      <td>${isPlaceholderSchemeNo(r.SchemeNumber) ? "-" : r.SchemeNumber}</td>
+      <td>${r.SchemeName}</td>
+      <td>${isPlaceholder(r.Broker_Org) ? "-" : r.Broker_Org}</td>
+      <td>${r.WorkContext}</td>
+      <td>${r.WorkTypeCode}</td>
+      <td>${r.WorkTypeDescription}</td>
+      <td><span class="status ${statusClass(r.WorkStatus)}">${r.WorkStatus}</span></td>
+      <td>${r.GoldScheme === "Yes" ? "Gold" : r.GoldScheme === "No" ? "Standard" : "-"}</td>
+      <td>${r.SubmitterEmail}</td>
+    </tr>`).join("");
+}
+
+function updateFinancialTable(rows = filteredRows()) {
+  const body = document.getElementById("financialBody");
+  if (!body) return;
+  const finRows = financialRowsFiltered(rows);
+  body.innerHTML = finRows.map(r => `
+    <tr>
+      <td>${r.monthLabel}</td>
+      <td>${fmtCurrency(r.groupNetFiltered)}</td>
+      <td>${fmtCurrency(r.individualNetFiltered)}</td>
+      <td>${fmtCurrency(r.totalNetFiltered)}</td>
+      <td>${r.groupAllowed && r.individualAllowed ? "Group: " + driverProfile(r.month, "Group").primaryDriver + " (" + formatDriverType(driverProfile(r.month, "Group").transactionType) + ") | Individual: " + driverProfile(r.month, "Individual").primaryDriver + " (" + formatDriverType(driverProfile(r.month, "Individual").transactionType) + ")" : r.groupAllowed ? driverProfile(r.month, "Group").primaryDriver + " (" + formatDriverType(driverProfile(r.month, "Group").transactionType) + ")" : driverProfile(r.month, "Individual").primaryDriver + " (" + formatDriverType(driverProfile(r.month, "Individual").transactionType) + ")"}</td>
+    </tr>
+  `).join("");
+}
+
+function exportFilteredCsv(rows) {
+  const cols = ["DateCreated","DateCompleted","SchemeNumber","SchemeName","Employer_Org","Broker_Org","SubmitterEmail","WorkContext","WorkTypeCode","WorkTypeDescription","WorkStatus","GoldScheme"];
+  const lines = [cols.join(",")];
+  rows.forEach(r => {
+    lines.push(cols.map(c => `"${String(r[c] ?? "").replaceAll('"', '""')}"`).join(","));
+  });
+  const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "secureshare_filtered_export.csv";
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+function csvSafe(value) {
+  return `"${String(value ?? "").replaceAll('"', '""')}"`;
+}
+
+function downloadCsv(filename, headers, rows) {
+  const lines = [headers.map(csvSafe).join(",")];
+  rows.forEach(row => {
+    lines.push(row.map(csvSafe).join(","));
+  });
+  const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+function exportTableBodyCsv(bodyId, filename) {
+  const tbody = document.getElementById(bodyId);
+  if (!tbody) return false;
+  const table = tbody.closest("table");
+  if (!table) return false;
+
+  const headerRow = table.querySelector("thead tr");
+  const headers = headerRow
+    ? [...headerRow.querySelectorAll("th")].map(th => th.textContent.replace(/\s+/g, " ").trim())
+    : [];
+
+  const bodyRows = [...tbody.querySelectorAll("tr")];
+  const rows = bodyRows
+    .map(tr => [...tr.querySelectorAll("td")].map(td => td.textContent.replace(/\s+/g, " ").trim()))
+    .filter(r => r.length && !/^No\s/i.test(r[0] || ""));
+
+  if (!headers.length || !rows.length) return false;
+  downloadCsv(filename, headers, rows);
+  return true;
+}
+
+function exportCurrentPageCsv() {
+  if (currentPage === "overview") {
+    const ok = exportTableBodyCsv("detailBody", "operational_overview_filtered.csv");
+    if (!ok) exportFilteredCsv(filteredRows());
+    return;
+  }
+  if (currentPage === "financial") {
+    const ok = exportTableBodyCsv("financialBody", "financial_filtered.csv");
+    if (!ok) {
+      const finRows = financialRowsFiltered(filteredRows());
+      const headers = ["Month", "Group Net", "Individual Net", "Total Net", "Primary Drivers"]; 
+      const rows = finRows.map(r => [
+        r.monthLabel,
+        fmtCurrency(r.groupNetFiltered),
+        fmtCurrency(r.individualNetFiltered),
+        fmtCurrency(r.totalNetFiltered),
+        r.groupAllowed && r.individualAllowed
+          ? `Group: ${driverProfile(r.month, "Group").primaryDriver} (${formatDriverType(driverProfile(r.month, "Group").transactionType)}) | Individual: ${driverProfile(r.month, "Individual").primaryDriver} (${formatDriverType(driverProfile(r.month, "Individual").transactionType)})`
+          : r.groupAllowed
+            ? `${driverProfile(r.month, "Group").primaryDriver} (${formatDriverType(driverProfile(r.month, "Group").transactionType)})`
+            : `${driverProfile(r.month, "Individual").primaryDriver} (${formatDriverType(driverProfile(r.month, "Individual").transactionType)})`
+      ]);
+      downloadCsv("financial_filtered.csv", headers, rows);
+    }
+    return;
+  }
+  if (currentPage === "scheme") {
+    const ok = exportTableBodyCsv("schemeVisibilityBody", "scheme_visibility_filtered.csv");
+    if (!ok) exportFilteredCsv(filteredRows());
+    return;
+  }
+  if (currentPage === "processvis") {
+    // Stephen James request: include Submission Channels from process visibility scheme table.
+    const ok = exportTableBodyCsv("processSchemeListBody", "process_visibility_scheme_channels_filtered.csv");
+    if (!ok) {
+      const fallback = exportTableBodyCsv("processVisibilityBody", "process_visibility_filtered.csv");
+      if (!fallback) exportFilteredCsv(filteredRows());
+    }
+    return;
+  }
+  if (currentPage === "channelvis") {
+    const ok = exportTableBodyCsv("channelVisibilityBody", "submission_visibility_filtered.csv");
+    if (!ok) exportFilteredCsv(filteredRows());
+    return;
+  }
+  if (currentPage === "ne") {
+    const ok = exportTableBodyCsv("neMatrixBody", "new_entrant_visibility_filtered.csv");
+    if (!ok) {
+      const neRows = filteredNERows();
+      const headers = ["YearMonth", "Broker", "SchemeNo", "WorkTypeCode", "WorkTypeDesc", "Via", "Submission Channel", "SubmissionCount"];
+      const rows = neRows.map(r => [
+        r.YearMonth || "",
+        r.BrokerName || "",
+        r.SchemeNo || "",
+        r.WorkTypeCode || "",
+        r.WorkTypeDesc || "",
+        r.Via || "",
+        deriveSubmissionChannelFromVia(r.Via),
+        Number(r.SubmissionCount || 0)
+      ]);
+      downloadCsv("new_entrant_visibility_filtered.csv", headers, rows);
+    }
+    return;
+  }
+
+  exportFilteredCsv(filteredRows());
+}
+
+function refresh() {
+  const rows = filteredRows();
+  updateSummaryPills();
+  updateKpis(rows);
+  updateCharts(rows);
+  updateTable(rows);
+  updateFinancialTable(rows);
+  updateSchemeSection(rows);
+  updateSchemeVisibility(rows);
+  updateProcessVisibility(rows);
+  updateNeVisibility();
+  updateChannelVisibility(rows);
+  document.getElementById("lastRefresh").textContent = `Last refresh: ${new Date().toLocaleString()}`;
+}
+
+function setPage(page) {
+  currentPage = page;
+  const isOverview = page === "overview";
+  const isFinancial = page === "financial";
+  const isScheme = page === "scheme";
+  const isProcessVis = page === "processvis";
+  const isNE     = page === "ne";
+  const isChannelVis = page === "channelvis";
+  ui.viewOverview.classList.toggle("hidden", !isOverview);
+  ui.viewFinancial.classList.toggle("hidden", !isFinancial);
+  ui.viewScheme.classList.toggle("hidden", !isScheme);
+  ui.viewProcessVis.classList.toggle("hidden", !isProcessVis);
+  ui.viewNE.classList.toggle("hidden", !isNE);
+  ui.viewChannelVis.classList.toggle("hidden", !isChannelVis);
+  ui.tabOverview.classList.toggle("active", isOverview);
+  ui.tabFinancial.classList.toggle("active", isFinancial);
+  ui.tabScheme.classList.toggle("active", isScheme);
+  ui.tabProcessVis.classList.toggle("active", isProcessVis);
+  ui.tabNE.classList.toggle("active", isNE);
+  ui.tabChannelVis.classList.toggle("active", isChannelVis);
+  refresh();
+}
+
+function bindEvents() {
+  [ui.dateFrom, ui.dateTo, ui.perspective, ui.orgFilter, ui.contextFilter, ui.statusFilter, ui.goldFilter, ui.schemeTypeFilter, ui.payrollFilter].forEach(e => {
+    e.addEventListener("change", () => {
+      if (e === ui.perspective) buildOrgOptions();
+      refresh();
+    });
+  });
+  const debouncedRefresh = debounce(refresh, 160);
+  ui.searchBox.addEventListener("input", debouncedRefresh);
+  if (ui.finBusinessFilter) ui.finBusinessFilter.addEventListener("change", refresh);
+  if (ui.finMonthFilter) ui.finMonthFilter.addEventListener("change", refresh);
+  if (ui.finPrimaryDriverFilter) ui.finPrimaryDriverFilter.addEventListener("change", refresh);
+  if (ui.schemeFilter) ui.schemeFilter.addEventListener("input", refresh);
+  if (ui.schemePeriodFilter) ui.schemePeriodFilter.addEventListener("change", refresh);
+  if (ui.schemeVisBrokerFilter) ui.schemeVisBrokerFilter.addEventListener("change", refresh);
+  if (ui.schemeVisDirectClientFilter) ui.schemeVisDirectClientFilter.addEventListener("change", refresh);
+  if (ui.schemeVisSchemeNoFilter) ui.schemeVisSchemeNoFilter.addEventListener("input", debounce(refresh, 160));
+  if (ui.schemeVisPaymentFilter) ui.schemeVisPaymentFilter.addEventListener("change", refresh);
+  if (ui.channelVisBrokerFilter) ui.channelVisBrokerFilter.addEventListener("change", refresh);
+  if (ui.channelVisSchemeNoFilter) ui.channelVisSchemeNoFilter.addEventListener("input", debounce(refresh, 160));
+  if (ui.processVisProcessFilter) ui.processVisProcessFilter.addEventListener("change", refresh);
+  if (ui.processVisPaymentFilter) ui.processVisPaymentFilter.addEventListener("change", refresh);
+  if (ui.processVisSchemeNoFilter) ui.processVisSchemeNoFilter.addEventListener("input", debounce(refresh, 160));
+  ui.tabOverview.addEventListener("click", () => setPage("overview"));
+  ui.tabFinancial.addEventListener("click", () => setPage("financial"));
+  ui.tabScheme.addEventListener("click", () => setPage("scheme"));
+  ui.tabProcessVis.addEventListener("click", () => setPage("processvis"));
+  ui.tabNE.addEventListener("click", () => setPage("ne"));
+  ui.tabChannelVis.addEventListener("click", () => setPage("channelvis"));
+  if (ui.neMonthFilter) ui.neMonthFilter.addEventListener("change", refresh);
+  if (ui.neBrokerFilter) ui.neBrokerFilter.addEventListener("change", refresh);
+  if (ui.neSchemeNoFilter) ui.neSchemeNoFilter.addEventListener("input", debounce(refresh, 160));
+  ui.resetFilters.addEventListener("click", () => {
+    ui.perspective.value = "Employer";
+    ui.orgFilter.value = "";
+    ui.contextFilter.value = "";
+    ui.statusFilter.value = "";
+    ui.goldFilter.value = "All";
+    if (ui.schemeTypeFilter) ui.schemeTypeFilter.value = "";
+    if (ui.payrollFilter) ui.payrollFilter.value = "";
+    if (ui.finBusinessFilter) ui.finBusinessFilter.value = "All";
+    if (ui.finMonthFilter) ui.finMonthFilter.value = "All";
+    if (ui.finPrimaryDriverFilter) ui.finPrimaryDriverFilter.value = "All";
+    if (ui.schemeFilter) ui.schemeFilter.value = "";
+    if (ui.schemePeriodFilter) ui.schemePeriodFilter.value = "All";
+    if (ui.schemeVisBrokerFilter) ui.schemeVisBrokerFilter.value = "";
+    if (ui.schemeVisDirectClientFilter) ui.schemeVisDirectClientFilter.value = "";
+    if (ui.schemeVisSchemeNoFilter) ui.schemeVisSchemeNoFilter.value = "";
+    if (ui.schemeVisPaymentFilter) ui.schemeVisPaymentFilter.value = "";
+    if (ui.channelVisBrokerFilter) ui.channelVisBrokerFilter.value = "";
+    if (ui.channelVisSchemeNoFilter) ui.channelVisSchemeNoFilter.value = "";
+    if (ui.processVisProcessFilter) ui.processVisProcessFilter.value = "";
+    if (ui.processVisPaymentFilter) ui.processVisPaymentFilter.value = "";
+    if (ui.processVisSchemeNoFilter) ui.processVisSchemeNoFilter.value = "";
+    if (ui.neMonthFilter) ui.neMonthFilter.value = "";
+    if (ui.neBrokerFilter) ui.neBrokerFilter.value = "";
+    if (ui.neSchemeNoFilter) ui.neSchemeNoFilter.value = "";
+    ui.searchBox.value = "";
+    const { minDate, maxDate } = getDefaultDateRange();
+    ui.dateFrom.value = minDate;
+    ui.dateTo.value = maxDate;
+    buildOrgOptions();
+    refresh();
+  });
+  ui.exportCsv.addEventListener("click", exportCurrentPageCsv);
+}
+
+// ─── SUBMISSION CHANNEL VISIBILITY ────────────────────────────────────────────────────
+function updateChannelVisibility(rows) {
+  const body = document.getElementById("channelVisibilityBody");
+  if (!body) return;
+
+  let brokerFilter = ui.channelVisBrokerFilter ? ui.channelVisBrokerFilter.value : "";
+  const schemeNoFilter = ui.channelVisSchemeNoFilter ? ui.channelVisSchemeNoFilter.value.trim().toLowerCase() : "";
+  // Get NE rows for this period and global filter context
+  const neRows = filteredNeRowsGlobal();
+
+  // Populate broker filter dropdown
+  if (ui.channelVisBrokerFilter) {
+    const selected = ui.channelVisBrokerFilter.value;
+    const brokers = uniq([
+      ...rows.map(r => r.Broker_Org),
+      ...neRows.map(r => r.BrokerName)
+    ]);
+    ui.channelVisBrokerFilter.innerHTML = '<option value="">(All Brokers)</option>';
+    brokers.forEach(b => ui.channelVisBrokerFilter.add(new Option(b, b)));
+    ui.channelVisBrokerFilter.value = brokers.includes(selected) ? selected : "";
+    brokerFilter = ui.channelVisBrokerFilter.value;
+  }
+
+  // Aggregate by submission channel
+  const byChannel = new Map();
+
+  // Helper to ensure channel entry exists
+  function ensureChannel(channel) {
+    if (!byChannel.has(channel)) {
+      byChannel.set(channel, {
+        channel,
+        submissions: 0,
+        completed: 0,
+        completionBasis: 0,
+        brokerSet: new Set(),
+        schemeSet: new Set(),
+        processes: new Set()
+      });
+    }
+    return byChannel.get(channel);
+  }
+
+  // Process MIDAS rows
+  rows.forEach(r => {
+    const rowBroker = (r.Broker_Org || "").trim();
+    const rowSchemeNo = String(r.SchemeNumber || "").trim();
+    if (brokerFilter && rowBroker !== brokerFilter) return;
+    if (schemeNoFilter && !rowSchemeNo.toLowerCase().includes(schemeNoFilter)) return;
+
+    const channel = deriveSubmissionChannel(r);
+    const item = ensureChannel(channel);
+    item.submissions += 1;
+    item.completionBasis += 1;
+    if ((r.WorkStatus || "").toUpperCase().includes("COMPLETE")) item.completed += 1;
+    if (rowBroker) item.brokerSet.add(rowBroker);
+    if (rowSchemeNo) item.schemeSet.add(rowSchemeNo);
+    const derived = classifyProcessRow(r);
+    if (derived) item.processes.add(derived.processName);
+  });
+
+  // Process NE rows
+  neRows.forEach(r => {
+    const rowBroker = String(r.BrokerName || "").trim();
+    const rowSchemeNo = String(r.SchemeNo || "").trim();
+    if (brokerFilter && rowBroker !== brokerFilter) return;
+    if (schemeNoFilter && !rowSchemeNo.toLowerCase().includes(schemeNoFilter)) return;
+
+    const cnt = Number(r.SubmissionCount || 0);
+    if (!Number.isFinite(cnt) || cnt <= 0) return;
+
+    const channel = deriveSubmissionChannelFromVia(r.Via);
+    const item = ensureChannel(channel);
+    item.submissions += cnt;
+    if (rowBroker) item.brokerSet.add(rowBroker);
+    if (rowSchemeNo) item.schemeSet.add(rowSchemeNo);
+    const derivedNe = classifyProcessRow({ WorkTypeCode: String(r.WorkTypeCode || "").trim() });
+    if (derivedNe) item.processes.add(derivedNe.processName);
+  });
+
+  // Calculate totals
+  const items = Array.from(byChannel.values()).sort((a, b) => b.submissions - a.submissions);
+  const totalSubmissions = items.reduce((sum, x) => sum + x.submissions, 0);
+  const secureShareList = items.find(x => x.channel === "SecureShare");
+  const secureShareSubmissions = secureShareList ? secureShareList.submissions : 0;
+  const notRecordedList = items.find(x => x.channel === "Not recorded");
+  const notRecordedSubmissions = notRecordedList ? notRecordedList.submissions : 0;
+  
+  const nonSecureShareSubmissions = totalSubmissions - secureShareSubmissions - notRecordedSubmissions;
+
+  // Update KPIs
+  setKpi("kChannelTotal", fmt(totalSubmissions));
+  setKpi("kChannelSSPct", pct(totalSubmissions ? secureShareSubmissions / totalSubmissions : 0));
+  setKpi("kChannelNonSSPct", pct(totalSubmissions ? nonSecureShareSubmissions / totalSubmissions : 0));
+  setKpi("kChannelUnknownPct", pct(totalSubmissions ? notRecordedSubmissions / totalSubmissions : 0));
+  
+  const allBrokers = new Set();
+  items.forEach(x => x.brokerSet.forEach(b => allBrokers.add(b)));
+  setKpi("kChannelBrokers", fmt(allBrokers.size));
+
+  // Chart: Submissions by Channel (horizontal bar)
+  const top = items.slice(0, 12);
+  drawOrUpdate("chartChannelBreakdown", "bar", {
+    labels: top.map(x => x.channel),
+    datasets: [{ label: "Submissions", data: top.map(x => x.submissions), backgroundColor: "#4b7fb8" }]
+  }, {
+    indexAxis: "y",
+    scales: {
+      x: { beginAtZero: true, ticks: { precision: 0 } },
+      y: { ticks: { autoSkip: false, font: { size: 11 } } }
+    },
+    datasets: {
+      bar: { categoryPercentage: 0.72, barPercentage: 0.78, maxBarThickness: 18 }
+    },
+    plugins: { legend: { display: true } }
+  });
+
+  // Companion chart: Top brokers by SecureShare rate
+  const byBroker = new Map();
+  function ensureBroker(name) {
+    if (!byBroker.has(name)) byBroker.set(name, { total: 0, secureShare: 0 });
+    return byBroker.get(name);
+  }
+
+  rows.forEach(r => {
+    const rowBroker = (r.Broker_Org || "").trim();
+    const rowSchemeNo = String(r.SchemeNumber || "").trim();
+    if (!rowBroker) return;
+    if (brokerFilter && rowBroker !== brokerFilter) return;
+    if (schemeNoFilter && !rowSchemeNo.toLowerCase().includes(schemeNoFilter)) return;
+    const item = ensureBroker(rowBroker);
+    item.total += 1;
+    if (deriveSubmissionChannel(r) === "SecureShare") item.secureShare += 1;
+  });
+
+  neRows.forEach(r => {
+    const rowBroker = String(r.BrokerName || "").trim();
+    const rowSchemeNo = String(r.SchemeNo || "").trim();
+    if (!rowBroker) return;
+    if (brokerFilter && rowBroker !== brokerFilter) return;
+    if (schemeNoFilter && !rowSchemeNo.toLowerCase().includes(schemeNoFilter)) return;
+    const cnt = Number(r.SubmissionCount || 0);
+    if (!Number.isFinite(cnt) || cnt <= 0) return;
+    const item = ensureBroker(rowBroker);
+    item.total += cnt;
+    if (deriveSubmissionChannelFromVia(r.Via) === "SecureShare") item.secureShare += cnt;
+  });
+
+  const brokerShareRows = Array.from(byBroker.entries())
+    .map(([broker, stats]) => ({
+      broker,
+      secureShare: stats.secureShare,
+      ratePct: stats.total ? (stats.secureShare / stats.total) * 100 : 0
+    }))
+    .filter(x => x.secureShare > 0)
+    .sort((a, b) => b.secureShare - a.secureShare);
+
+  const topBrokerShareRows = brokerShareRows.slice(0, 3);
+  const otherSecureShare = brokerShareRows.slice(3).reduce((sum, x) => sum + x.secureShare, 0);
+  const pieLabels = topBrokerShareRows.map(x => compactLabel(x.broker, 24));
+  const pieValues = topBrokerShareRows.map(x => x.secureShare);
+  const pieColors = topBrokerShareRows.map((_, idx) => BROKER_SHARE_RANK_COLORS[idx]);
+  if (otherSecureShare > 0) {
+    pieLabels.push("Other");
+    pieValues.push(otherSecureShare);
+    pieColors.push(BROKER_SHARE_RANK_COLORS[3]);
+  }
+
+  drawOrUpdate("chartChannelBrokerSSRate", "doughnut", {
+    labels: pieLabels.length ? pieLabels : ["No SecureShare submissions"],
+    datasets: [{
+      label: "SecureShare submissions",
+      data: pieLabels.length ? pieValues : [1],
+      backgroundColor: pieLabels.length ? pieColors : ["#cfd8dc"]
+    }]
+  }, {
+    plugins: {
+      legend: { display: true, position: "bottom" },
+      tooltip: {
+        callbacks: {
+          label: ctx => {
+            if (!pieLabels.length) return "No SecureShare submissions";
+            const total = pieValues.reduce((sum, v) => sum + v, 0);
+            const value = Number(ctx.raw || 0);
+            const share = total ? (value / total) * 100 : 0;
+            const rate = topBrokerShareRows[ctx.dataIndex]?.ratePct;
+            const rateText = Number.isFinite(rate) ? ` | SS Rate: ${rate.toFixed(1)}%` : "";
+            return `${ctx.label}: ${fmt(value)} (${share.toFixed(1)}%)${rateText}`;
+          }
+        }
+      }
+    }
+  });
+
+  // Table rows
+  body.innerHTML = items.map(x => {
+    const completion = x.completionBasis ? (x.completed / x.completionBasis) : null;
+    const topBrokers = Array.from(x.brokerSet).slice(0, 3).join(", ");
+    const processList = x.processes ? [...x.processes].sort() : [];
+    return `
+      <tr>
+        <td style="text-align:left;white-space:normal;max-width:150px;">${x.channel}</td>
+        <td style="text-align:right;">${fmt(x.submissions)}</td>
+        <td style="text-align:right;">${pct(totalSubmissions ? x.submissions / totalSubmissions : 0)}</td>
+        <td style="text-align:right;">${fmt(x.brokerSet.size)}</td>
+        <td style="text-align:right;">${fmt(x.schemeSet.size)}</td>
+        <td style="text-align:left;white-space:normal;font-size:9px;max-width:180px;">${processList.slice(0, 3).join(", ")}${processList.length > 3 ? ` +${processList.length - 3} more` : ""}</td>
+        <td style="text-align:right;">${completion == null ? "-" : pct(completion)}</td>
+        <td style="text-align:left;white-space:normal;font-size:9px;max-width:200px;">${topBrokers}${x.brokerSet.size > 3 ? ` +${x.brokerSet.size - 3} more` : ""}</td>
+      </tr>
+    `;
+  }).join("");
+}
+
+// ─── NEW ENTRANT VISIBILITY ────────────────────────────────────────────────────
+const NE_WT_COLS = [
+  { code: 'NESAUTO',  label: 'New Entrant<br>Single Auto' },
+  { code: 'NEBAUTO',  label: 'New Entrant<br>Bulk Auto' },
+  { code: 'RNESAUTO', label: 'Revised New Entrant<br>Single' },
+  { code: 'RNEBAUTO', label: 'Revised New Entrant<br>Bulk' },
+  { code: 'NES',      label: 'New Entrant<br>Single' },
+];
+const NE_BULK_CODES   = new Set(['NEBAUTO','RNEBAUTO','NEB','NEBREF','PRBNEB','CMNEB']);
+const NE_SINGLE_CODES = new Set(['NESAUTO','RNESAUTO','NES','NESREF','PRBNES']);
+const NE_SUITABILITY_ORDER = [
+  'SecureShare – Bulk','SecureShare – Single',
+  'Non-SecureShare – Bulk','Non-SecureShare – Single',
+  'Unknown Source – Bulk','Unknown Source – Single','Other',
+];
+const NE_SUITABILITY_SHORT = {
+  'SecureShare – Bulk':       'SS Bulk',
+  'SecureShare – Single':     'SS Single',
+  'Non-SecureShare – Bulk':   'Non-SS Bulk',
+  'Non-SecureShare – Single': 'Non-SS Single',
+  'Unknown Source – Bulk':    'Unknown Bulk',
+  'Unknown Source – Single':  'Unknown Single',
+  'Other':                    'Other',
+};
+const NE_SUITABILITY_COLOURS = {
+  'SecureShare – Bulk':       '#1a5c1a',
+  'SecureShare – Single':     '#5ca85c',
+  'Non-SecureShare – Bulk':   '#1565c0',
+  'Non-SecureShare – Single': '#64b5f6',
+  'Unknown Source – Bulk':    '#c62828',
+  'Unknown Source – Single':  '#ef9a9a',
+  'Other':                    '#b0bec5',
+};
+const NE_MONTH_NAMES = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function neSuitability(via, wtCode) {
+  const isBulk   = NE_BULK_CODES.has(wtCode);
+  const isSingle = NE_SINGLE_CODES.has(wtCode);
+  if (!isBulk && !isSingle) return 'Other';
+  const t = isBulk ? 'Bulk' : 'Single';
+  if (via === 'SecureShare') return 'SecureShare – ' + t;
+  if (via === 'Null' || !via) return 'Unknown Source – ' + t;
+  return 'Non-SecureShare – ' + t;
+}
+
+function monthLabelFromYM(ym) {
+  if (!ym || ym.length < 7) return ym || '';
+  const yr = ym.slice(0, 4);
+  const mo = parseInt(ym.slice(5, 7), 10);
+  return (NE_MONTH_NAMES[mo] || ym) + ' ' + yr;
+}
+
+function filteredNERows() {
+  if (typeof ne_submissions_data === 'undefined') return [];
+  const schemeNo = ui.neSchemeNoFilter ? ui.neSchemeNoFilter.value.trim().toLowerCase() : '';
+
+  const dateSchemeRows = filteredNeRowsGlobal().filter(r => {
+    if (schemeNo && !String(r.SchemeNo || '').toLowerCase().includes(schemeNo)) return false;
+    return true;
+  });
+
+  const months = [...new Set(dateSchemeRows.map(r => r.YearMonth).filter(Boolean))].sort();
+  if (ui.neMonthFilter) {
+    const selectedMonth = ui.neMonthFilter.value;
+    ui.neMonthFilter.innerHTML = '';
+    months.forEach(ym => ui.neMonthFilter.add(new Option(monthLabelFromYM(ym), ym)));
+    const fallback = months.length ? months[months.length - 1] : '';
+    ui.neMonthFilter.value = months.includes(selectedMonth) ? selectedMonth : fallback;
+  }
+
+  const monthSelected = ui.neMonthFilter ? ui.neMonthFilter.value : '';
+  const monthRows = monthSelected ? dateSchemeRows.filter(r => r.YearMonth === monthSelected) : dateSchemeRows;
+
+  let broker = ui.neBrokerFilter ? ui.neBrokerFilter.value : '';
+  if (ui.neBrokerFilter) {
+    const selectedBroker = ui.neBrokerFilter.value;
+    const brokers = [...new Set(monthRows.map(r => r.BrokerName).filter(Boolean))].sort();
+    ui.neBrokerFilter.innerHTML = '<option value="">(All)</option>';
+    brokers.forEach(b => ui.neBrokerFilter.add(new Option(b, b)));
+    ui.neBrokerFilter.value = brokers.includes(selectedBroker) ? selectedBroker : '';
+    broker = ui.neBrokerFilter.value;
+  }
+
+  return monthRows.filter(r => !broker || r.BrokerName === broker);
+}
+
+function initNeFilters() {
+  if (typeof ne_submissions_data === 'undefined') return;
+  if (ui.neMonthFilter) ui.neMonthFilter.innerHTML = '';
+  if (ui.neBrokerFilter) {
+    ui.neBrokerFilter.innerHTML = '<option value="">(All)</option>';
+  }
+}
+
+function updateNeVisibility() {
+  if (currentPage !== 'ne') return;
+  if (typeof ne_submissions_data === 'undefined') return;
+
+  const rows = filteredNERows();
+  const monthSelected = ui.neMonthFilter ? ui.neMonthFilter.value : '';
+
+  const total = rows.reduce((s, r) => s + r.SubmissionCount, 0);
+  const ssCnt = rows.filter(r => deriveSubmissionChannelFromVia(r.Via) === 'SecureShare').reduce((s, r) => s + r.SubmissionCount, 0);
+  const nullCnt = rows.filter(r => deriveSubmissionChannelFromVia(r.Via) === 'Not recorded').reduce((s, r) => s + r.SubmissionCount, 0);
+  const nonSSCnt = total - ssCnt - nullCnt;
+  const brokerSet = new Set(rows.filter(r => r.BrokerCode).map(r => r.BrokerCode));
+  const pctFmt = (n, d) => d ? (n / d * 100).toFixed(1) + '%' : '-';
+
+  document.getElementById('kNETotal').textContent = total.toLocaleString();
+  document.getElementById('kNESSPct').textContent = pctFmt(ssCnt, total);
+  document.getElementById('kNENonSSPct').textContent = pctFmt(nonSSCnt, total);
+  document.getElementById('kNEUnknownPct').textContent = pctFmt(nullCnt, total);
+  document.getElementById('kNEBrokers').textContent = brokerSet.size.toLocaleString();
+
+  const monthLabel = monthSelected ? monthLabelFromYM(monthSelected) : 'All Months';
+  document.getElementById('neTableTitle').textContent = 'New Entrant Submissions by Channel — ' + monthLabel;
+
+  const viaMap = new Map();
+  rows.forEach(r => {
+    if (!viaMap.has(r.Via)) viaMap.set(r.Via, {});
+    const wm = viaMap.get(r.Via);
+    wm[r.WorkTypeCode] = (wm[r.WorkTypeCode] || 0) + r.SubmissionCount;
+  });
+
+  const neHead = document.getElementById('neMatrixHead');
+  const neBody = document.getElementById('neMatrixBody');
+  neHead.innerHTML = '<tr><th style="text-align:left;">Submission Channel</th>' +
+    NE_WT_COLS.map(c => '<th>' + c.label + '</th>').join('') +
+    '<th>Total</th></tr>';
+
+  const sortedChannels = [...viaMap.keys()].sort((a, b) => {
+    if (a === 'Null') return 1;
+    if (b === 'Null') return -1;
+    if (a === 'SecureShare') return -1;
+    if (b === 'SecureShare') return 1;
+    return a.localeCompare(b);
+  });
+
+  const bodyRows = sortedChannels.map(via => {
+    const wm = viaMap.get(via);
+    const cells = NE_WT_COLS.map(c => wm[c.code] || 0);
+    const rowTotal = cells.reduce((s, v) => s + v, 0);
+    const channelLabel = via === 'Null' ? '<span style="color:#aaa;font-style:italic;">Not recorded</span>' : via;
+    return '<tr>' +
+      '<td class="ne-via-cell" style="text-align:left;font-weight:500;">' + channelLabel + '</td>' +
+      cells.map(v => '<td class="ne-num-cell">' + (v > 0 ? v.toLocaleString() : '<span style="color:#ddd;">—</span>') + '</td>').join('') +
+      '<td class="ne-num-cell ne-total-cell">' + rowTotal.toLocaleString() + '</td>' +
+      '</tr>';
+  });
+  neBody.innerHTML = bodyRows.join('');
+
+  const suitabilityCounts = {};
+  NE_SUITABILITY_ORDER.forEach(l => { suitabilityCounts[l] = 0; });
+  rows.forEach(r => {
+    const lbl = neSuitability(r.Via, r.WorkTypeCode);
+    suitabilityCounts[lbl] = (suitabilityCounts[lbl] || 0) + r.SubmissionCount;
+  });
+
+  const labels     = NE_SUITABILITY_ORDER.filter(l => suitabilityCounts[l] > 0);
+  const shortLabels = labels.map(l => NE_SUITABILITY_SHORT[l] || l);
+  const percValues  = labels.map(l => total ? parseFloat((suitabilityCounts[l] / total * 100).toFixed(2)) : 0);
+  const cntValues   = labels.map(l => suitabilityCounts[l]);
+  const colors      = labels.map(l => NE_SUITABILITY_COLOURS[l]);
+
+  // Suitability horizontal bar — use drawOrUpdate for crisp rendering (maintainAspectRatio:false + animation:false)
+  drawOrUpdate('chartNESuitabilityBar', 'bar',
+    {
+      labels: shortLabels,
+      datasets: [{
+        label: '% of Submissions',
+        data: percValues,
+        backgroundColor: colors,
+        borderRadius: 5,
+        borderSkipped: false,
+      }]
+    },
+    {
+      indexAxis: 'y',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: ctx => labels[ctx[0].dataIndex],
+            label: ctx => '  ' + ctx.parsed.x.toFixed(1) + '%  (' + cntValues[ctx.dataIndex].toLocaleString() + ' submissions)',
+          }
+        },
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          max: 100,
+          ticks: { callback: v => v + '%', font: { size: 10 } },
+          grid: { color: '#f0f2f7' },
+        },
+        y: {
+          ticks: { font: { size: 10 } },
+          grid: { display: false },
+        },
+      },
+    }
+  );
+
+  // Companion chart: Top NE brokers by SecureShare rate
+  const byBroker = new Map();
+  rows.forEach(r => {
+    const brokerName = String(r.BrokerName || '').trim();
+    if (!brokerName) return;
+    if (!byBroker.has(brokerName)) byBroker.set(brokerName, { total: 0, secureShare: 0 });
+    const item = byBroker.get(brokerName);
+    const cnt = Number(r.SubmissionCount || 0);
+    if (!Number.isFinite(cnt) || cnt <= 0) return;
+    item.total += cnt;
+    if (deriveSubmissionChannelFromVia(r.Via) === 'SecureShare') item.secureShare += cnt;
+  });
+
+  const brokerShareRows = Array.from(byBroker.entries())
+    .map(([broker, stats]) => ({
+      broker,
+      secureShare: stats.secureShare,
+      ratePct: stats.total ? (stats.secureShare / stats.total) * 100 : 0
+    }))
+    .filter(x => x.secureShare > 0)
+    .sort((a, b) => b.secureShare - a.secureShare);
+
+  const topBrokerShareRows = brokerShareRows.slice(0, 3);
+  const otherSecureShare = brokerShareRows.slice(3).reduce((sum, x) => sum + x.secureShare, 0);
+  const pieLabels = topBrokerShareRows.map(x => compactLabel(x.broker, 22));
+  const pieValues = topBrokerShareRows.map(x => x.secureShare);
+  const pieColors = topBrokerShareRows.map((_, idx) => BROKER_SHARE_RANK_COLORS[idx]);
+  if (otherSecureShare > 0) {
+    pieLabels.push('Other');
+    pieValues.push(otherSecureShare);
+    pieColors.push(BROKER_SHARE_RANK_COLORS[3]);
+  }
+
+  drawOrUpdate('chartNEBrokerSSRate', 'doughnut', {
+    labels: pieLabels.length ? pieLabels : ['No SecureShare submissions'],
+    datasets: [{
+      label: 'SecureShare submissions',
+      data: pieLabels.length ? pieValues : [1],
+      backgroundColor: pieLabels.length ? pieColors : ['#cfd8dc']
+    }]
+  }, {
+    plugins: {
+      legend: { display: true, position: 'bottom' },
+      tooltip: {
+        callbacks: {
+          label: ctx => {
+            if (!pieLabels.length) return 'No SecureShare submissions';
+            const totalPie = pieValues.reduce((sum, v) => sum + v, 0);
+            const value = Number(ctx.raw || 0);
+            const share = totalPie ? (value / totalPie) * 100 : 0;
+            const rate = topBrokerShareRows[ctx.dataIndex]?.ratePct;
+            const rateText = Number.isFinite(rate) ? ` | SS Rate: ${rate.toFixed(1)}%` : '';
+            return `${ctx.label}: ${fmt(value)} (${share.toFixed(1)}%)${rateText}`;
+          },
+        },
+      },
+    },
+  });
+}
+
+initFilters();
+initFinancialFilters();
+initSchemeFilters();
+initProcessFilters();
+initNeFilters();
+bindEvents();
+setPage(currentPage);
+</script>
+</body>
+</html>
+

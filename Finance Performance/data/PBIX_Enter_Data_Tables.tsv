@@ -1,0 +1,72 @@
+fin_settlement_monthly
+MonthKey	GroupCost	GroupPreappropImpact	GroupNetCost	IndividualCost	IndividualPreappropImpact	IndividualNetCost	TotalNetCost	SourceVersion
+2026-01	-929166	191450	-737715	-1003826	354515	-649312	-1387027	Latest_Attachment_v1
+2026-02	-353728	224724	-129004	-363736	77409	-286328	-415332	Latest_Attachment_v1
+2026-03	727666	-228526	499139	14808	-696372	-681564	-182425	Latest_Attachment_v1
+
+financial_driver_classification
+Month	Business	PrimaryDriver
+2026-01	Group	Market Movement
+2026-01	Individual	Operational Capacity
+2026-02	Group	Claims Offset
+2026-02	Individual	Backdating
+2026-03	Group	Market Movement
+2026-03	Individual	Outflow Concentration
+
+kri_scheme_drilldown
+Period	SchemeNumber	NetCost	Reason
+2026-01	8398	-17249	I.N.T.O. AVC Plan scheme, RSP of EUR3.2m with effective date 02/01/2026 and system date 05/01/2026. CB Approps were informed on 02/01/2026 (pm). Preapprop was added on 05/01/2026. Loss due to price movements.
+2026-01	1441	-19269	Nurses AVC Scheme scheme, RSP of EUR4.3m with effective date 02/01/2026 and system date 05/01/2026. CB Approps were informed on 02/01/2026 (pm). Preapprop was added on 05/01/2026. Loss due to price movements.
+2026-02	3645	10151	Aer Lingus scheme, RSP of EUR1.3m with effective date 04/02/2026 and system date 06/02/2026. CB Approps were informed on 04/02/2026 (PM). Preapprop was added on 05/02/2026. Gain due to price movements.
+2026-02	3990	31390	Stryker Ireland DC Pension P scheme, RSP of EUR3.7m with effective date 11/02/2026 and system date 13/02/2026. CB Approps were informed on 12/02/2026 (AM). Preapprop was added on 12/02/2026. Gain due to price movements.
+2026-02	6849	-16638	Maples Group scheme, SP of EUR0.4m with effective date 07/10/2025 was reversed and reinstated on other funds. CB Approps were not informed. Loss due to price movements. More Detail TBC.
+2026-03	2945	-33040	Irish Life and Canada Life scheme, RSP with effective date 23/03/2026 and system date 27/03/2026.
+2026-03	3000	25541	CHC Ireland DAC scheme, SWTH with effective date 06/03/2026 and system date 12/03/2026.
+2026-03	3123	11619	Intel Ireland DC Plan, RSP with effective date 11/03/2026 and system date 16/03/2026.
+2026-03	3123	13440	Intel Ireland DC Plan, RSP with effective date 25/03/2026 and system date 27/03/2026.
+2026-03	3616	82229	Google Ireland Limited, RSP with effective date 26/03/2026 and system date 27/03/2026.
+2026-03	3645	11022	Aer Lingus scheme, RSP with effective date 18/03/2026 and system date 23/03/2026.
+2026-03	3888	13833	Kerry Group Plc, RSP with effective date 18/03/2026 and system date 23/03/2026.
+2026-03	7205	-23975	PRB scheme, SP with effective date 20/08/2021 and system date 05/03/2026.
+2026-03	8398	-24424	I.N.T.O. AVC Plan, RSP with effective date 30/03/2026 and system date 31/03/2026.
+2026-03	3990	23819	Stryker scheme, RSP with effective date 11/03/2026 and system date 16/03/2026.
+2026-03	9811	-20287	PMI Software, WTHD with effective date 02/03/2026 and system date 06/03/2026.
+
+ar_scheme_money
+Period	SchemeNumber	OpeningBalance	NetMovement	ClosingBalance	MovementType
+2026-01	1441	846000	-19269	826731	Decrease
+2026-02	1441	826731	0	826731	Increase
+2026-03	1441	826731	0	826731	Increase
+2026-01	2945	468000	0	468000	Increase
+2026-02	2945	468000	0	468000	Increase
+2026-03	2945	468000	-33040	434960	Decrease
+2026-01	3000	636000	0	636000	Increase
+2026-02	3000	636000	0	636000	Increase
+2026-03	3000	636000	25541	661541	Increase
+2026-01	3123	804000	0	804000	Increase
+2026-02	3123	804000	0	804000	Increase
+2026-03	3123	804000	25059	829059	Increase
+2026-01	3616	804000	0	804000	Increase
+2026-02	3616	804000	0	804000	Increase
+2026-03	3616	804000	82229	886229	Increase
+2026-01	3645	594000	0	594000	Increase
+2026-02	3645	594000	10151	604151	Increase
+2026-03	3645	604151	11022	615173	Increase
+2026-01	3888	804000	0	804000	Increase
+2026-02	3888	804000	0	804000	Increase
+2026-03	3888	804000	13833	817833	Increase
+2026-01	3990	804000	0	804000	Increase
+2026-02	3990	804000	31390	835390	Increase
+2026-03	3990	835390	23819	859209	Increase
+2026-01	6849	930000	0	930000	Increase
+2026-02	6849	930000	-16638	913362	Decrease
+2026-03	6849	913362	0	913362	Increase
+2026-01	7205	888000	0	888000	Increase
+2026-02	7205	888000	0	888000	Increase
+2026-03	7205	888000	-23975	864025	Decrease
+2026-01	8398	300000	-17249	282751	Decrease
+2026-02	8398	282751	0	282751	Increase
+2026-03	8398	282751	-24424	258327	Decrease
+2026-01	9811	384000	0	384000	Increase
+2026-02	9811	384000	0	384000	Increase
+2026-03	9811	384000	-20287	363713	Decrease

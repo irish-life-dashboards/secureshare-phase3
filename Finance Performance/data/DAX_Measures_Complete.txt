@@ -1,0 +1,380 @@
+================================================================================
+  SECURESHARE FINANCE PERFORMANCE - COMPLETE DAX MEASURES
+  Date: May 29, 2026
+  Report: 3-page Report (Settlement, Scheme Drill-down + SLA, AR Visibility)
+================================================================================
+
+SECTION 1: FINANCIAL SETTLEMENT MEASURES (Page 1 & 2)
+================================================================================
+
+// Primary Cost Measures
+Fin Group Net Cost = 
+SUM(fin_settlement_monthly[GroupNetCost])
+
+Fin Individual Net Cost = 
+SUM(fin_settlement_monthly[IndividualNetCost])
+
+Fin Total Net Cost = 
+SUM(fin_settlement_monthly[TotalNetCost])
+
+// YTD Calculation
+Fin YTD Total Net Cost = 
+TOTALYTD(
+  [Fin Total Net Cost], 
+  'tbl_DateTable'[Date],
+  ALL('tbl_DateTable')
+)
+
+// Preapprop Impact Measures
+Fin Group Preapprop Impact = 
+SUM(fin_settlement_monthly[GroupPreappropImpact])
+
+Fin Individual Preapprop Impact = 
+SUM(fin_settlement_monthly[IndividualPreappropImpact])
+
+Fin Preapprop Total Impact = 
+[Fin Group Preapprop Impact] + [Fin Individual Preapprop Impact]
+
+// Cost Breakdown (supporting)
+Fin Group Cost (Gross) = 
+SUM(fin_settlement_monthly[GroupCost])
+
+Fin Individual Cost (Gross) = 
+SUM(fin_settlement_monthly[IndividualCost])
+
+Fin Total Cost (Gross) = 
+[Fin Group Cost (Gross)] + [Fin Individual Cost (Gross)]
+
+================================================================================
+SECTION 2: SLA MEASURES (Page 2 - Scheme Drill-down)
+================================================================================
+
+// SLA Derivation: Count of rows where SLA is measurable (both dates present)
+Fin SLA Measured Count = 
+COUNTROWS(
+  FILTER(
+    kri_scheme_drilldown,
+    NOT(ISBLANK(kri_scheme_drilldown[SlaDaysDerived]))
+  )
+)
+
+// SLA Met: Count of rows where SLA Days <= Target (derived in table)
+Fin SLA Met Count = 
+COUNTROWS(
+  FILTER(
+    kri_scheme_drilldown,
+    NOT(ISBLANK(kri_scheme_drilldown[SlaDaysDerived]))
+      && kri_scheme_drilldown[SlaDaysDerived] <= [Fin SLA Target Days]
+  )
+)
+
+// SLA Met Rate %
+Fin SLA Met Rate = 
+IF(
+  [Fin SLA Measured Count] = 0,
+  BLANK(),
+  [Fin SLA Met Count] / [Fin SLA Measured Count]
+)
+
+// Average SLA Days (across all measured rows)
+Fin Avg SLA Days = 
+AVERAGEX(
+  FILTER(
+    kri_scheme_drilldown,
+    NOT(ISBLANK(kri_scheme_drilldown[SlaDaysDerived]))
+  ),
+  kri_scheme_drilldown[SlaDaysDerived]
+)
+
+// SLA Target (configurable, default 2 days)
+Fin SLA Target Days = 2
+
+// Event Count (total rows in filtered context)
+Fin Event Count = 
+COUNTROWS(kri_scheme_drilldown)
+
+// Scheme Count (distinct schemes)
+Fin Scheme Count = 
+DISTINCTCOUNT(kri_scheme_drilldown[SchemeNumber])
+
+// Period Count (distinct periods)
+Fin Period Count = 
+DISTINCTCOUNT(kri_scheme_drilldown[Period])
+
+// Overall Scheme Net Cost (sum across periods/schemes)
+Fin Scheme Overall Net Cost = 
+SUM(kri_scheme_drilldown[NetCost])
+
+// Latest Period Net Cost (from scheme drill-down)
+Fin Latest Period Net Cost = 
+VAR LatestPeriod = MAX(kri_scheme_drilldown[Period])
+RETURN
+CALCULATE(
+  SUM(kri_scheme_drilldown[NetCost]),
+  FILTER(kri_scheme_drilldown, kri_scheme_drilldown[Period] = LatestPeriod)
+)
+
+================================================================================
+SECTION 3: AR / SCHEME MONEY VISIBILITY MEASURES (Page 3)
+================================================================================
+
+// Opening Balance (at selected "from" period)
+Fin AR Opening Balance = 
+VAR FromPeriod = MIN(ar_scheme_money[Period])
+RETURN
+CALCULATE(
+  SUM(ar_scheme_money[OpeningBalance]),
+  FILTER(ar_scheme_money, ar_scheme_money[Period] = FromPeriod)
+)
+
+// Net Movement (sum of all movements in selected range)
+Fin AR Net Movement = 
+SUM(ar_scheme_money[NetMovement])
+
+// Closing Balance (at selected "to" period)
+Fin AR Closing Balance = 
+VAR ToPeriod = MAX(ar_scheme_money[Period])
+RETURN
+CALCULATE(
+  SUM(ar_scheme_money[ClosingBalance]),
+  FILTER(ar_scheme_money, ar_scheme_money[Period] = ToPeriod)
+)
+
+// Distinct Schemes in Current Filter
+Fin AR Scheme Count = 
+DISTINCTCOUNT(ar_scheme_money[SchemeNumber])
+
+// Balance Trend helper (for charting)
+Fin AR Balance = 
+CALCULATE(
+  SUM(ar_scheme_money[ClosingBalance]),
+  ALLEXCEPT(ar_scheme_money, ar_scheme_money[Period])
+)
+
+// Net Movement by Scheme (for breakdown chart)
+Fin AR Movement by Scheme = 
+CALCULATE(
+  SUM(ar_scheme_money[NetMovement]),
+  ALLEXCEPT(ar_scheme_money, ar_scheme_money[SchemeNumber])
+)
+
+================================================================================
+SECTION 4: FORMATTING & DISPLAY MEASURES
+================================================================================
+
+// Currency Format Helper (returns formatted string)
+Fin Currency Display = 
+FORMAT([Fin Total Net Cost], "$#,##0")
+
+// Percentage Display (for SLA Met Rate)
+Fin SLA %Display = 
+FORMAT([Fin SLA Met Rate], "0.0%")
+
+// Conditional Formatting: SLA Status (Good/Bad)
+Fin SLA Status = 
+IF(
+  [Fin SLA Met Rate] >= 0.8,
+  "Good",
+  "At Risk"
+)
+
+// Conditional Formatting: Movement Direction (AR)
+Fin AR Movement Direction = 
+IF(
+  [Fin AR Net Movement] >= 0,
+  "Positive",
+  "Negative"
+)
+
+================================================================================
+SECTION 5: DASHBOARD SUMMARY MEASURES (Top-level KPIs)
+================================================================================
+
+// Page 1: Settlement Overview KPIs
+Fin Latest Group Net = 
+VAR Latest = MAX(fin_settlement_monthly[MonthKey])
+RETURN
+CALCULATE(
+  [Fin Group Net Cost],
+  fin_settlement_monthly[MonthKey] = Latest
+)
+
+Fin Latest Individual Net = 
+VAR Latest = MAX(fin_settlement_monthly[MonthKey])
+RETURN
+CALCULATE(
+  [Fin Individual Net Cost],
+  fin_settlement_monthly[MonthKey] = Latest
+)
+
+Fin Latest Total Net = 
+[Fin Latest Group Net] + [Fin Latest Individual Net]
+
+// Page 1: Driver Context (supporting)
+Fin Driver Count = 
+DISTINCTCOUNT(financial_driver_classification[PrimaryDriver])
+
+// Page 2: Period Context
+Fin Current Period = 
+MAX(kri_scheme_drilldown[Period])
+
+// Page 3: Balance Change Analysis
+Fin Balance Change % = 
+IF(
+  [Fin AR Opening Balance] = 0,
+  BLANK(),
+  ([Fin AR Closing Balance] - [Fin AR Opening Balance]) / [Fin AR Opening Balance]
+)
+
+================================================================================
+SECTION 6: TABLE & DETAIL MEASURES (For drill-down tables)
+================================================================================
+
+// Row-level SLA Days (calculated column alternative - use in table formula)
+// kri_scheme_drilldown[SlaDaysDerived] = 
+// DATEDIFF(
+//   DATE(LEFT([Reason], 4), MID([Reason], 6, 2), RIGHT([Reason], 2)),
+//   TODAY(),
+//   DAY
+// )
+// NOTE: This is better implemented as a calculated column, not a measure
+
+// Scheme Period Key (for aggregation)
+Fin Scheme Period Aggregate = 
+CONCATENATE(
+  kri_scheme_drilldown[Period],
+  "|",
+  kri_scheme_drilldown[SchemeNumber]
+)
+
+================================================================================
+SECTION 7: FILTER MEASURES (For slicer/filter display)
+================================================================================
+
+// Count of available periods for filter display
+Fin Period Filter Count = 
+DISTINCTCOUNT(fin_settlement_monthly[MonthKey])
+
+// Count of available schemes for filter display
+Fin Scheme Filter Count = 
+DISTINCTCOUNT(kri_scheme_drilldown[SchemeNumber])
+
+// Selected Period Display (slicer context)
+Fin Selected Periods = 
+COUNTROWS(VALUES(fin_settlement_monthly[MonthKey]))
+
+================================================================================
+SECTION 8: VALIDATION & DATA QUALITY MEASURES
+================================================================================
+
+// Check: Are all required columns populated?
+Fin Reason Text Complete = 
+IF(
+  ISBLANK(SELECTEDVALUE(kri_scheme_drilldown[Reason])),
+  "Missing",
+  "Complete"
+)
+
+// Check: SLA derivable (effective and system dates both present)?
+Fin SLA Derivable = 
+IF(
+  AND(
+    NOT(ISBLANK(kri_scheme_drilldown[EffectiveDate])),
+    NOT(ISBLANK(kri_scheme_drilldown[SystemDate]))
+  ),
+  "Yes",
+  "No"
+)
+
+// Data Quality Score (% of complete reason records)
+Fin Data Quality % = 
+VAR Complete =
+  COUNTROWS(
+    FILTER(kri_scheme_drilldown, NOT(ISBLANK(kri_scheme_drilldown[Reason])))
+  )
+VAR Total = COUNTROWS(kri_scheme_drilldown)
+RETURN
+IF(Total = 0, BLANK(), Complete / Total)
+
+================================================================================
+IMPLEMENTATION NOTES
+================================================================================
+
+TABLES REQUIRED IN PBIX:
+1. fin_settlement_monthly
+   Columns: MonthKey, GroupCost, GroupPreappropImpact, GroupNetCost, 
+            IndividualCost, IndividualPreappropImpact, IndividualNetCost, 
+            TotalNetCost, SourceVersion
+   
+2. kri_scheme_drilldown
+   Columns: Period, SchemeNumber, NetCost, Reason, SlaDaysDerived (calculated column),
+            EffectiveDate (extracted), SystemDate (extracted)
+   
+3. financial_driver_classification
+   Columns: Month, Business, PrimaryDriver
+   
+4. ar_scheme_money
+   Columns: Period, SchemeNumber, OpeningBalance, NetMovement, ClosingBalance, MovementType
+
+5. tbl_DateTable (existing in template)
+   Columns: Date, Month, Year, etc.
+
+6. tbl_Measures (existing in template)
+   - Paste all measures here
+
+CALCULATED COLUMNS NEEDED IN kri_scheme_drilldown:
+
+SlaDaysDerived =
+VAR EffDate = 
+  IF(
+    ISERROR(
+      DATE(
+        VALUE(MID(kri_scheme_drilldown[Reason], SEARCH("effective date ", kri_scheme_drilldown[Reason]) + 15, 4)),
+        VALUE(MID(kri_scheme_drilldown[Reason], SEARCH("effective date ", kri_scheme_drilldown[Reason]) + 20, 2)),
+        VALUE(MID(kri_scheme_drilldown[Reason], SEARCH("effective date ", kri_scheme_drilldown[Reason]) + 23, 2))
+      )
+    ),
+    BLANK(),
+    DATE(
+      VALUE(MID(kri_scheme_drilldown[Reason], SEARCH("effective date ", kri_scheme_drilldown[Reason]) + 15, 4)),
+      VALUE(MID(kri_scheme_drilldown[Reason], SEARCH("effective date ", kri_scheme_drilldown[Reason]) + 20, 2)),
+      VALUE(MID(kri_scheme_drilldown[Reason], SEARCH("effective date ", kri_scheme_drilldown[Reason]) + 23, 2))
+    )
+  )
+VAR SysDate = 
+  IF(
+    ISERROR(
+      DATE(
+        VALUE(MID(kri_scheme_drilldown[Reason], SEARCH("system date ", kri_scheme_drilldown[Reason]) + 13, 4)),
+        VALUE(MID(kri_scheme_drilldown[Reason], SEARCH("system date ", kri_scheme_drilldown[Reason]) + 18, 2)),
+        VALUE(MID(kri_scheme_drilldown[Reason], SEARCH("system date ", kri_scheme_drilldown[Reason]) + 21, 2))
+      )
+    ),
+    BLANK(),
+    DATE(
+      VALUE(MID(kri_scheme_drilldown[Reason], SEARCH("system date ", kri_scheme_drilldown[Reason]) + 13, 4)),
+      VALUE(MID(kri_scheme_drilldown[Reason], SEARCH("system date ", kri_scheme_drilldown[Reason]) + 18, 2)),
+      VALUE(MID(kri_scheme_drilldown[Reason], SEARCH("system date ", kri_scheme_drilldown[Reason]) + 21, 2))
+    )
+  )
+RETURN
+IF(AND(NOT(ISBLANK(EffDate)), NOT(ISBLANK(SysDate))), INT(SysDate - EffDate), BLANK())
+
+EffectiveDate = 
+// Extract effective date from reason text (DD/MM/YYYY format after "effective date")
+// Use similar logic to SlaDaysDerived extraction above
+
+SystemDate = 
+// Extract system date from reason text (DD/MM/YYYY format after "system date")
+// Use similar logic to SlaDaysDerived extraction above
+
+================================================================================
+RELATIONSHIPS TO CREATE:
+================================================================================
+
+fin_settlement_monthly[MonthKey] → tbl_DateTable[Date] (1:1)
+kri_scheme_drilldown[Period] → tbl_DateTable[Date] (Many:1)
+financial_driver_classification[Month] → tbl_DateTable[Date] (Many:1)
+ar_scheme_money[Period] → tbl_DateTable[Date] (Many:1)
+
+================================================================================

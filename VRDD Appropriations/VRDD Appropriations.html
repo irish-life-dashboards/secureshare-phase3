@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VRDD Appropriations Control - Irish Life SecureShare</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--il-primary:#5C61AC;--il-teal:#55C2B6;--il-cyan:#00B1D9;--il-rose:#E03E52;--il-amber:#FAB812;--il-slate:#53565A;--card:#ffffff;--text:#25323b;--muted:#69757f;--line:#e4e6ef;--shadow:0 14px 34px rgba(37,50,59,0.08);--radius:14px;}
+    *{box-sizing:border-box;}
+    body{margin:0;font-family:"Manrope","Trebuchet MS",sans-serif;color:var(--text);background:radial-gradient(circle at 0% 0%,rgba(85,194,182,0.15),transparent 36%),radial-gradient(circle at 100% 0%,rgba(92,97,172,0.2),transparent 38%),linear-gradient(180deg,#fbfcff 0%,#f4f6fb 55%,#f2f4fa 100%);min-height:100vh;}
+    .shell{max-width:1680px;margin:0 auto;padding:20px 20px 28px;}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 18px;background:linear-gradient(92deg,#3e458f 0%,var(--il-primary) 45%,#4d98be 100%);border-radius:16px;box-shadow:var(--shadow);color:#fff;margin-bottom:14px;}
+    .brand{display:flex;align-items:center;gap:14px;}
+    .brand img{height:42px;width:auto;object-fit:contain;border-radius:6px;background:rgba(255,255,255,0.08);padding:4px;}
+    .brand h1{margin:0;font-size:1.08rem;font-weight:800;letter-spacing:0.2px;}
+    .brand p{margin:2px 0 0;opacity:0.92;font-size:0.82rem;}
+    .badge{border:1px solid rgba(255,255,255,0.35);border-radius:999px;padding:7px 12px;font-size:0.78rem;font-weight:700;white-space:nowrap;background:rgba(255,255,255,0.08);}
+    .tabs{display:flex;gap:8px;padding:10px;border-radius:14px;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);margin-bottom:14px;flex-wrap:wrap;}
+    .tab{border:none;border-radius:10px;background:transparent;color:var(--il-slate);font-weight:700;padding:10px 14px;cursor:pointer;font-family:inherit;font-size:0.87rem;}
+    .tab.active{color:#fff;background:linear-gradient(90deg,var(--il-primary),#4b7fb8);box-shadow:0 6px 18px rgba(92,97,172,0.35);}
+    .page{display:none;}.page.active{display:block;}
+    .row{display:grid;grid-template-columns:repeat(12,1fr);gap:12px;margin-bottom:12px;}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;min-width:0;}
+    .card h2{margin:0 0 8px;font-size:0.96rem;font-weight:800;color:#2f3e48;}
+    .hint{color:var(--muted);font-size:0.78rem;margin-top:6px;}
+    .kpi{grid-column:span 3;padding:14px;background:linear-gradient(160deg,rgba(255,255,255,0.95),rgba(248,250,255,0.98));}
+    .kpi .label{font-size:0.74rem;letter-spacing:0.2px;color:var(--muted);text-transform:uppercase;font-weight:700;margin-bottom:6px;}
+    .kpi .value{font-size:1.6rem;font-weight:800;color:#25323b;margin-bottom:4px;}
+    .kpi .sub{font-size:0.75rem;color:#7b8690;}
+    .filter-card{grid-column:span 12;}
+    .filter-grid{display:grid;grid-template-columns:repeat(6,minmax(140px,1fr));gap:10px;}
+    .f{display:flex;flex-direction:column;gap:4px;font-size:0.78rem;color:var(--muted);font-weight:700;text-transform:uppercase;}
+    .f select,.f input{width:100%;border-radius:10px;border:1px solid #d9deeb;padding:9px 10px;font-family:inherit;font-size:0.86rem;color:#2d3b45;background:#fff;outline:none;}
+    .f select:focus,.f input:focus{border-color:#8f95d0;box-shadow:0 0 0 3px rgba(92,97,172,0.15);}
+    .col-8{grid-column:span 8;}.col-6{grid-column:span 6;}.col-4{grid-column:span 4;}.col-12{grid-column:span 12;}
+    .chart-container{position:relative;width:100%;height:200px;margin-bottom:8px;}
+    .chart-container canvas{max-height:200px!important;width:100%!important;height:200px!important;}
+    .table-wrap{max-height:380px;overflow:auto;border:1px solid var(--line);border-radius:10px;background:#fff;}
+    table{width:100%;border-collapse:collapse;font-size:0.78rem;min-width:1000px;}
+    th,td{padding:8px 9px;border-bottom:1px solid #edf0f7;text-align:left;vertical-align:top;}
+    th{position:sticky;top:0;z-index:2;background:linear-gradient(90deg,#5C61AC,#4f84b9);color:#fff;font-size:0.74rem;letter-spacing:0.2px;text-transform:uppercase;}
+    .tag{display:inline-block;padding:3px 8px;border-radius:999px;font-weight:700;font-size:0.72rem;border:1px solid transparent;white-space:nowrap;}
+    .tag.good{background:rgba(114,208,139,0.16);color:#20622f;border-color:rgba(114,208,139,0.45);}
+    .tag.bad{background:rgba(255,123,137,0.15);color:#8c1f31;border-color:rgba(255,123,137,0.35);}
+    .tag.warn{background:rgba(250,184,18,0.18);color:#6b4a00;border-color:rgba(250,184,18,0.4);}
+    .tag.info{background:rgba(0,177,217,0.12);color:#005f7a;border-color:rgba(0,177,217,0.35);}
+    .foot{color:#73808a;font-size:0.76rem;margin-top:6px;}
+    code{font-size:0.76rem;background:#f0f1fa;padding:2px 5px;border-radius:4px;color:#3b418a;}
+    @media(max-width:1180px){.kpi{grid-column:span 6;}.col-8,.col-4{grid-column:span 12;}.filter-grid{grid-template-columns:repeat(3,1fr);}}
+    @media(max-width:760px){.shell{padding:12px;}.topbar{flex-direction:column;align-items:flex-start;}.kpi{grid-column:span 12;}.filter-grid{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+<div class="shell">
+  <header class="topbar">
+    <div class="brand">
+      <img src="./assets/Top Left IL Logo.png" alt="Irish Life" />
+      <div>
+        <h1>VRDD Appropriations Control</h1>
+        <p>Prototype | Business verification before Finance release</p>
+      </div>
+    </div>
+    <div class="badge" id="lastRefresh">Last refresh: -</div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-page="review">1. Business Verification Queue</button>
+    <button class="tab" data-page="exception">2. Exception Detail (SP Visibility &amp; Flags)</button>
+  </nav>
+
+    <!-- PAGE 1: VRDD APPROPRIATIONS REVIEW -->
+  <section id="page-review" class="page active">
+    <div class="row">
+      <article class="card filter-card">
+        <div class="filter-grid">
+          <label class="f">Month<select id="rvMonth"><option value="All">All months</option></select></label>
+          <label class="f">Scheme<select id="rvScheme"><option value="All">All schemes</option></select></label>
+          <label class="f">Status
+            <select id="rvStatus">
+              <option value="All">All statuses</option>
+              <option value="Complete Work">Complete Work</option>
+              <option value="Work In Progress">Work In Progress</option>
+              <option value="Pending">Pending</option>
+              <option value="Exception">Exception</option>
+            </select>
+          </label>
+          <label class="f">Work Type
+            <select id="rvWorkType">
+              <option value="All">All</option>
+              <option value="Cash / Direct Debits">Cash / Direct Debits</option>
+              <option value="SP">SP (Single Premium)</option>
+            </select>
+          </label>
+          <label class="f">Team<select id="rvTeam"><option value="All">All teams</option></select></label>
+          <label class="f">Auto Download Ready
+            <select id="rvAutoDownload">
+              <option value="All">All</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+          </label>
+        </div>
+        <div style="margin-top:8px;display:flex;justify-content:flex-end;">
+          <button id="exportCsvReview" style="background:linear-gradient(90deg,var(--il-primary),#4b7fb8);color:#fff;border:none;border-radius:10px;padding:8px 18px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;">Export CSV</button>
+          <button id="exportCsvAutoReview" style="margin-left:8px;background:linear-gradient(90deg,var(--il-teal),#3ba296);color:#fff;border:none;border-radius:10px;padding:8px 18px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;">Export Auto Download CSV</button>
+        </div>
+      </article>
+    </div>
+    <div class="row">
+      <article class="card kpi"><div class="label">Total VRDDs</div><div class="value" id="kRvTotal">-</div><div class="sub">Work items in selected view</div></article>
+      <article class="card kpi"><div class="label">Verified by Business</div><div class="value" id="kRvComplete">-</div><div class="sub">Ready to flow through to Finance</div></article>
+      <article class="card kpi"><div class="label">Awaiting Review</div><div class="value" id="kRvPending">-</div><div class="sub">Business team check still required</div></article>
+      <article class="card kpi"><div class="label">Exceptions</div><div class="value" id="kRvException">-</div><div class="sub">Require review or escalation</div></article>
+    </div>
+    <div class="row">
+      <article class="card col-8">
+        <h2>VRDD Verification Status by Month</h2>
+        <div class="chart-container"><canvas id="chartRvTrend"></canvas></div>
+        <div class="hint" id="rvHint">Business review status by month. Verified items can then be released to Finance.</div>
+      </article>
+      <article class="card col-4">
+        <h2>Status Mix</h2>
+        <div class="chart-container"><canvas id="chartRvMix"></canvas></div>
+        <div class="hint">Distribution of approp statuses across selected view.</div>
+      </article>
+    </div>
+    <div class="row">
+      <article class="card col-12">
+        <h2>VRDD Business Review Queue - Mark for Automation</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Date Created</th><th>Reference</th><th>Scheme Name</th><th>Scheme No.</th>
+              <th>Context</th><th>Amount (EUR)</th><th>Work Type</th><th>Broker</th>
+              <th>Team</th><th>Status</th>
+              <th>Eligible for Auto</th><th>� Cash Confirmed</th><th>Confirmed By</th><th>Confirmed At</th>
+            </tr></thead>
+            <tbody id="rvBody"></tbody>
+          </table>
+        </div>
+        <div class="foot">SP = Single Premium. VRDD = Variable Regular Direct Debit. Eligible for Auto is calculated from business rules. Cash Confirmed is the manual sign-off gate: only rows with both Eligible for Auto and Cash Confirmed are included in the automated download for Approps team. Auto Download Ready means Eligible for Auto AND Cash Confirmed.</div>
+      </article>
+    </div>
+  </section>
+
+  <!-- PAGE 2: EXCEPTION DETAIL -->
+  <section id="page-exception" class="page">
+    <div class="row">
+      <article class="card filter-card">
+        <div class="filter-grid">
+          <label class="f">Month<select id="exMonth"><option value="All">All months</option></select></label>
+          <label class="f">Scheme<select id="exScheme"><option value="All">All schemes</option></select></label>
+          <label class="f">Exception Type
+            <select id="exType">
+              <option value="All">All types</option>
+              <option value="SP Not Visible">SP Not Visible</option>
+              <option value="CB Approps Not Informed">CB Approps Not Informed</option>
+              <option value="Amount Mismatch">Amount Mismatch</option>
+              <option value="Late Preapprop">Late Preapprop</option>
+              <option value="Pending Reason Unknown">Pending Reason Unknown</option>
+            </select>
+          </label>
+          <label class="f">SP Visible
+            <select id="exSp">
+              <option value="All">All</option>
+              <option value="Yes">Yes - SP visible</option>
+              <option value="No">No - SP not visible</option>
+            </select>
+          </label>
+          <label class="f">CB Approps Informed
+            <select id="exInformed">
+              <option value="All">All</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+          </label>
+        </div>
+        <div style="margin-top:8px;display:flex;justify-content:flex-end;">
+          <button id="exportCsvException" style="background:linear-gradient(90deg,var(--il-primary),#4b7fb8);color:#fff;border:none;border-radius:10px;padding:8px 18px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;">Export CSV</button>
+        </div>
+      </article>
+    </div>
+    <div class="row">
+      <article class="card kpi"><div class="label">Total Exceptions</div><div class="value" id="kExTotal">-</div><div class="sub">In selected view</div></article>
+      <article class="card kpi"><div class="label">SP Not Visible</div><div class="value" id="kExSpMissing">-</div><div class="sub">Single Premium not on system</div></article>
+      <article class="card kpi"><div class="label">CB Approps Not Informed</div><div class="value" id="kExNotInformed">-</div><div class="sub">No approp notification sent</div></article>
+      <article class="card kpi"><div class="label">Amount / Pend Issues</div><div class="value" id="kExOther">-</div><div class="sub">Mismatch or unknown reason</div></article>
+    </div>
+    <div class="row">
+      <article class="card col-8">
+        <h2>Exception Count by Type</h2>
+        <div class="chart-container"><canvas id="chartExType"></canvas></div>
+        <div class="hint" id="exHint">Breakdown of exception categories in selected period.</div>
+      </article>
+      <article class="card col-4">
+        <h2>SP Visibility Split</h2>
+        <div class="chart-container"><canvas id="chartExSp"></canvas></div>
+        <div class="hint">SP (Single Premium) visible vs not visible - exception rows only.</div>
+      </article>
+    </div>
+    <div class="row">
+      <article class="card col-12">
+        <h2>Exception Detail - SP Flags &amp; Pend Reasons</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Date Created</th><th>Reference</th><th>Scheme Name</th><th>Scheme No.</th>
+              <th>Amount (EUR)</th><th>Exception Type</th><th>SP Visible</th>
+              <th>CB Approps Informed</th><th>Pend Reason / Notes</th><th>Action</th>
+            </tr></thead>
+            <tbody id="exBody"></tbody>
+          </table>
+        </div>
+        <div class="foot">All exceptions require review before release to Finance. SP = Single Premium. Pend Reason is sourced from work item notes and highlights where the business review step could not be completed cleanly.</div>
+      </article>
+    </div>
+  </section>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="data/vrdd_appropriations_data.js"></script>
+<script>
+// DATA: When vrdd_appropriations_data.js loads, it defines const VRDD_DATA with real AutomateMetrics data.
+// If the file is missing or loading fails, the prototype data below serves as fallback.
+// Prototype modelled from real VRDD CSV fields (Reference, Scheme Name, Scheme Number, Amount In,
+// Status, Work Type, Context, Team, Source, Broker, Date Created, Date Completed, Completed_By,
+// Pend Reason) and real scheme numbers from KRI data (3616=Google, 3123=Intel, 3990=Stryker etc.)
+if (typeof VRDD_DATA === 'undefined') {
+  const VRDD_DATA=[
+  {month:"2026-01",dateCreated:"03/01/2026",ref:"158201M",schemeName:"Google Ireland Limited",schemeNo:"603616",context:"DC",amount:1243000,workType:"Cash / Direct Debits",broker:"Mercer (Elect Existing Business)",team:"Mercer/Marsh",source:"SecureShare Google I",status:"Complete Work",dateCompleted:"05/01/2026",completedBy:"K819",pendReason:"n/a",effectiveDate:"01/01/2026",systemDate:"03/01/2026",preappropDate:"02/01/2026",spVisible:"Yes",cbInformed:"Yes",exType:null},
+  {month:"2026-01",dateCreated:"05/01/2026",ref:"158202M",schemeName:"Intel Ireland DC Plan",schemeNo:"603123",context:"DC",amount:1502000,workType:"Cash / Direct Debits",broker:"Unio (BONDS)",team:"Invesco",source:"SecureShare Intel I",status:"Complete Work",dateCompleted:"06/01/2026",completedBy:"K819",pendReason:"n/a",effectiveDate:"04/01/2026",systemDate:"05/01/2026",preappropDate:"05/01/2026",spVisible:"Yes",cbInformed:"Yes",exType:null},
+  {month:"2026-01",dateCreated:"07/01/2026",ref:"158210M",schemeName:"Maples Group",schemeNo:"606849",context:"DC",amount:400000,workType:"SP",broker:"Unio (BONDS)",team:"Invesco",source:"SecureShare Maples",status:"Exception",dateCompleted:"WIP",completedBy:"",pendReason:"SP not found on system - effective date 07/10/2025 historical",effectiveDate:"07/10/2025",systemDate:"07/01/2026",preappropDate:null,spVisible:"No",cbInformed:"No",exType:"SP Not Visible"},
+  {month:"2026-01",dateCreated:"08/01/2026",ref:"158215M",schemeName:"Aer Lingus",schemeNo:"603645",context:"DC",amount:1320000,workType:"Cash / Direct Debits",broker:"Mercer (Elect Existing Business)",team:"Mercer/Marsh",source:"SecureShare Aer Lin",status:"Complete Work",dateCompleted:"09/01/2026",completedBy:"K819",pendReason:"n/a",effectiveDate:"06/01/2026",systemDate:"08/01/2026",preappropDate:"07/01/2026",spVisible:"Yes",cbInformed:"Yes",exType:null},
+  {month:"2026-01",dateCreated:"10/01/2026",ref:"158220M",schemeName:"I.N.T.O. AVC Plan",schemeNo:"608398",context:"DC",amount:3200000,workType:"SP",broker:"Mercer (Elect Existing Business)",team:"Mercer/Marsh",source:"SecureShare INTO",status:"Complete Work",dateCompleted:"12/01/2026",completedBy:"A221",pendReason:"n/a",effectiveDate:"02/01/2026",systemDate:"10/01/2026",preappropDate:"10/01/2026",spVisible:"Yes",cbInformed:"Yes",exType:null},
+  {month:"2026-01",dateCreated:"12/01/2026",ref:"158225M",schemeName:"Nurses AVC Scheme",schemeNo:"601441",context:"DC",amount:4300000,workType:"SP",broker:"Mercer (Elect Existing Business)",team:"Mercer/Marsh",source:"SecureShare Nurses",status:"Complete Work",dateCompleted:"14/01/2026",completedBy:"A221",pendReason:"n/a",effectiveDate:"02/01/2026",systemDate:"12/01/2026",preappropDate:"12/01/2026",spVisible:"Yes",cbInformed:"Yes",exType:null},
+  {month:"2026-02",dateCreated:"03/02/2026",ref:"159101M",schemeName:"Stryker Ireland DC Pension P",schemeNo:"603990",context:"DC",amount:3700000,workType:"Cash / Direct Debits",broker:"Unio (BONDS)",team:"Invesco",source:"SecureShare Stryker",status:"Complete Work",dateCompleted:"04/02/2026",completedBy:"K819",pendReason:"n/a",effectiveDate:"31/01/2026",systemDate:"03/02/2026",preappropDate:"02/02/2026",spVisible:"Yes",cbInformed:"Yes",exType:null},
+  {month:"2026-02",dateCreated:"07/02/2026",ref:"159122M",schemeName:"Nurses AVC Scheme",schemeNo:"601441",context:"DC",amount:4300000,workType:"SP",broker:"Mercer (Elect Existing Business)",team:"Mercer/Marsh",source:"SecureShare Nurses",status:"Pending",dateCompleted:"WIP",completedBy:"",pendReason:"More Detail TBC - reason not yet confirmed",effectiveDate:"05/02/2026",systemDate:"07/02/2026",preappropDate:null,spVisible:"No",cbInformed:"Yes",exType:"Pending Reason Unknown"},
+  {month:"2026-02",dateCreated:"10/02/2026",ref:"159140M",schemeName:"CHC Ireland DAC",schemeNo:"603000",context:"DC",amount:1100000,workType:"Cash / Direct Debits",broker:"Mercer (Elect Existing Business)",team:"Mercer/Marsh",source:"SecureShare CHC",status:"Exception",dateCompleted:"WIP",completedBy:"",pendReason:"CB Approps not informed prior to SWTH",effectiveDate:"06/02/2026",systemDate:"10/02/2026",preappropDate:null,spVisible:"Yes",cbInformed:"No",exType:"CB Approps Not Informed"},
+  {month:"2026-02",dateCreated:"13/02/2026",ref:"159155M",schemeName:"I.N.T.O. AVC Plan",schemeNo:"608398",context:"DC",amount:3200000,workType:"SP",broker:"Mercer (Elect Existing Business)",team:"Mercer/Marsh",source:"SecureShare INTO",status:"Complete Work",dateCompleted:"14/02/2026",completedBy:"A221",pendReason:"n/a",effectiveDate:"10/02/2026",systemDate:"13/02/2026",preappropDate:"13/02/2026",spVisible:"Yes",cbInformed:"Yes",exType:null},
+  {month:"2026-03",dateCreated:"02/03/2026",ref:"160201M",schemeName:"Google Ireland Limited",schemeNo:"603616",context:"DC",amount:850000000,workType:"Cash / Direct Debits",broker:"Mercer (Elect Existing Business)",team:"Mercer/Marsh",source:"SecureShare Google I",status:"Complete Work",dateCompleted:"03/03/2026",completedBy:"K819",pendReason:"n/a",effectiveDate:"26/02/2026",systemDate:"02/03/2026",preappropDate:"02/03/2026",spVisible:"Yes",cbInformed:"Yes",exType:null},
+  {month:"2026-03",dateCreated:"05/03/2026",ref:"160210M",schemeName:"Intel Ireland DC Plan",schemeNo:"603123",context:"DC",amount:1500000,workType:"SP",broker:"Unio (BONDS)",team:"Invesco",source:"SecureShare Intel I",status:"Complete Work",dateCompleted:"06/03/2026",completedBy:"K819",pendReason:"n/a",effectiveDate:"03/03/2026",systemDate:"05/03/2026",preappropDate:"05/03/2026",spVisible:"Yes",cbInformed:"Yes",exType:null},
+  {month:"2026-03",dateCreated:"06/03/2026",ref:"160215M",schemeName:"PRB Scheme",schemeNo:"607205",context:"DC",amount:150000,workType:"SP",broker:"Unio (BONDS)",team:"Invesco",source:"SecureShare PRB",status:"Exception",dateCompleted:"WIP",completedBy:"",pendReason:"SP effective date 20/08/2021 - historical, not visible on system",effectiveDate:"20/08/2021",systemDate:"06/03/2026",preappropDate:null,spVisible:"No",cbInformed:"No",exType:"SP Not Visible"},
+  {month:"2026-03",dateCreated:"08/03/2026",ref:"160222M",schemeName:"PMI Software",schemeNo:"609811",context:"DC",amount:700000,workType:"Cash / Direct Debits",broker:"Unio (BONDS)",team:"Invesco",source:"SecureShare PMI",status:"Work In Progress",dateCompleted:"WIP",completedBy:"",pendReason:"n/a",effectiveDate:"02/03/2026",systemDate:"08/03/2026",preappropDate:null,spVisible:"Yes",cbInformed:"Yes",exType:null},
+  {month:"2026-03",dateCreated:"10/03/2026",ref:"160230M",schemeName:"Allied Irish Banks Investment",schemeNo:"603414",context:"DC",amount:1300000,workType:"Cash / Direct Debits",broker:"Mercer (Elect Existing Business)",team:"Mercer/Marsh",source:"SecureShare AIB",status:"Complete Work",dateCompleted:"11/03/2026",completedBy:"A221",pendReason:"n/a",effectiveDate:"09/03/2026",systemDate:"10/03/2026",preappropDate:"10/03/2026",spVisible:"Yes",cbInformed:"Yes",exType:null},
+  {month:"2026-03",dateCreated:"15/03/2026",ref:"160241M",schemeName:"Kerry Group Plc",schemeNo:"603888",context:"DC",amount:2000000,workType:"SP",broker:"Mercer (Elect Existing Business)",team:"Mercer/Marsh",source:"SecureShare Kerry",status:"Exception",dateCompleted:"WIP",completedBy:"",pendReason:"Amount mismatch - VRDD EUR2.0m vs preapprop EUR1.85m",effectiveDate:"18/03/2026",systemDate:"15/03/2026",preappropDate:"15/03/2026",spVisible:"Yes",cbInformed:"Yes",exType:"Amount Mismatch"},
+  {month:"2026-03",dateCreated:"18/03/2026",ref:"160250M",schemeName:"Portwest Design",schemeNo:"603516",context:"DC",amount:2000000,workType:"SP",broker:"Unio (BONDS)",team:"Invesco",source:"SecureShare Portwest",status:"Complete Work",dateCompleted:"19/03/2026",completedBy:"K819",pendReason:"n/a",effectiveDate:"15/03/2026",systemDate:"18/03/2026",preappropDate:"18/03/2026",spVisible:"Yes",cbInformed:"Yes",exType:null},
+  {month:"2026-04",dateCreated:"04/04/2026",ref:"160923M",schemeName:"Vestas Ireland Limited",schemeNo:"603026",context:"DC",amount:640.41,workType:"Cash / Direct Debits",broker:"Mercer (Elect Existing Business)",team:"Mercer/Marsh",source:"SecureShare Vestas I",status:"Complete Work",dateCompleted:"WIP",completedBy:"",pendReason:"n/a",effectiveDate:"01/04/2026",systemDate:"04/04/2026",preappropDate:"04/04/2026",spVisible:"Yes",cbInformed:"Yes",exType:null},
+  {month:"2026-04",dateCreated:"04/04/2026",ref:"160934M",schemeName:"Thermo Fisher Scientific Cork",schemeNo:"601299",context:"DC",amount:1430108.43,workType:"Cash / Direct Debits",broker:"Unio (BONDS)",team:"Invesco",source:"SecureShare Thermo F",status:"Complete Work",dateCompleted:"WIP",completedBy:"K819",pendReason:"n/a",effectiveDate:"02/04/2026",systemDate:"04/04/2026",preappropDate:"04/04/2026",spVisible:"Yes",cbInformed:"Yes",exType:null},
+  {month:"2026-04",dateCreated:"04/04/2026",ref:"160935M",schemeName:"Thermo Fisher Scientific Cork",schemeNo:"601299",context:"DC",amount:477626.18,workType:"Cash / Direct Debits",broker:"Unio (BONDS)",team:"Invesco",source:"SecureShare Thermo F",status:"Complete Work",dateCompleted:"WIP",completedBy:"K819",pendReason:"n/a",effectiveDate:"02/04/2026",systemDate:"04/04/2026",preappropDate:"04/04/2026",spVisible:"Yes",cbInformed:"Yes",exType:null},
+  {month:"2026-04",dateCreated:"10/04/2026",ref:"161002M",schemeName:"Dacia Leasing DL Romania",schemeNo:"603299",context:"DC",amount:800000,workType:"SP",broker:"Unio (BONDS)",team:"Invesco",source:"SecureShare Dacia",status:"Pending",dateCompleted:"WIP",completedBy:"",pendReason:"Awaiting broker confirmation",effectiveDate:"08/04/2026",systemDate:"10/04/2026",preappropDate:null,spVisible:"No",cbInformed:"Yes",exType:"Pending Reason Unknown"},
+  ];
+}
+
+const charts={};
+const CURRENT_USER='Cash Team';
+const vrddCashConfirmations={};
+function fmtAmt(v){if(!Number.isFinite(+v))return'-';return'EUR '+(+v).toLocaleString('en-IE',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function uniq(arr){return[...new Set(arr.filter(Boolean))].sort();}
+function parseDate(dateStr){if(!dateStr||dateStr==='n/a')return null;const[d,m,y]=dateStr.split('/');return new Date(`${y}-${m}-${d}T00:00:00`);}
+function daysBetween(d1Str,d2Str){const d1=parseDate(d1Str);const d2=parseDate(d2Str);if(!d1||!d2)return null;return Math.floor((Math.abs(d2-d1))/(1000*60*60*24));}
+function isEligibleForAuto(row){return row.status==='Complete Work'&&daysBetween(row.effectiveDate,row.systemDate)<=2&&row.cbInformed==='Yes'&&row.spVisible==='Yes';}
+function getVrddConfirmation(ref){return vrddCashConfirmations[ref]||{confirmed:false,confirmedBy:'',confirmedAt:''};}
+function setVrddConfirmation(ref,confirmed){if(confirmed){vrddCashConfirmations[ref]={confirmed:true,confirmedBy:CURRENT_USER,confirmedAt:new Date().toLocaleString('en-IE')};return;}vrddCashConfirmations[ref]={confirmed:false,confirmedBy:'',confirmedAt:''};}
+function isIncludedInAutoDownload(row){const state=getVrddConfirmation(row.ref);return isEligibleForAuto(row)&&state.confirmed;}
+function drawOrUpdate(id,type,data,options={}){
+  const base={responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:true,labels:{boxWidth:14,font:{size:11}}}},scales:{y:{beginAtZero:true}}};
+  const merged={...base,...options};
+  if(type==='doughnut'||type==='pie')delete merged.scales;
+  if(charts[id]){charts[id].config.type=type;charts[id].data=data;charts[id].options=merged;charts[id].update('none');return;}
+  charts[id]=new Chart(document.getElementById(id),{type,data,options:merged});
+}
+const ui={
+  tabs:[...document.querySelectorAll('.tab')],
+  pages:{review:document.getElementById('page-review'),exception:document.getElementById('page-exception')},
+  rvMonth:document.getElementById('rvMonth'),rvScheme:document.getElementById('rvScheme'),
+  rvStatus:document.getElementById('rvStatus'),rvWorkType:document.getElementById('rvWorkType'),
+  rvTeam:document.getElementById('rvTeam'),rvAutoDownload:document.getElementById('rvAutoDownload'),
+  exMonth:document.getElementById('exMonth'),exScheme:document.getElementById('exScheme'),
+  exType:document.getElementById('exType'),exSp:document.getElementById('exSp'),exInformed:document.getElementById('exInformed'),
+  exportCsvReview:document.getElementById('exportCsvReview'),exportCsvAutoReview:document.getElementById('exportCsvAutoReview'),exportCsvException:document.getElementById('exportCsvException'),
+};
+function csvCell(v){return `"${String(v ?? '').replaceAll('"','""')}"`;}
+function exportCsv(filename,rows,columns){
+  const lines=[columns.join(',')];
+  rows.forEach(row=>lines.push(columns.map(column=>csvCell(row[column])).join(',')));
+  const blob=new Blob([lines.join("\n")],{type:'text/csv;charset=utf-8;'});
+  const link=document.createElement('a');
+  link.href=URL.createObjectURL(blob);
+  link.download=filename;
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+function setupControls(){
+  const months=uniq(VRDD_DATA.map(r=>r.month));
+  const schemes=uniq(VRDD_DATA.map(r=>r.schemeName));
+  const teams=uniq(VRDD_DATA.map(r=>r.team));
+  [ui.rvMonth,ui.exMonth].forEach(s=>months.forEach(m=>s.add(new Option(m,m))));
+  [ui.rvScheme,ui.exScheme].forEach(s=>schemes.forEach(v=>s.add(new Option(v,v))));
+  teams.forEach(t=>ui.rvTeam.add(new Option(t,t)));
+  [ui.rvMonth,ui.rvScheme,ui.rvStatus,ui.rvWorkType,ui.rvTeam,ui.rvAutoDownload].forEach(e=>e.addEventListener('change',refreshReview));
+  [ui.exMonth,ui.exScheme,ui.exType,ui.exSp,ui.exInformed].forEach(e=>e.addEventListener('change',refreshException));
+  ui.exportCsvReview.addEventListener('click',()=>exportCsv('vrdd_business_review_queue.csv',reviewExportRows(filteredReview()),['month','dateCreated','ref','schemeName','schemeNo','context','amount','workType','broker','team','source','status','dateCompleted','completedBy','pendReason','spVisible','cbInformed','exType','eligibleForAuto','cashConfirmed','confirmedBy','confirmedAt','includeInAutoDownload']));
+  ui.exportCsvAutoReview.addEventListener('click',()=>exportCsv('vrdd_approps_automated_download.csv',reviewExportRows(filteredReview().filter(isIncludedInAutoDownload)),['month','dateCreated','ref','schemeName','schemeNo','context','amount','workType','broker','team','source','status','dateCompleted','completedBy','pendReason','spVisible','cbInformed','eligibleForAuto','cashConfirmed','confirmedBy','confirmedAt']));
+  ui.exportCsvException.addEventListener('click',()=>exportCsv('vrdd_exception_detail.csv',filteredExceptions(),['month','dateCreated','ref','schemeName','schemeNo','context','amount','workType','broker','team','source','status','dateCompleted','completedBy','pendReason','spVisible','cbInformed','exType']));
+  ui.tabs.forEach(t=>t.addEventListener('click',()=>{
+    ui.tabs.forEach(x=>x.classList.remove('active'));t.classList.add('active');
+    Object.values(ui.pages).forEach(p=>p.classList.remove('active'));ui.pages[t.dataset.page].classList.add('active');
+  }));
+}
+function filteredReview(){
+  return VRDD_DATA.filter(r=>
+    (ui.rvMonth.value==='All'||r.month===ui.rvMonth.value)&&
+    (ui.rvScheme.value==='All'||r.schemeName===ui.rvScheme.value)&&
+    (ui.rvStatus.value==='All'||r.status===ui.rvStatus.value)&&
+    (ui.rvWorkType.value==='All'||r.workType===ui.rvWorkType.value)&&
+    (ui.rvTeam.value==='All'||r.team===ui.rvTeam.value)&&
+    (ui.rvAutoDownload.value==='All'||(ui.rvAutoDownload.value==='Yes'?isIncludedInAutoDownload(r):!isIncludedInAutoDownload(r)))
+  );
+}
+function reviewExportRows(rows){
+  return rows.map(r=>{const state=getVrddConfirmation(r.ref);const eligible=isEligibleForAuto(r);return{...r,eligibleForAuto:eligible?'Yes':'No',cashConfirmed:state.confirmed?'Yes':'No',confirmedBy:state.confirmedBy||'',confirmedAt:state.confirmedAt||'',includeInAutoDownload:eligible&&state.confirmed?'Yes':'No'};});
+}
+function filteredExceptions(){
+  return VRDD_DATA.filter(r=>
+    r.exType!==null&&
+    (ui.exMonth.value==='All'||r.month===ui.exMonth.value)&&
+    (ui.exScheme.value==='All'||r.schemeName===ui.exScheme.value)&&
+    (ui.exType.value==='All'||r.exType===ui.exType.value)&&
+    (ui.exSp.value==='All'||(ui.exSp.value==='Yes'?r.spVisible==='Yes':r.spVisible==='No'))&&
+    (ui.exInformed.value==='All'||(ui.exInformed.value==='Yes'?r.cbInformed==='Yes':r.cbInformed==='No'))
+  );
+}
+function refreshReview(){
+  const rows=filteredReview();
+  const complete=rows.filter(r=>r.status==='Complete Work').length;
+  const pending=rows.filter(r=>r.status==='Work In Progress'||r.status==='Pending').length;
+  const exception=rows.filter(r=>r.status==='Exception').length;
+  document.getElementById('kRvTotal').textContent=rows.length;
+  document.getElementById('kRvComplete').textContent=complete;
+  document.getElementById('kRvPending').textContent=pending;
+  document.getElementById('kRvException').textContent=exception;
+  const months=uniq(rows.map(r=>r.month));
+  const byM={};months.forEach(m=>{byM[m]={c:0,p:0,e:0};});
+  rows.forEach(r=>{if(r.status==='Complete Work')byM[r.month].c++;else if(r.status==='Exception')byM[r.month].e++;else byM[r.month].p++;});
+  drawOrUpdate('chartRvTrend','bar',{labels:months.length?months:['No data'],datasets:[
+    {label:'Verified by Business',data:months.map(m=>byM[m].c),backgroundColor:'#55C2B6',stack:'s'},
+    {label:'In Progress / Pending',data:months.map(m=>byM[m].p),backgroundColor:'#FAB812',stack:'s'},
+    {label:'Exception',data:months.map(m=>byM[m].e),backgroundColor:'#E03E52',stack:'s'},
+  ]},{scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}}});
+  drawOrUpdate('chartRvMix','doughnut',{labels:['Verified by Business','In Progress / Pending','Exception'],datasets:[{data:[complete,pending,exception],backgroundColor:['#55C2B6','#FAB812','#E03E52']}]});
+  document.getElementById('rvHint').textContent=`${rows.length} work item${rows.length!==1?'s':''} | ${complete} verified by business, ${pending} awaiting review, ${exception} exception.`;
+  document.getElementById('rvBody').innerHTML=rows.map(r=>{const isAuto=isEligibleForAuto(r);const state=getVrddConfirmation(r.ref);return`<tr style="${isAuto?'background:#f0fdf8;':''}" class="${isAuto?'eligible-auto':''}">
+    <td>${r.dateCreated}</td><td><code>${r.ref}</code></td><td>${r.schemeName}</td><td>${r.schemeNo}</td>
+    <td><span class="tag info">${r.context}</span></td><td style="text-align:right">${fmtAmt(r.amount)}</td>
+    <td>${r.workType}</td><td style="font-size:0.72rem">${r.broker}</td><td>${r.team}</td>
+    <td>${statusTag(r.status)}</td>
+    <td style="text-align:center;">${isAuto?'<span class="tag good">Yes</span>':'<span class="tag bad">No</span>'}</td>
+    <td style="text-align:center;"><input class="cash-confirm-vrdd" data-ref="${r.ref}" type="checkbox" ${state.confirmed?'checked':''} ${isAuto?'':'disabled'} title="${isAuto?'Cash team confirms inclusion in automated download':'Not eligible for automation'}" style="cursor:pointer;width:18px;height:18px;"/></td>
+    <td>${state.confirmedBy||'-'}</td>
+    <td>${state.confirmedAt||'-'}</td>
+  </tr>`}).join('');
+  document.querySelectorAll('.cash-confirm-vrdd').forEach(input=>input.addEventListener('change',e=>{const ref=e.target.dataset.ref;setVrddConfirmation(ref,e.target.checked);refreshReview();}));
+}
+function refreshException(){
+  const rows=filteredExceptions();
+  const spMissing=rows.filter(r=>r.exType==='SP Not Visible').length;
+  const notInformed=rows.filter(r=>r.exType==='CB Approps Not Informed').length;
+  const other=rows.filter(r=>r.exType!=='SP Not Visible'&&r.exType!=='CB Approps Not Informed').length;
+  document.getElementById('kExTotal').textContent=rows.length;
+  document.getElementById('kExSpMissing').textContent=spMissing;
+  document.getElementById('kExNotInformed').textContent=notInformed;
+  document.getElementById('kExOther').textContent=other;
+  const types=['SP Not Visible','CB Approps Not Informed','Amount Mismatch','Late Preapprop','Pending Reason Unknown'];
+  const tC={};types.forEach(t=>{tC[t]=rows.filter(r=>r.exType===t).length;});
+  drawOrUpdate('chartExType','bar',{labels:types,datasets:[{label:'Exceptions',data:types.map(t=>tC[t]),backgroundColor:['#E03E52','#FAB812','#00B1D9','#5C61AC','#55C2B6']}]});
+  const spY=rows.filter(r=>r.spVisible==='Yes').length,spN=rows.filter(r=>r.spVisible==='No').length;
+  drawOrUpdate('chartExSp','doughnut',{labels:['SP Visible','SP Not Visible'],datasets:[{data:[spY,spN],backgroundColor:['#55C2B6','#E03E52']}]});
+  document.getElementById('exHint').textContent=`${rows.length} exception${rows.length!==1?'s':''} in current selection.`;
+  document.getElementById('exBody').innerHTML=rows.map(r=>`<tr>
+    <td>${r.dateCreated}</td><td><code>${r.ref}</code></td><td>${r.schemeName}</td><td>${r.schemeNo}</td>
+    <td style="text-align:right">${fmtAmt(r.amount)}</td><td>${exTypeTag(r.exType)}</td>
+    <td>${r.spVisible==='Yes'?'<span class="tag good">Visible</span>':'<span class="tag bad">Not Visible</span>'}</td>
+    <td>${r.cbInformed==='Yes'?'<span class="tag good">Yes - Informed</span>':'<span class="tag bad">No - Not Informed</span>'}</td>
+    <td style="font-size:0.72rem">${r.pendReason}</td>
+    <td><span class="tag bad">Review - Amy</span></td>
+  </tr>`).join('');
+}
+function statusTag(s){
+  if(s==='Complete Work')return'<span class="tag good">Verified</span>';
+  if(s==='Work In Progress')return'<span class="tag info">WIP</span>';
+  if(s==='Pending')return'<span class="tag warn">Pending</span>';
+  if(s==='Exception')return'<span class="tag bad">Exception</span>';
+  return s;
+}
+function exTypeTag(t){
+  const m={'SP Not Visible':'bad','CB Approps Not Informed':'bad','Amount Mismatch':'warn','Late Preapprop':'warn','Pending Reason Unknown':'warn'};
+  return`<span class="tag ${m[t]||'warn'}">${t}</span>`;
+}
+setupControls();refreshReview();refreshException();
+const dataSource=(window.VRDD_DATA_SOURCE==='AutomateMetrics')?'AutomateMetrics (Production Data)':'Prototype Data (Test Mode)';
+document.getElementById('lastRefresh').textContent=`Last refresh: ${new Date().toLocaleString('en-IE')} | Data: ${dataSource}`;
+</script>
+</body>
+</html>
+
+
+
+

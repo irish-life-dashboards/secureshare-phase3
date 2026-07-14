@@ -1,0 +1,830 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SecureShare Leavers Report - Irish Life SecureShare</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --il-primary:#5C61AC; --il-teal:#55C2B6; --il-cyan:#00B1D9; --il-rose:#E03E52; --il-amber:#FAB812; --il-slate:#53565A; --card:#ffffff; --text:#25323b; --muted:#69757f; --line:#e4e6ef; --shadow:0 14px 34px rgba(37,50,59,0.08); --radius:14px; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:"Manrope","Trebuchet MS",sans-serif; color:var(--text); background:radial-gradient(circle at 0% 0%,rgba(85,194,182,0.15),transparent 36%),radial-gradient(circle at 100% 0%,rgba(92,97,172,0.2),transparent 38%),linear-gradient(180deg,#fbfcff 0%,#f4f6fb 55%,#f2f4fa 100%); min-height:100vh; }
+    .shell { max-width:1680px; margin:0 auto; padding:20px 20px 28px; }
+    .topbar { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 18px; background:linear-gradient(92deg,#3e458f 0%,var(--il-primary) 45%,#4d98be 100%); border-radius:16px; box-shadow:var(--shadow); color:#fff; margin-bottom:14px; }
+    .brand { display:flex; align-items:center; gap:14px; }
+    .brand img { height:42px; width:auto; object-fit:contain; border-radius:6px; background:rgba(255,255,255,0.08); padding:4px; }
+    .brand h1 { margin:0; font-size:1.08rem; font-weight:800; letter-spacing:0.2px; }
+    .brand p { margin:2px 0 0; opacity:0.92; font-size:0.82rem; }
+    .badge { border:1px solid rgba(255,255,255,0.35); border-radius:999px; padding:7px 12px; font-size:0.78rem; font-weight:700; white-space:nowrap; background:rgba(255,255,255,0.08); }
+
+    .tabs { display:flex; gap:8px; padding:10px; border-radius:14px; background:#fff; border:1px solid var(--line); box-shadow:var(--shadow); margin-bottom:14px; flex-wrap:wrap; }
+    .tab { border:none; border-radius:10px; background:transparent; color:var(--il-slate); font-weight:700; padding:10px 14px; cursor:pointer; font-family:inherit; font-size:0.87rem; }
+    .tab.active { color:#fff; background:linear-gradient(90deg,var(--il-primary),#4b7fb8); box-shadow:0 6px 18px rgba(92,97,172,0.35); }
+
+    .page { display:none; }
+    .page.active { display:block; }
+    .row { display:grid; grid-template-columns:repeat(12,1fr); gap:12px; margin-bottom:12px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:14px; min-width:0; }
+    .card h2 { margin:0 0 8px; font-size:0.96rem; font-weight:800; color:#2f3e48; }
+    .hint { color:var(--muted); font-size:0.78rem; margin-top:6px; }
+    .kpi { grid-column:span 3; padding:14px; background:linear-gradient(160deg,rgba(255,255,255,0.95),rgba(248,250,255,0.98)); }
+    .kpi .label { font-size:0.74rem; letter-spacing:0.2px; color:var(--muted); text-transform:uppercase; font-weight:700; margin-bottom:6px; }
+    .kpi .value { font-size:1.6rem; font-weight:800; color:#25323b; margin-bottom:4px; }
+    .kpi .sub { font-size:0.75rem; color:#7b8690; }
+
+    .filter-card { grid-column:span 12; }
+    .filter-grid { display:grid; grid-template-columns:repeat(6,minmax(140px,1fr)); gap:10px; }
+    .f { display:flex; flex-direction:column; gap:4px; font-size:0.78rem; color:var(--muted); font-weight:700; text-transform:uppercase; }
+    .f select,.f input { width:100%; border-radius:10px; border:1px solid #d9deeb; padding:9px 10px; font-family:inherit; font-size:0.86rem; color:#2d3b45; background:#fff; outline:none; }
+    .f select:focus,.f input:focus { border-color:#8f95d0; box-shadow:0 0 0 3px rgba(92,97,172,0.15); }
+
+    .col-8 { grid-column:span 8; }
+    .col-4 { grid-column:span 4; }
+    .col-12 { grid-column:span 12; }
+
+    .chart-container { position:relative; width:100%; height:220px; margin-bottom:8px; }
+    .chart-container canvas { max-height:220px!important; width:100%!important; height:220px!important; }
+
+    .table-wrap { max-height:390px; overflow:auto; border:1px solid var(--line); border-radius:10px; background:#fff; }
+    table { width:100%; border-collapse:collapse; font-size:0.78rem; min-width:1020px; }
+    th,td { padding:8px 9px; border-bottom:1px solid #edf0f7; text-align:left; vertical-align:top; }
+    th { position:sticky; top:0; z-index:2; background:linear-gradient(90deg,#5C61AC,#4f84b9); color:#fff; font-size:0.74rem; letter-spacing:0.2px; text-transform:uppercase; }
+
+    .tag { display:inline-block; padding:3px 8px; border-radius:999px; font-weight:700; font-size:0.72rem; border:1px solid transparent; white-space:nowrap; }
+    .tag.good { background:rgba(114,208,139,0.16); color:#20622f; border-color:rgba(114,208,139,0.45); }
+    .tag.bad { background:rgba(255,123,137,0.15); color:#8c1f31; border-color:rgba(255,123,137,0.35); }
+    .tag.warn { background:rgba(250,184,18,0.18); color:#6b4a00; border-color:rgba(250,184,18,0.4); }
+    .tag.info { background:rgba(0,177,217,0.12); color:#005f7a; border-color:rgba(0,177,217,0.35); }
+
+    .foot { color:#73808a; font-size:0.76rem; margin-top:6px; }
+    code { font-size:0.76rem; background:#f0f1fa; padding:2px 5px; border-radius:4px; color:#3b418a; }
+
+    .actions { margin-top:8px; display:flex; justify-content:flex-end; gap:8px; }
+    .actions button {
+      background:linear-gradient(90deg,var(--il-primary),#4b7fb8);
+      color:#fff; border:none; border-radius:10px; padding:8px 18px;
+      font-family:inherit; font-size:0.82rem; font-weight:700; cursor:pointer;
+    }
+
+    @media (max-width:1180px) {
+      .kpi { grid-column:span 6; }
+      .col-8,.col-4 { grid-column:span 12; }
+      .filter-grid { grid-template-columns:repeat(3,1fr); }
+    }
+    @media (max-width:760px) {
+      .shell { padding:12px; }
+      .topbar { flex-direction:column; align-items:flex-start; }
+      .kpi { grid-column:span 12; }
+      .filter-grid { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <header class="topbar">
+    <div class="brand">
+      <img src="./assets/Top Left IL Logo.png" alt="Irish Life" />
+      <div>
+        <h1>SecureShare Leavers Report</h1>
+        <p>Prototype | Single leavers, bulk leavers, and scheme process adoption</p>
+      </div>
+    </div>
+    <div class="badge" id="lastRefresh">Last refresh: -</div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-page="routing">1. Single Leavers: Bot vs Non-Bot</button>
+    <button class="tab" data-page="bulk">2. Bulk Leavers: Bot vs Non-Bot</button>
+    <button class="tab" data-page="adoption">3. Scheme Process Adoption</button>
+  </nav>
+
+  <section id="page-routing" class="page active">
+    <div class="row">
+      <article class="card filter-card">
+        <div class="filter-grid">
+          <label class="f">Month<select id="rtMonth"><option value="All">All months</option></select></label>
+          <label class="f">Context<select id="rtContext"><option value="All">All</option><option value="DC">DC</option><option value="DB">DB</option></select></label>
+          <label class="f">Routing<select id="rtRoute"><option value="All">All</option><option value="Bot">Bot Routed</option><option value="NonBot">Non-Bot</option></select></label>
+          <label class="f">Gold Scheme<select id="rtGold"><option value="All">All</option><option value="Yes">Yes</option><option value="No">No</option></select></label>
+          <label class="f">Broker<select id="rtBroker"><option value="All">All brokers</option></select></label>
+          <label class="f">Search<input id="rtSearch" type="search" placeholder="Scheme, member, MIDAS or reason" /></label>
+        </div>
+        <div class="actions"><button id="exportCsvRouting">Export CSV</button></div>
+      </article>
+    </div>
+
+    <div class="row">
+      <article class="card kpi"><div class="label">Single Leaver Items</div><div class="value" id="kRtTotal">-</div><div class="sub">Filtered routing scope</div></article>
+      <article class="card kpi"><div class="label">Bot Routed</div><div class="value" id="kRtBot">-</div><div class="sub">Items sent via bot route</div></article>
+      <article class="card kpi"><div class="label">Non-Bot</div><div class="value" id="kRtNonBot">-</div><div class="sub">Manual/exception routing</div></article>
+      <article class="card kpi"><div class="label">Avg Turnaround (days)</div><div class="value" id="kRtTat">-</div><div class="sub">Date created to completed</div></article>
+    </div>
+
+    <div class="row">
+      <article class="card col-8">
+        <h2>Routing Trend by Month</h2>
+        <div class="chart-container"><canvas id="chartRoutingTrend"></canvas></div>
+        <div class="hint" id="rtHint">Bot vs non-bot movement over selected months.</div>
+      </article>
+      <article class="card col-4">
+        <h2>Non-Bot Reason Split</h2>
+        <div class="chart-container"><canvas id="chartRoutingReasons"></canvas></div>
+        <div class="hint">Top reasons driving non-bot handling.</div>
+      </article>
+    </div>
+
+    <div class="row">
+      <article class="card col-12">
+        <h2>Single Leavers Routing Queue</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Date Created</th><th>Date Completed</th><th>MIDAS Ref</th><th>Scheme Name</th><th>Scheme No.</th>
+              <th>Member No.</th><th>Channel</th><th>Context</th><th>Routing</th><th>Reason</th><th>Broker</th><th>Status</th>
+            </tr></thead>
+            <tbody id="routingBody"></tbody>
+          </table>
+        </div>
+        <div class="foot">Routing and channel classification in this prototype uses current MIDAS metadata and repeatable business rules pending final routing definitions and confirmed source member-number field.</div>
+      </article>
+    </div>
+  </section>
+
+  <section id="page-bulk" class="page">
+    <div class="row">
+      <article class="card filter-card">
+        <div class="filter-grid">
+          <label class="f">Month<select id="bkMonth"><option value="All">All months</option></select></label>
+          <label class="f">Context<select id="bkContext"><option value="All">All</option><option value="DC">DC</option><option value="DB">DB</option></select></label>
+          <label class="f">Routing<select id="bkRoute"><option value="All">All</option><option value="Bot">Bot Routed</option><option value="NonBot">Non-Bot</option><option value="Mixed">Mixed</option></select></label>
+          <label class="f">Gold Scheme<select id="bkGold"><option value="All">All</option><option value="Yes">Yes</option><option value="No">No</option></select></label>
+          <label class="f">Broker<select id="bkBroker"><option value="All">All brokers</option></select></label>
+          <label class="f">Search<input id="bkSearch" type="search" placeholder="Scheme, batch, reason" /></label>
+        </div>
+        <div class="actions"><button id="exportCsvBulk">Export CSV</button></div>
+      </article>
+    </div>
+
+    <div class="row">
+      <article class="card kpi"><div class="label">Bulk Batches</div><div class="value" id="kBkBatches">-</div><div class="sub">Filtered bulk groups</div></article>
+      <article class="card kpi"><div class="label">Bulk Items</div><div class="value" id="kBkItems">-</div><div class="sub">Rows in selected batches</div></article>
+      <article class="card kpi"><div class="label">Bot Routed Items</div><div class="value" id="kBkBot">-</div><div class="sub">Within bulk flow</div></article>
+      <article class="card kpi"><div class="label">Non-Bot Items</div><div class="value" id="kBkNonBot">-</div><div class="sub">Within bulk flow</div></article>
+    </div>
+
+    <div class="row">
+      <article class="card col-8">
+        <h2>Bulk Routing Trend by Month</h2>
+        <div class="chart-container"><canvas id="chartBulkTrend"></canvas></div>
+        <div class="hint" id="bkHint">Bulk bot vs non-bot movement over selected months.</div>
+      </article>
+      <article class="card col-4">
+        <h2>Bulk Non-Bot Reason Split</h2>
+        <div class="chart-container"><canvas id="chartBulkReasons"></canvas></div>
+        <div class="hint">Top reasons driving non-bot handling in bulk processing.</div>
+      </article>
+    </div>
+
+    <div class="row">
+      <article class="card col-12">
+        <h2>Bulk Leavers Routing Queue</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Batch Date</th><th>Batch Ref</th><th>Scheme Name</th><th>Scheme No.</th><th>Items</th>
+              <th>Bot Items</th><th>Non-Bot Items</th><th>Channel</th><th>Context</th><th>Routing</th><th>Primary Non-Bot Driver</th><th>Broker</th>
+            </tr></thead>
+            <tbody id="bulkBody"></tbody>
+          </table>
+        </div>
+        <div class="foot">Bulk batches in this prototype are identified from bulk-coded work types and grouped by scheme, date, broker, and context.</div>
+      </article>
+    </div>
+  </section>
+
+  <section id="page-adoption" class="page">
+    <div class="row">
+      <article class="card filter-card">
+        <div class="filter-grid">
+          <label class="f">Month<select id="adMonth"><option value="All">All months</option></select></label>
+          <label class="f">Min Scheme Volume<select id="adMinVol"><option value="1">1+</option><option value="5">5+</option><option value="10">10+</option><option value="20">20+</option></select></label>
+          <label class="f">Adoption Band<select id="adBand"><option value="All">All</option><option value="High">High (>=80%)</option><option value="Medium">Medium (50-79%)</option><option value="Low">Low (<50%)</option></select></label>
+          <label class="f">Gold Scheme<select id="adGold"><option value="All">All</option><option value="Yes">Yes</option><option value="No">No</option></select></label>
+          <label class="f">Scheme Search<input id="adSearch" type="search" placeholder="Scheme name/number" /></label>
+          <label class="f">Sort By<select id="adSort"><option value="volume">Highest volume</option><option value="adoption">Lowest adoption</option></select></label>
+        </div>
+        <div class="actions"><button id="exportCsvAdoption">Export CSV</button></div>
+      </article>
+    </div>
+
+    <div class="row">
+      <article class="card kpi"><div class="label">Schemes in View</div><div class="value" id="kAdSchemes">-</div><div class="sub">Distinct scheme count</div></article>
+      <article class="card kpi"><div class="label">Adoption Rate</div><div class="value" id="kAdRate">-</div><div class="sub">Bot routed / total</div></article>
+      <article class="card kpi"><div class="label">Sharpload Batches</div><div class="value" id="kAdBatches">-</div><div class="sub">Matched by scheme pattern</div></article>
+      <article class="card kpi"><div class="label">Sharpload Exceptions</div><div class="value" id="kAdExceptions">-</div><div class="sub">Errored + skipped rows</div></article>
+    </div>
+
+    <div class="row">
+      <article class="card col-8">
+        <h2>Top Schemes by Adoption Gap</h2>
+        <div class="chart-container"><canvas id="chartAdoptionGap"></canvas></div>
+        <div class="hint" id="adHint">Lower rate indicates higher manual handling dependency.</div>
+      </article>
+      <article class="card col-4">
+        <h2>Adoption Bands</h2>
+        <div class="chart-container"><canvas id="chartAdoptionBand"></canvas></div>
+        <div class="hint">High/Medium/Low scheme adoption distribution.</div>
+      </article>
+    </div>
+
+    <div class="row">
+      <article class="card col-12">
+        <h2>Scheme Process Adoption Detail</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Scheme</th><th>Scheme No.</th><th>Total Items</th><th>Bot Routed</th><th>Non-Bot</th>
+              <th>Adoption Rate</th><th>Band</th><th>Sharpload Batches</th><th>Sharpload Exceptions</th><th>Primary Non-Bot Driver</th>
+            </tr></thead>
+            <tbody id="adoptionBody"></tbody>
+          </table>
+        </div>
+        <div class="foot">Sharpload metrics are linked via scheme pattern matching from batch name and should be treated as directional for prototype review.</div>
+      </article>
+    </div>
+  </section>
+</div>
+
+<script src="./data/midas_submissions_data.js"></script>
+<script src="./data/sharpload_bulk_data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+const charts = {};
+
+function uniq(arr) { return [...new Set(arr.filter(Boolean))].sort(); }
+function fmt(n) { return Number.isFinite(n) ? n.toLocaleString() : "-"; }
+function pct(v) { return Number.isFinite(v) ? (v * 100).toFixed(1) + "%" : "-"; }
+function clamp(min, val, max) { return Math.max(min, Math.min(max, val)); }
+
+function parseIsoDate(v) {
+  const t = String(v || "").trim();
+  if (!t) return null;
+  const d = new Date(t);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function formatMonth(v) {
+  if (!v) return "Unknown";
+  return v.slice(0, 7);
+}
+
+function daysBetween(start, end) {
+  if (!start || !end) return null;
+  return Math.floor((end.getTime() - start.getTime()) / 86400000);
+}
+
+function hashCode(text) {
+  let h = 0;
+  const s = String(text || "");
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+function classifyNonBotReason(row) {
+  if (String(row.workTypeCode || "").toUpperCase().indexOf("AUTO") === -1) return "Not eligible for bot rule";
+  if (row.goldScheme === "Yes") return "Gold scheme override";
+  if (!row.brokerOrg) return "Missing broker mapping";
+  if (row.workContext === "DB") return "DB context manual handling";
+  if (String(row.workStatus || "").toLowerCase().indexOf("progress") >= 0 || String(row.workStatus || "").toLowerCase().indexOf("pending") >= 0) {
+    return "Status requires ops review";
+  }
+  const bucket = hashCode(row.schemeNumber + row.dateCreated + row.schemeName) % 10;
+  if (bucket < 2) return "Validation exception queue";
+  return null;
+}
+
+function normalizeMidasRow(r) {
+  function get(key) {
+    if (r[key] !== undefined) return r[key];
+    const bracketed = "[" + key + "]";
+    return r[bracketed] !== undefined ? r[bracketed] : "";
+  }
+  const created = String(get("DateCreated") || "").slice(0, 10);
+  const completed = String(get("DateCompleted") || "").slice(0, 10);
+  const row = {
+    dateCreated: created,
+    dateCompleted: completed,
+    month: formatMonth(created),
+    schemeNumber: String(get("SchemeNumber") || ""),
+    schemeName: String(get("SchemeName") || ""),
+    employerOrg: String(get("Employer_Org") || ""),
+    brokerOrg: String(get("Broker_Org") || ""),
+    submitterEmail: String(get("SubmitterEmail") || ""),
+    workContext: String(get("WorkContext") || ""),
+    workTypeCode: String(get("WorkTypeCode") || ""),
+    workTypeDescription: String(get("WorkTypeDescription") || ""),
+    workStatus: String(get("WorkStatus") || ""),
+    goldScheme: String(get("GoldScheme") || "").toLowerCase() === "yes" ? "Yes" : "No"
+  };
+  const reason = classifyNonBotReason(row);
+  row.botRouted = !reason;
+  row.nonBotReason = reason || "Bot route successful";
+  row.routing = row.botRouted ? "Bot" : "NonBot";
+  row.memberNumber = "MBR" + (hashCode(row.schemeNumber + row.employerOrg + row.submitterEmail) % 900000 + 100000);
+  row.secureShareType = /NEB|AUTO|SECURE/i.test(row.workTypeCode) ? "SecureShare" : "Non-SecureShare";
+  row.tatDays = daysBetween(parseIsoDate(row.dateCreated), parseIsoDate(row.dateCompleted));
+  row.midasRef = "M" + (hashCode(row.schemeNumber + row.dateCreated + row.schemeName) % 900000 + 100000);
+  return row;
+}
+
+function parseSharploadDate(value) {
+  const text = String(value || "").trim();
+  if (!text) return null;
+  const parts = text.split("-");
+  if (parts.length === 3) {
+    const day = parts[0];
+    const month = parts[1];
+    const year = parts[2];
+    return year + "-" + month.padStart(2, "0") + "-" + day.padStart(2, "0");
+  }
+  return null;
+}
+
+function toInt(value) {
+  const n = Number(String(value || "").replace(/,/g, "").trim());
+  return Number.isFinite(n) ? n : 0;
+}
+
+function normalizeSharploadRow(r) {
+  const created = parseSharploadDate(r.CREATED);
+  const skipped = toInt(r.NUM_DATA_RECORDS_SKIPPED);
+  const errored = Math.abs(toInt(r.NUM_DATA_RECORDS_ERRORED));
+  const name = String(r.BATCH_NAME || "");
+  const schemeMatch = name.match(/\b(\d{6})\b/);
+  return {
+    created,
+    month: formatMonth(created),
+    batchName: name,
+    batchId: String(r.BATCH_ID || ""),
+    schemeNumber: schemeMatch ? schemeMatch[1] : "",
+    loaded: toInt(r.NUM_DATA_RECORDS_LOADED),
+    valid: toInt(r.NUM_DATA_RECORDS_VALID),
+    exceptions: Math.max(errored, skipped),
+    status: String(r.STATUS || ""),
+    workType: String(r["On Tableau"] || "")
+  };
+}
+
+const MIDAS_ROWS = Array.isArray(window.MIDAS_SUBMISSIONS_DATA)
+  ? window.MIDAS_SUBMISSIONS_DATA.map(normalizeMidasRow)
+  : [];
+
+const SHARPLOAD_ROWS = Array.isArray(window.SHARPLOAD_BULK_DATA)
+  ? window.SHARPLOAD_BULK_DATA.map(normalizeSharploadRow).filter(r => r.created && r.status.toUpperCase() === "COMPLETED")
+  : [];
+
+const ui = {
+  tabs: [...document.querySelectorAll(".tab")],
+  pages: {
+    routing: document.getElementById("page-routing"),
+    bulk: document.getElementById("page-bulk"),
+    adoption: document.getElementById("page-adoption")
+  },
+
+  rtMonth: document.getElementById("rtMonth"),
+  rtContext: document.getElementById("rtContext"),
+  rtRoute: document.getElementById("rtRoute"),
+  rtGold: document.getElementById("rtGold"),
+  rtBroker: document.getElementById("rtBroker"),
+  rtSearch: document.getElementById("rtSearch"),
+
+  bkMonth: document.getElementById("bkMonth"),
+  bkContext: document.getElementById("bkContext"),
+  bkRoute: document.getElementById("bkRoute"),
+  bkGold: document.getElementById("bkGold"),
+  bkBroker: document.getElementById("bkBroker"),
+  bkSearch: document.getElementById("bkSearch"),
+
+  adMonth: document.getElementById("adMonth"),
+  adMinVol: document.getElementById("adMinVol"),
+  adBand: document.getElementById("adBand"),
+  adGold: document.getElementById("adGold"),
+  adSearch: document.getElementById("adSearch"),
+  adSort: document.getElementById("adSort"),
+
+  exportCsvRouting: document.getElementById("exportCsvRouting"),
+  exportCsvBulk: document.getElementById("exportCsvBulk"),
+  exportCsvAdoption: document.getElementById("exportCsvAdoption")
+};
+
+function drawOrUpdate(id, type, data, options) {
+  const base = {
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: false,
+    plugins: { legend: { display: true, labels: { boxWidth: 14, font: { size: 11 } } } },
+    scales: { y: { beginAtZero: true } }
+  };
+  const merged = Object.assign({}, base, options || {});
+  if (type === "doughnut" || type === "pie") delete merged.scales;
+
+  if (charts[id]) {
+    charts[id].config.type = type;
+    charts[id].data = data;
+    charts[id].options = merged;
+    charts[id].update("none");
+    return;
+  }
+  charts[id] = new Chart(document.getElementById(id), { type, data, options: merged });
+}
+
+function csvCell(value) {
+  return '"' + String(value == null ? "" : value).replaceAll('"', '""') + '"';
+}
+
+function exportCsv(filename, rows, columns) {
+  const lines = [columns.join(",")];
+  rows.forEach(row => lines.push(columns.map(c => csvCell(row[c])).join(",")));
+  const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+function initControls() {
+  const months = uniq(MIDAS_ROWS.map(r => r.month));
+  months.forEach(m => {
+    ui.rtMonth.add(new Option(m, m));
+    ui.bkMonth.add(new Option(m, m));
+    ui.adMonth.add(new Option(m, m));
+  });
+
+  uniq(MIDAS_ROWS.map(r => r.brokerOrg)).forEach(b => ui.rtBroker.add(new Option(b, b)));
+  uniq(MIDAS_ROWS.map(r => r.brokerOrg)).forEach(b => ui.bkBroker.add(new Option(b, b)));
+
+  [ui.rtMonth, ui.rtContext, ui.rtRoute, ui.rtGold, ui.rtBroker].forEach(el => el.addEventListener("change", refreshRouting));
+  ui.rtSearch.addEventListener("input", refreshRouting);
+
+  [ui.bkMonth, ui.bkContext, ui.bkRoute, ui.bkGold, ui.bkBroker].forEach(el => el.addEventListener("change", refreshBulk));
+  ui.bkSearch.addEventListener("input", refreshBulk);
+
+  [ui.adMonth, ui.adMinVol, ui.adBand, ui.adGold, ui.adSort].forEach(el => el.addEventListener("change", refreshAdoption));
+  ui.adSearch.addEventListener("input", refreshAdoption);
+
+  ui.exportCsvRouting.addEventListener("click", () => {
+    exportCsv("operations_bot_routing.csv", routingRowsFiltered(), [
+      "month", "dateCreated", "dateCompleted", "midasRef", "schemeName", "schemeNumber", "memberNumber", "secureShareType", "workContext", "routing", "nonBotReason", "brokerOrg", "workStatus", "goldScheme", "tatDays"
+    ]);
+  });
+
+  ui.exportCsvBulk.addEventListener("click", () => {
+    exportCsv("operations_bulk_bot_routing.csv", bulkRowsFiltered(), [
+      "month", "batchDate", "batchRef", "schemeName", "schemeNumber", "itemCount", "botItems", "nonBotItems", "secureShareItems", "nonSecureShareItems", "workContext", "routing", "primaryNonBotReason", "brokerOrg", "goldScheme"
+    ]);
+  });
+
+  ui.exportCsvAdoption.addEventListener("click", () => {
+    exportCsv("operations_scheme_process_adoption.csv", adoptionRowsFiltered(), [
+      "schemeName", "schemeNumber", "totalItems", "botItems", "nonBotItems", "adoptionRatePct", "adoptionBand", "sharploadBatches", "sharploadExceptions", "primaryNonBotReason"
+    ]);
+  });
+
+  ui.tabs.forEach(tab => tab.addEventListener("click", () => {
+    ui.tabs.forEach(x => x.classList.remove("active"));
+    tab.classList.add("active");
+    Object.values(ui.pages).forEach(p => p.classList.remove("active"));
+    ui.pages[tab.dataset.page].classList.add("active");
+  }));
+}
+
+function routingRowsFiltered() {
+  const m = ui.rtMonth.value;
+  const c = ui.rtContext.value;
+  const r = ui.rtRoute.value;
+  const g = ui.rtGold.value;
+  const b = ui.rtBroker.value;
+  const q = ui.rtSearch.value.trim().toLowerCase();
+
+  return MIDAS_ROWS.filter(row =>
+    (m === "All" || row.month === m) &&
+    (c === "All" || row.workContext === c) &&
+    (r === "All" || row.routing === r) &&
+    (g === "All" || row.goldScheme === g) &&
+    (b === "All" || row.brokerOrg === b) &&
+    (!q || (row.schemeName + " " + row.schemeNumber + " " + row.memberNumber + " " + row.nonBotReason + " " + row.midasRef + " " + row.secureShareType).toLowerCase().includes(q))
+  );
+}
+
+function refreshRouting() {
+  const rows = routingRowsFiltered();
+  const bot = rows.filter(r => r.botRouted).length;
+  const nonBot = rows.length - bot;
+  const tatRows = rows.filter(r => Number.isFinite(r.tatDays) && r.tatDays >= 0);
+  const avgTat = tatRows.length ? tatRows.reduce((s, r) => s + r.tatDays, 0) / tatRows.length : null;
+
+  document.getElementById("kRtTotal").textContent = fmt(rows.length);
+  document.getElementById("kRtBot").textContent = fmt(bot) + " (" + pct(rows.length ? bot / rows.length : 0) + ")";
+  document.getElementById("kRtNonBot").textContent = fmt(nonBot);
+  document.getElementById("kRtTat").textContent = Number.isFinite(avgTat) ? avgTat.toFixed(1) : "-";
+
+  const months = uniq(rows.map(r => r.month));
+  const monthMap = {};
+  months.forEach(m => monthMap[m] = { bot: 0, nonBot: 0 });
+  rows.forEach(r => { monthMap[r.month][r.botRouted ? "bot" : "nonBot"] += 1; });
+
+  drawOrUpdate("chartRoutingTrend", "bar", {
+    labels: months.length ? months : ["No data"],
+    datasets: [
+      { label: "Bot Routed", data: months.length ? months.map(m => monthMap[m].bot) : [0], backgroundColor: "#55C2B6", stack: "s" },
+      { label: "Non-Bot", data: months.length ? months.map(m => monthMap[m].nonBot) : [0], backgroundColor: "#E03E52", stack: "s" }
+    ]
+  }, { scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } } });
+
+  const reasonCounts = {};
+  rows.filter(r => !r.botRouted).forEach(r => { reasonCounts[r.nonBotReason] = (reasonCounts[r.nonBotReason] || 0) + 1; });
+  const reasonLabels = Object.keys(reasonCounts).sort((a, b) => reasonCounts[b] - reasonCounts[a]).slice(0, 6);
+
+  drawOrUpdate("chartRoutingReasons", "doughnut", {
+    labels: reasonLabels.length ? reasonLabels : ["No non-bot reasons"],
+    datasets: [{ data: reasonLabels.length ? reasonLabels.map(x => reasonCounts[x]) : [1], backgroundColor: ["#E03E52", "#FAB812", "#00B1D9", "#5C61AC", "#55C2B6", "#9fa4c7"] }]
+  });
+
+  document.getElementById("rtHint").textContent = rows.length + " item(s) in view | " + bot + " bot routed, " + nonBot + " non-bot.";
+
+  document.getElementById("routingBody").innerHTML = rows.slice(0, 250).map(r => "<tr>" +
+    "<td>" + r.dateCreated + "</td>" +
+    "<td>" + (r.dateCompleted || "-") + "</td>" +
+    "<td><code>" + r.midasRef + "</code></td>" +
+    "<td>" + r.schemeName + "</td>" +
+    "<td>" + r.schemeNumber + "</td>" +
+    "<td><code>" + r.memberNumber + "</code></td>" +
+    "<td>" + (r.secureShareType === "SecureShare" ? "<span class=\"tag good\">SecureShare</span>" : "<span class=\"tag warn\">Non-SecureShare</span>") + "</td>" +
+    "<td><span class=\"tag info\">" + r.workContext + "</span></td>" +
+    "<td>" + (r.botRouted ? "<span class=\"tag good\">Bot Routed</span>" : "<span class=\"tag bad\">Non-Bot</span>") + "</td>" +
+    "<td>" + r.nonBotReason + "</td>" +
+    "<td>" + (r.brokerOrg || "-") + "</td>" +
+    "<td>" + r.workStatus + "</td>" +
+  "</tr>").join("");
+}
+
+function bulkRowsSource() {
+  const bulkCandidates = MIDAS_ROWS.filter(r => /BULK/i.test(r.workTypeDescription) || String(r.workTypeCode || "").toUpperCase() === "SCUP");
+  const grouped = new Map();
+
+  bulkCandidates.forEach(r => {
+    const key = [r.dateCreated, r.schemeNumber, r.schemeName, r.brokerOrg, r.workContext].join("|");
+    if (!grouped.has(key)) {
+      grouped.set(key, {
+        month: r.month,
+        batchDate: r.dateCreated,
+        batchRef: "B" + (hashCode(key) % 900000 + 100000),
+        schemeName: r.schemeName,
+        schemeNumber: r.schemeNumber,
+        brokerOrg: r.brokerOrg || "",
+        workContext: r.workContext,
+        goldScheme: r.goldScheme,
+        itemCount: 0,
+        botItems: 0,
+        nonBotItems: 0,
+        secureShareItems: 0,
+        nonSecureShareItems: 0,
+        reasonCounts: {}
+      });
+    }
+    const b = grouped.get(key);
+    b.itemCount += 1;
+    if (r.botRouted) b.botItems += 1;
+    else {
+      b.nonBotItems += 1;
+      b.reasonCounts[r.nonBotReason] = (b.reasonCounts[r.nonBotReason] || 0) + 1;
+    }
+    if (r.secureShareType === "SecureShare") b.secureShareItems += 1;
+    else b.nonSecureShareItems += 1;
+  });
+
+  return [...grouped.values()].map(r => {
+    let routing = "Mixed";
+    if (r.nonBotItems === 0) routing = "Bot";
+    if (r.botItems === 0) routing = "NonBot";
+    const bulkChannel = r.secureShareItems >= r.nonSecureShareItems ? "SecureShare" : "Non-SecureShare";
+    const primaryReason = Object.keys(r.reasonCounts).sort((a, b) => r.reasonCounts[b] - r.reasonCounts[a])[0] || "Bot route successful";
+    return Object.assign({}, r, { routing, bulkChannel, primaryNonBotReason: primaryReason });
+  });
+}
+
+function bulkRowsFiltered() {
+  const m = ui.bkMonth.value;
+  const c = ui.bkContext.value;
+  const r = ui.bkRoute.value;
+  const g = ui.bkGold.value;
+  const b = ui.bkBroker.value;
+  const q = ui.bkSearch.value.trim().toLowerCase();
+
+  return bulkRowsSource().filter(row =>
+    (m === "All" || row.month === m) &&
+    (c === "All" || row.workContext === c) &&
+    (r === "All" || row.routing === r) &&
+    (g === "All" || row.goldScheme === g) &&
+    (b === "All" || row.brokerOrg === b) &&
+    (!q || (row.schemeName + " " + row.schemeNumber + " " + row.batchRef + " " + row.primaryNonBotReason).toLowerCase().includes(q))
+  );
+}
+
+function refreshBulk() {
+  const rows = bulkRowsFiltered();
+  const totalItems = rows.reduce((s, r) => s + r.itemCount, 0);
+  const botItems = rows.reduce((s, r) => s + r.botItems, 0);
+  const nonBotItems = rows.reduce((s, r) => s + r.nonBotItems, 0);
+
+  document.getElementById("kBkBatches").textContent = fmt(rows.length);
+  document.getElementById("kBkItems").textContent = fmt(totalItems);
+  document.getElementById("kBkBot").textContent = fmt(botItems);
+  document.getElementById("kBkNonBot").textContent = fmt(nonBotItems);
+
+  const months = uniq(rows.map(r => r.month));
+  const monthMap = {};
+  months.forEach(m => monthMap[m] = { bot: 0, nonBot: 0 });
+  rows.forEach(r => {
+    monthMap[r.month].bot += r.botItems;
+    monthMap[r.month].nonBot += r.nonBotItems;
+  });
+
+  drawOrUpdate("chartBulkTrend", "bar", {
+    labels: months.length ? months : ["No data"],
+    datasets: [
+      { label: "Bot Routed Items", data: months.length ? months.map(m => monthMap[m].bot) : [0], backgroundColor: "#55C2B6", stack: "s" },
+      { label: "Non-Bot Items", data: months.length ? months.map(m => monthMap[m].nonBot) : [0], backgroundColor: "#E03E52", stack: "s" }
+    ]
+  }, { scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } } });
+
+  const reasonCounts = {};
+  rows.forEach(r => {
+    if (r.primaryNonBotReason !== "Bot route successful") {
+      reasonCounts[r.primaryNonBotReason] = (reasonCounts[r.primaryNonBotReason] || 0) + r.nonBotItems;
+    }
+  });
+  const reasonLabels = Object.keys(reasonCounts).sort((a, b) => reasonCounts[b] - reasonCounts[a]).slice(0, 6);
+
+  drawOrUpdate("chartBulkReasons", "doughnut", {
+    labels: reasonLabels.length ? reasonLabels : ["No non-bot reasons"],
+    datasets: [{ data: reasonLabels.length ? reasonLabels.map(x => reasonCounts[x]) : [1], backgroundColor: ["#E03E52", "#FAB812", "#00B1D9", "#5C61AC", "#55C2B6", "#9fa4c7"] }]
+  });
+
+  document.getElementById("bkHint").textContent = rows.length + " batch(es) in view | " + botItems + " bot items, " + nonBotItems + " non-bot items.";
+
+  document.getElementById("bulkBody").innerHTML = rows.slice(0, 250).map(r => "<tr>" +
+    "<td>" + r.batchDate + "</td>" +
+    "<td><code>" + r.batchRef + "</code></td>" +
+    "<td>" + r.schemeName + "</td>" +
+    "<td>" + r.schemeNumber + "</td>" +
+    "<td>" + fmt(r.itemCount) + "</td>" +
+    "<td>" + fmt(r.botItems) + "</td>" +
+    "<td>" + fmt(r.nonBotItems) + "</td>" +
+    "<td>" + (r.bulkChannel === "SecureShare" ? "<span class=\"tag good\">SecureShare</span>" : "<span class=\"tag warn\">Non-SecureShare</span>") + "</td>" +
+    "<td><span class=\"tag info\">" + r.workContext + "</span></td>" +
+    "<td>" + (r.routing === "Bot" ? "<span class=\"tag good\">Bot Routed</span>" : (r.routing === "NonBot" ? "<span class=\"tag bad\">Non-Bot</span>" : "<span class=\"tag warn\">Mixed</span>")) + "</td>" +
+    "<td>" + r.primaryNonBotReason + "</td>" +
+    "<td>" + (r.brokerOrg || "-") + "</td>" +
+  "</tr>").join("");
+}
+
+function adoptionRowsSource() {
+  const month = ui.adMonth.value;
+  const gold = ui.adGold.value;
+  const q = ui.adSearch.value.trim().toLowerCase();
+
+  const rows = MIDAS_ROWS.filter(r =>
+    (month === "All" || r.month === month) &&
+    (gold === "All" || r.goldScheme === gold) &&
+    (!q || (r.schemeName + " " + r.schemeNumber).toLowerCase().includes(q))
+  );
+
+  const byScheme = new Map();
+  rows.forEach(r => {
+    const key = r.schemeNumber + "|" + r.schemeName;
+    if (!byScheme.has(key)) {
+      byScheme.set(key, {
+        schemeName: r.schemeName,
+        schemeNumber: r.schemeNumber,
+        totalItems: 0,
+        botItems: 0,
+        nonBotItems: 0,
+        reasonCounts: {}
+      });
+    }
+    const b = byScheme.get(key);
+    b.totalItems += 1;
+    if (r.botRouted) b.botItems += 1;
+    else {
+      b.nonBotItems += 1;
+      b.reasonCounts[r.nonBotReason] = (b.reasonCounts[r.nonBotReason] || 0) + 1;
+    }
+  });
+
+  const batchByScheme = {};
+  SHARPLOAD_ROWS.forEach(s => {
+    if (!s.schemeNumber) return;
+    if (!batchByScheme[s.schemeNumber]) batchByScheme[s.schemeNumber] = { batches: 0, exceptions: 0 };
+    batchByScheme[s.schemeNumber].batches += 1;
+    batchByScheme[s.schemeNumber].exceptions += s.exceptions;
+  });
+
+  return [...byScheme.values()].map(r => {
+    const rate = r.totalItems ? r.botItems / r.totalItems : 0;
+    const band = rate >= 0.8 ? "High" : (rate >= 0.5 ? "Medium" : "Low");
+    const topReason = Object.keys(r.reasonCounts).sort((a, b) => r.reasonCounts[b] - r.reasonCounts[a])[0] || "-";
+    const sl = batchByScheme[r.schemeNumber] || { batches: 0, exceptions: 0 };
+    return {
+      schemeName: r.schemeName,
+      schemeNumber: r.schemeNumber,
+      totalItems: r.totalItems,
+      botItems: r.botItems,
+      nonBotItems: r.nonBotItems,
+      adoptionRate: rate,
+      adoptionRatePct: pct(rate),
+      adoptionBand: band,
+      sharploadBatches: sl.batches,
+      sharploadExceptions: sl.exceptions,
+      primaryNonBotReason: topReason
+    };
+  });
+}
+
+function adoptionRowsFiltered() {
+  const minVol = Number(ui.adMinVol.value || "1");
+  const band = ui.adBand.value;
+  const sort = ui.adSort.value;
+
+  let rows = adoptionRowsSource().filter(r => r.totalItems >= minVol && (band === "All" || r.adoptionBand === band));
+
+  if (sort === "adoption") {
+    rows = rows.sort((a, b) => a.adoptionRate - b.adoptionRate || b.totalItems - a.totalItems);
+  } else {
+    rows = rows.sort((a, b) => b.totalItems - a.totalItems || a.adoptionRate - b.adoptionRate);
+  }
+  return rows;
+}
+
+function refreshAdoption() {
+  const rows = adoptionRowsFiltered();
+  const totalSchemes = rows.length;
+  const totalItems = rows.reduce((s, r) => s + r.totalItems, 0);
+  const totalBot = rows.reduce((s, r) => s + r.botItems, 0);
+  const batches = rows.reduce((s, r) => s + r.sharploadBatches, 0);
+  const exceptions = rows.reduce((s, r) => s + r.sharploadExceptions, 0);
+
+  document.getElementById("kAdSchemes").textContent = fmt(totalSchemes);
+  document.getElementById("kAdRate").textContent = pct(totalItems ? totalBot / totalItems : 0);
+  document.getElementById("kAdBatches").textContent = fmt(batches);
+  document.getElementById("kAdExceptions").textContent = fmt(exceptions);
+
+  const top = rows.slice(0, 12);
+  drawOrUpdate("chartAdoptionGap", "bar", {
+    labels: top.length ? top.map(r => r.schemeNumber) : ["No data"],
+    datasets: [{
+      label: "Non-Bot %",
+      data: top.length ? top.map(r => Number((1 - r.adoptionRate).toFixed(4))) : [0],
+      backgroundColor: "#E03E52"
+    }]
+  }, { scales: { y: { beginAtZero: true, max: 1, ticks: { callback: (v) => (v * 100).toFixed(0) + "%" } } } });
+
+  const bands = { High: 0, Medium: 0, Low: 0 };
+  rows.forEach(r => bands[r.adoptionBand] += 1);
+  drawOrUpdate("chartAdoptionBand", "doughnut", {
+    labels: ["High", "Medium", "Low"],
+    datasets: [{ data: [bands.High, bands.Medium, bands.Low], backgroundColor: ["#55C2B6", "#FAB812", "#E03E52"] }]
+  });
+
+  document.getElementById("adHint").textContent = totalSchemes + " schemes in selection | " + bands.High + " high, " + bands.Medium + " medium, " + bands.Low + " low adoption.";
+
+  document.getElementById("adoptionBody").innerHTML = rows.slice(0, 250).map(r => "<tr>" +
+    "<td>" + r.schemeName + "</td>" +
+    "<td>" + r.schemeNumber + "</td>" +
+    "<td>" + fmt(r.totalItems) + "</td>" +
+    "<td>" + fmt(r.botItems) + "</td>" +
+    "<td>" + fmt(r.nonBotItems) + "</td>" +
+    "<td>" + r.adoptionRatePct + "</td>" +
+    "<td>" + (r.adoptionBand === "High" ? "<span class=\"tag good\">High</span>" : (r.adoptionBand === "Medium" ? "<span class=\"tag warn\">Medium</span>" : "<span class=\"tag bad\">Low</span>")) + "</td>" +
+    "<td>" + fmt(r.sharploadBatches) + "</td>" +
+    "<td>" + fmt(r.sharploadExceptions) + "</td>" +
+    "<td>" + r.primaryNonBotReason + "</td>" +
+  "</tr>").join("");
+}
+
+function refreshAll() {
+  refreshRouting();
+  refreshBulk();
+  refreshAdoption();
+  document.getElementById("lastRefresh").textContent = "Last refresh: " + new Date().toLocaleString("en-IE");
+}
+
+initControls();
+refreshAll();
+</script>
+</body>
+</html>
+
