@@ -1,7 +1,7 @@
 param(
   [string]$Server = 'WINPRDAF3350',
   [string]$Database = 'AutomateMetrics',
-  [string]$OutFile = 'c:/Users/m347/Documents/Power BI Desktop/SecureShare Report/secureshare-phase3/Operational Reporting/midas_submissions_data.js',
+  [string]$OutFile = 'c:/Users/m347/Documents/Power BI Desktop/SecureShare Report/secureshare-phase3/Operational Reporting/data/midas_submissions_data.js',
   [string]$StartDate = '2023-10-01',
   [int]$MaxRows = 300000
 )

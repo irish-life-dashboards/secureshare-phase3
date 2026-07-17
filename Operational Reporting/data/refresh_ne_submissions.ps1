@@ -1,7 +1,7 @@
 param(
   [string]$Server = 'WINPRDAF3350',
   [string]$Database = 'AutomateMetrics',
-  [string]$OutFile = 'c:/Users/m347/Documents/Power BI Desktop/SecureShare Report/secureshare-phase3/Operational Reporting/ne_submissions_data.js',
+  [string]$OutFile = 'c:/Users/m347/Documents/Power BI Desktop/SecureShare Report/secureshare-phase3/Operational Reporting/data/ne_submissions_data.js',
   [string]$StartDate = '2025-01-01'
 )
 

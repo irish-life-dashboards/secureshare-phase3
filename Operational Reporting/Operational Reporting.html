@@ -831,12 +831,11 @@ button:hover { border-color: var(--accent); }
     <section class="footer-note">
       <strong>Data Sources & Currency</strong>
       <ul>
-        <li><strong>MIDAS Submissions Data</strong> (midas_submissions_data.js): Export from stg_MIDAS_Submissions table. Current range: 2023-10-02 to 2026-04-30. <em>To refresh: Re-export from Power BI model and save as JS file.</em></li>
-        <li><strong>New Entrant Data</strong> (ne_submissions_data.js): Export of NE submissions by month/broker/scheme. Current range: January 2025 to July 2026.</li>
-        <li><strong>Master Scheme Data</strong> (dc_master_list_data.js): Reference table for scheme name resolution and attributes. Update as scheme master list changes.</li>
+        <li><strong>MIDAS Submissions Data</strong> (midas_submissions_data.js): Export from AutomateMetrics view. Current range: <span id="dsMidasRange">loading...</span>.</li>
+        <li><strong>New Entrant Data</strong> (ne_submissions_data.js): Export of NE submissions by month/broker/scheme. Current range: <span id="dsNeRange">loading...</span>.</li>
+        <li><strong>Master Scheme Data</strong> (dc_master_list_data.js): Reference table for scheme attributes. Last generated: <span id="dsDcGeneratedAt">loading...</span>. Source: <span id="dsDcSource">loading...</span>.</li>
         <li><strong>Sharpload Bulk Data</strong> (sharpload_bulk_data.js): Data transformation audit trail.</li>
         <li>Last Refresh timestamp shown in top-right corner (browser local time).</li>
-        <li>To ensure data currency: (1) Export latest MIDAS/NE data from database, (2) Re-generate JS data files, (3) Reload report in browser.</li>
       </ul>
     </section>
   </main>
@@ -989,17 +988,9 @@ const KRI_SCHEME_DRILLDOWN = [
   { period: "2026-03", schemeNumber: "7769", netCost: -11731, reason: "PRB Jardine Lloyd Thompson L scheme, SWTH of €0.9m with effective date 25/03/2026 and system date 27/03/2026. CB Approps were informed on 26/03/2026. Preapprop was added on 26/03/2026. Loss due to price movements." }
 ];
 
-const FALLBACK_EMPLOYERS = ["Irish Life Group", "Westbrook Foods", "Dublin Logistics", "Harbor Engineering", "Greenline Care", "Northpoint Retail", "Clarity Pharma", "Connacht Manufacturing"];
-const FALLBACK_BROKERS = ["Aon", "Mercer", "Unio", "Cornmarket", "Willis Towers Watson", "Irish Life", "NFP Ireland"];
-const EMPLOYERS = MASTER_EMPLOYERS.length ? MASTER_EMPLOYERS : FALLBACK_EMPLOYERS;
-const BROKERS = MASTER_BROKERS.length ? MASTER_BROKERS : FALLBACK_BROKERS;
 const KRI_SLA_TARGET_DAYS = 2;
-const STATUSES = ["Submitted", "Complete Work", "Completed", "In Progress", "Pending"];
 const today = new Date();
 
-function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
-function dateAdd(d, days) { const x = new Date(d); x.setDate(x.getDate() + days); return x; }
 function iso(d) { return d.toISOString().slice(0, 10); }
 
 function normalizeGoldScheme(value) {
@@ -1069,43 +1060,47 @@ function normalizeSharploadRow(r) {
   };
 }
 
-function generateMockRows(n = 420) {
-  const rows = [];
-  const schemePool = MASTER_SCHEMES.length ? MASTER_SCHEMES : null;
-  for (let i = 0; i < n; i++) {
-    const wf = rand(WORKFLOW_MAP);
-    const created = dateAdd(today, -randInt(0, 365));
-    const status = Math.random() < 0.52 ? "Complete Work" : rand(STATUSES);
-    const completed = (status.includes("Complete") || status === "Completed") ? dateAdd(created, randInt(1, 18)) : null;
-    const scheme = schemePool ? rand(schemePool) : null;
-    const schemeNum = scheme?.SchemeNumber || String(randInt(600000, 609999));
-    const emp = scheme?.Employer_Org || rand(EMPLOYERS);
-    const broker = scheme?.Broker_Org || rand(BROKERS);
-    const orgToken = (emp || "user").split(" ")[0].toLowerCase().replace(/[^a-z0-9]/g, "") || "user";
-    const submitter = `${orgToken}.${rand(["amy","brian","chloe","dara","eoin","faye","gavin","hugh"])}@example.ie`;
-
-    rows.push({
-      DateCreated: iso(created),
-      DateCompleted: completed ? iso(completed) : null,
-      SchemeNumber: schemeNum,
-      SchemeName: scheme?.SchemeName || `${(emp || "Unknown").split(" ")[0]} Scheme ${String(schemeNum).slice(-3)}`,
-      Employer_Org: emp,
-      Broker_Org: broker,
-      SubmitterEmail: submitter,
-      WorkContext: wf.context,
-      WorkTypeCode: wf.code,
-      WorkTypeDescription: wf.desc,
-      WorkStatus: status,
-      GoldScheme: scheme ? normalizeGoldScheme(scheme.GoldScheme) : (Math.random() < 0.28 ? "Yes" : "No")
-    });
-  }
-  return rows;
-}
-
 const allRows = Array.isArray(window.MIDAS_SUBMISSIONS_DATA) && window.MIDAS_SUBMISSIONS_DATA.length
   ? window.MIDAS_SUBMISSIONS_DATA.map(normalizeInputRow)
-  : generateMockRows();
+  : [];
 const sharploadRows = SHARPLOAD_ROWS.map(normalizeSharploadRow).filter(r => r.CREATED && r.STATUS.toUpperCase() === "COMPLETED");
+
+function computeIsoRange(rows, key) {
+  const vals = (rows || [])
+    .map(r => String((r && r[key]) || "").slice(0, 10))
+    .filter(v => /^\d{4}-\d{2}-\d{2}$/.test(v))
+    .sort();
+  if (!vals.length) return "n/a";
+  return `${vals[0]} to ${vals[vals.length - 1]}`;
+}
+
+function computeYearMonthRange(rows, key) {
+  const map = new Set();
+  (rows || []).forEach(r => {
+    const v = String((r && r[key]) || "").trim();
+    if (/^\d{4}-\d{2}$/.test(v)) map.add(v);
+  });
+  const vals = [...map].sort();
+  if (!vals.length) return "n/a";
+  return `${vals[0]} to ${vals[vals.length - 1]}`;
+}
+
+function updateDataSourceNotes() {
+  const midasRange = computeIsoRange(allRows, "DateCreated");
+  const neRange = computeYearMonthRange(Array.isArray(window.ne_submissions_data) ? window.ne_submissions_data : [], "YearMonth");
+  const dcGeneratedAt = window.DC_MASTER_DATA && window.DC_MASTER_DATA.generatedAt ? String(window.DC_MASTER_DATA.generatedAt) : "n/a";
+  const dcSource = window.DC_MASTER_DATA && window.DC_MASTER_DATA.source ? String(window.DC_MASTER_DATA.source) : "n/a";
+
+  const midasEl = document.getElementById("dsMidasRange");
+  const neEl = document.getElementById("dsNeRange");
+  const dcGenEl = document.getElementById("dsDcGeneratedAt");
+  const dcSrcEl = document.getElementById("dsDcSource");
+
+  if (midasEl) midasEl.textContent = midasRange;
+  if (neEl) neEl.textContent = neRange;
+  if (dcGenEl) dcGenEl.textContent = dcGeneratedAt;
+  if (dcSrcEl) dcSrcEl.textContent = dcSource;
+}
 
 const ui = {
   dateFrom: document.getElementById("dateFrom"),
@@ -2055,21 +2050,13 @@ function updateProcessVisibility(rows) {
   });
 
   if (schemeListBody) {
-    const normalizeSchemeNo = value => String(value || "").trim().replace(/^0+/, "") || "0";
     const schemeChannels = new Map();
-    const addChannel = (schemeNo, channel) => {
-      const raw = String(schemeNo || "").trim();
-      if (!raw) return;
-      const keys = [raw, normalizeSchemeNo(raw)];
-      keys.forEach(k => {
-        if (!schemeChannels.has(k)) schemeChannels.set(k, new Set());
-        schemeChannels.get(k).add(channel || "Source Unknown");
-      });
-    };
-
-    // Build channel coverage exactly like scheme visibility context (MIDAS + NE aggregate).
-    rows.forEach(r => addChannel(r.SchemeNumber, deriveSubmissionChannel(r)));
-    filteredNeRowsGlobal().forEach(r => addChannel(r.SchemeNo, deriveSubmissionChannelFromVia(r.Via)));
+    enriched.forEach(r => {
+      const schemeNo = String(r.schemeNo || "").trim();
+      if (!schemeNo) return;
+      if (!schemeChannels.has(schemeNo)) schemeChannels.set(schemeNo, new Set());
+      schemeChannels.get(schemeNo).add(r.channel || "Source Unknown");
+    });
 
     const byScheme = new Map();
     enriched.forEach(r => {
@@ -2092,9 +2079,7 @@ function updateProcessVisibility(rows) {
 
     schemeListBody.innerHTML = schemeItems.length
       ? schemeItems.map(s => {
-          const channelSet = schemeChannels.get(String(s.schemeNo || "").trim())
-            || schemeChannels.get(normalizeSchemeNo(s.schemeNo))
-            || new Set();
+          const channelSet = schemeChannels.get(String(s.schemeNo || "").trim()) || new Set();
           const channelList = [...channelSet].sort();
           return `
             <tr>
@@ -2606,6 +2591,7 @@ function refresh() {
   updateProcessVisibility(rows);
   updateNeVisibility();
   updateChannelVisibility(rows);
+  updateDataSourceNotes();
   document.getElementById("lastRefresh").textContent = `Last refresh: ${new Date().toLocaleString()}`;
 }
 
