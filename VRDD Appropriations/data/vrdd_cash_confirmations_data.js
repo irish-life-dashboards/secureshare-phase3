@@ -1,0 +1,1 @@
+window.VRDD_CASH_CONFIRMATIONS = {};

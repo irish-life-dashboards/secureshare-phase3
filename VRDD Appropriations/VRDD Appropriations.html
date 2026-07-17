@@ -39,6 +39,9 @@
     .chart-container{position:relative;width:100%;height:200px;margin-bottom:8px;}
     .chart-container canvas{max-height:200px!important;width:100%!important;height:200px!important;}
     .table-wrap{max-height:380px;overflow:auto;border:1px solid var(--line);border-radius:10px;background:#fff;}
+    .table-pager{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:8px;font-size:0.76rem;color:var(--muted);}
+    .table-pager button{border:1px solid #ccd3e2;background:#fff;color:#2d3b45;border-radius:8px;padding:5px 10px;font-family:inherit;font-size:0.76rem;font-weight:700;cursor:pointer;}
+    .table-pager button:disabled{opacity:0.5;cursor:not-allowed;}
     table{width:100%;border-collapse:collapse;font-size:0.78rem;min-width:1000px;}
     th,td{padding:8px 9px;border-bottom:1px solid #edf0f7;text-align:left;vertical-align:top;}
     th{position:sticky;top:0;z-index:2;background:linear-gradient(90deg,#5C61AC,#4f84b9);color:#fff;font-size:0.74rem;letter-spacing:0.2px;text-transform:uppercase;}
@@ -106,6 +109,9 @@
         <div style="margin-top:8px;display:flex;justify-content:flex-end;">
           <button id="exportCsvReview" style="background:linear-gradient(90deg,var(--il-primary),#4b7fb8);color:#fff;border:none;border-radius:10px;padding:8px 18px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;">Export CSV</button>
           <button id="exportCsvAutoReview" style="margin-left:8px;background:linear-gradient(90deg,var(--il-teal),#3ba296);color:#fff;border:none;border-radius:10px;padding:8px 18px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;">Export Auto Download CSV</button>
+          <button id="exportConfirmations" style="margin-left:8px;background:#fff;color:#2f3e48;border:1px solid #ccd3e2;border-radius:10px;padding:8px 14px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;">Export Confirmed Ticks</button>
+          <button id="importConfirmations" style="margin-left:8px;background:#fff;color:#2f3e48;border:1px solid #ccd3e2;border-radius:10px;padding:8px 14px;font-family:inherit;font-size:0.82rem;font-weight:700;cursor:pointer;">Import Confirmed Ticks</button>
+          <input id="confirmationsImportFile" type="file" accept="application/json" style="display:none;" />
         </div>
       </article>
     </div>
@@ -140,6 +146,11 @@
             </tr></thead>
             <tbody id="rvBody"></tbody>
           </table>
+        </div>
+        <div class="table-pager">
+          <button id="rvPrevPage" type="button">Prev</button>
+          <span id="rvPageInfo">Page 1 / 1</span>
+          <button id="rvNextPage" type="button">Next</button>
         </div>
         <div class="foot">SP = Single Premium. VRDD = Variable Regular Direct Debit. Eligible for Auto is calculated from business rules. Cash Confirmed is the manual sign-off gate: only rows with both Eligible for Auto and Cash Confirmed are included in the automated download for Approps team. Auto Download Ready means Eligible for Auto AND Cash Confirmed.</div>
       </article>
@@ -214,6 +225,11 @@
             <tbody id="exBody"></tbody>
           </table>
         </div>
+        <div class="table-pager">
+          <button id="exPrevPage" type="button">Prev</button>
+          <span id="exPageInfo">Page 1 / 1</span>
+          <button id="exNextPage" type="button">Next</button>
+        </div>
         <div class="foot">All exceptions require review before release to Finance. SP = Single Premium. Pend Reason is sourced from work item notes and highlights where the business review step could not be completed cleanly.</div>
       </article>
     </div>
@@ -221,6 +237,7 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="data/vrdd_appropriations_data.js"></script>
+<script src="data/vrdd_cash_confirmations_data.js"></script>
 <script>
 // DATA: When vrdd_appropriations_data.js loads, it defines const VRDD_DATA with real AutomateMetrics data.
 // If the file is missing or loading fails, the prototype data below serves as fallback.
@@ -254,15 +271,65 @@ if (typeof VRDD_DATA === 'undefined') {
 }
 
 const charts={};
+const PAGE_SIZE=200;
+const pageState={review:1,exception:1};
 const CURRENT_USER='Cash Team';
+const CONFIRMATIONS_STORAGE_KEY='vrdd_cash_confirmations_v1';
 const vrddCashConfirmations={};
 function fmtAmt(v){if(!Number.isFinite(+v))return'-';return'EUR '+(+v).toLocaleString('en-IE',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function uniq(arr){return[...new Set(arr.filter(Boolean))].sort();}
+function monthRange(startMonth,endMonth){
+  const months=[];
+  let [year, month]=startMonth.split('-').map(Number);
+  const [endYear, endMonthNumber]=endMonth.split('-').map(Number);
+  while(year<endYear || (year===endYear && month<=endMonthNumber)){
+    months.push(`${String(year).padStart(4,'0')}-${String(month).padStart(2,'0')}`);
+    month++;
+    if(month>12){
+      month=1;
+      year++;
+    }
+  }
+  return months;
+}
 function parseDate(dateStr){if(!dateStr||dateStr==='n/a')return null;const[d,m,y]=dateStr.split('/');return new Date(`${y}-${m}-${d}T00:00:00`);}
 function daysBetween(d1Str,d2Str){const d1=parseDate(d1Str);const d2=parseDate(d2Str);if(!d1||!d2)return null;return Math.floor((Math.abs(d2-d1))/(1000*60*60*24));}
 function isEligibleForAuto(row){return row.status==='Complete Work'&&daysBetween(row.effectiveDate,row.systemDate)<=2&&row.cbInformed==='Yes'&&row.spVisible==='Yes';}
 function getVrddConfirmation(ref){return vrddCashConfirmations[ref]||{confirmed:false,confirmedBy:'',confirmedAt:''};}
-function setVrddConfirmation(ref,confirmed){if(confirmed){vrddCashConfirmations[ref]={confirmed:true,confirmedBy:CURRENT_USER,confirmedAt:new Date().toLocaleString('en-IE')};return;}vrddCashConfirmations[ref]={confirmed:false,confirmedBy:'',confirmedAt:''};}
+function saveConfirmationsToLocal(){
+  try{
+    localStorage.setItem(CONFIRMATIONS_STORAGE_KEY,JSON.stringify(vrddCashConfirmations));
+  }catch(_){/* no-op */}
+}
+function mergeConfirmations(source){
+  if(!source||typeof source!=='object')return;
+  Object.entries(source).forEach(([ref,val])=>{
+    if(!val||typeof val!=='object')return;
+    vrddCashConfirmations[ref]={
+      confirmed:!!val.confirmed,
+      confirmedBy:String(val.confirmedBy||''),
+      confirmedAt:String(val.confirmedAt||'')
+    };
+  });
+}
+function loadConfirmations(){
+  mergeConfirmations(window.VRDD_CASH_CONFIRMATIONS);
+  try{
+    const raw=localStorage.getItem(CONFIRMATIONS_STORAGE_KEY);
+    if(!raw)return;
+    const parsed=JSON.parse(raw);
+    mergeConfirmations(parsed);
+  }catch(_){/* no-op */}
+}
+function setVrddConfirmation(ref,confirmed){
+  if(confirmed){
+    vrddCashConfirmations[ref]={confirmed:true,confirmedBy:CURRENT_USER,confirmedAt:new Date().toLocaleString('en-IE')};
+    saveConfirmationsToLocal();
+    return;
+  }
+  vrddCashConfirmations[ref]={confirmed:false,confirmedBy:'',confirmedAt:''};
+  saveConfirmationsToLocal();
+}
 function isIncludedInAutoDownload(row){const state=getVrddConfirmation(row.ref);return isEligibleForAuto(row)&&state.confirmed;}
 function drawOrUpdate(id,type,data,options={}){
   const base={responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:true,labels:{boxWidth:14,font:{size:11}}}},scales:{y:{beginAtZero:true}}};
@@ -277,9 +344,12 @@ const ui={
   rvMonth:document.getElementById('rvMonth'),rvScheme:document.getElementById('rvScheme'),
   rvStatus:document.getElementById('rvStatus'),rvWorkType:document.getElementById('rvWorkType'),
   rvTeam:document.getElementById('rvTeam'),rvAutoDownload:document.getElementById('rvAutoDownload'),
+  rvPrevPage:document.getElementById('rvPrevPage'),rvNextPage:document.getElementById('rvNextPage'),rvPageInfo:document.getElementById('rvPageInfo'),
   exMonth:document.getElementById('exMonth'),exScheme:document.getElementById('exScheme'),
   exType:document.getElementById('exType'),exSp:document.getElementById('exSp'),exInformed:document.getElementById('exInformed'),
+  exPrevPage:document.getElementById('exPrevPage'),exNextPage:document.getElementById('exNextPage'),exPageInfo:document.getElementById('exPageInfo'),
   exportCsvReview:document.getElementById('exportCsvReview'),exportCsvAutoReview:document.getElementById('exportCsvAutoReview'),exportCsvException:document.getElementById('exportCsvException'),
+  exportConfirmations:document.getElementById('exportConfirmations'),importConfirmations:document.getElementById('importConfirmations'),confirmationsImportFile:document.getElementById('confirmationsImportFile'),
 };
 function csvCell(v){return `"${String(v ?? '').replaceAll('"','""')}"`;}
 function exportCsv(filename,rows,columns){
@@ -292,18 +362,93 @@ function exportCsv(filename,rows,columns){
   link.click();
   URL.revokeObjectURL(link.href);
 }
+function setSelectOptions(select,allLabel,values){
+  select.innerHTML='';
+  select.add(new Option(allLabel,'All'));
+  values.forEach(v=>select.add(new Option(v,v)));
+}
+function mapWorkTypeGroup(workType){
+  const v=String(workType||'').toUpperCase();
+  if(v.includes('CORRESP'))return 'Correspondence';
+  if(v.includes('VARIABLEDD'))return 'Variable DD';
+  if(v.includes('DIRECT DEBIT')||v.includes('DD'))return 'Direct Debit';
+  if(v.includes('CASH'))return 'Cash';
+  if(v.includes('SP'))return 'SP';
+  return 'Other';
+}
+function mapReviewStatusGroup(row){
+  if(row.exType!==null&&row.exType!=='')return 'Exception';
+  if(row.status==='Exception')return 'Exception';
+  if(row.status==='Complete Work')return 'Complete Work';
+  return 'Awaiting Review';
+}
+function paginateRows(rows,page){
+  const totalPages=Math.max(1,Math.ceil(rows.length/PAGE_SIZE));
+  const current=Math.min(Math.max(page,1),totalPages);
+  const start=(current-1)*PAGE_SIZE;
+  return {
+    current,
+    totalPages,
+    start,
+    end:Math.min(start+PAGE_SIZE,rows.length),
+    rows:rows.slice(start,start+PAGE_SIZE)
+  };
+}
 function setupControls(){
-  const months=uniq(VRDD_DATA.map(r=>r.month));
-  const schemes=uniq(VRDD_DATA.map(r=>r.schemeName));
+  const months=monthRange('2026-01','2026-07');
+  const reviewSchemes=uniq(VRDD_DATA.map(r=>r.schemeName));
+  const exceptionSchemes=uniq(VRDD_DATA.filter(r=>r.exType!==null&&r.exType!=='').map(r=>r.schemeName));
   const teams=uniq(VRDD_DATA.map(r=>r.team));
-  [ui.rvMonth,ui.exMonth].forEach(s=>months.forEach(m=>s.add(new Option(m,m))));
-  [ui.rvScheme,ui.exScheme].forEach(s=>schemes.forEach(v=>s.add(new Option(v,v))));
-  teams.forEach(t=>ui.rvTeam.add(new Option(t,t)));
-  [ui.rvMonth,ui.rvScheme,ui.rvStatus,ui.rvWorkType,ui.rvTeam,ui.rvAutoDownload].forEach(e=>e.addEventListener('change',refreshReview));
-  [ui.exMonth,ui.exScheme,ui.exType,ui.exSp,ui.exInformed].forEach(e=>e.addEventListener('change',refreshException));
+  const workTypes=['Variable DD','Direct Debit','Cash','SP','Correspondence','Other'];
+  const statuses=['Complete Work','Awaiting Review','Exception'];
+  const exTypes=['SP Not Visible','CB Approps Not Informed','Amount Mismatch','Late Preapprop','Pending Reason Unknown'];
+  setSelectOptions(ui.rvMonth,'All months',months);
+  setSelectOptions(ui.exMonth,'All months',months);
+  setSelectOptions(ui.rvScheme,'All schemes',reviewSchemes);
+  setSelectOptions(ui.exScheme,'All schemes',exceptionSchemes);
+  setSelectOptions(ui.rvTeam,'All teams',teams);
+  setSelectOptions(ui.rvWorkType,'All',workTypes);
+  setSelectOptions(ui.rvStatus,'All statuses',statuses);
+  setSelectOptions(ui.exType,'All types',exTypes);
+  [ui.rvMonth,ui.rvScheme,ui.rvStatus,ui.rvWorkType,ui.rvTeam,ui.rvAutoDownload].forEach(e=>e.addEventListener('change',()=>{pageState.review=1;refreshReview();}));
+  [ui.exMonth,ui.exScheme,ui.exType,ui.exSp,ui.exInformed].forEach(e=>e.addEventListener('change',()=>{pageState.exception=1;refreshException();}));
+  ui.rvPrevPage.addEventListener('click',()=>{if(pageState.review>1){pageState.review--;refreshReview();}});
+  ui.rvNextPage.addEventListener('click',()=>{pageState.review++;refreshReview();});
+  ui.exPrevPage.addEventListener('click',()=>{if(pageState.exception>1){pageState.exception--;refreshException();}});
+  ui.exNextPage.addEventListener('click',()=>{pageState.exception++;refreshException();});
   ui.exportCsvReview.addEventListener('click',()=>exportCsv('vrdd_business_review_queue.csv',reviewExportRows(filteredReview()),['month','dateCreated','ref','schemeName','schemeNo','context','amount','workType','broker','team','source','status','dateCompleted','completedBy','pendReason','spVisible','cbInformed','exType','eligibleForAuto','cashConfirmed','confirmedBy','confirmedAt','includeInAutoDownload']));
   ui.exportCsvAutoReview.addEventListener('click',()=>exportCsv('vrdd_approps_automated_download.csv',reviewExportRows(filteredReview().filter(isIncludedInAutoDownload)),['month','dateCreated','ref','schemeName','schemeNo','context','amount','workType','broker','team','source','status','dateCompleted','completedBy','pendReason','spVisible','cbInformed','eligibleForAuto','cashConfirmed','confirmedBy','confirmedAt']));
   ui.exportCsvException.addEventListener('click',()=>exportCsv('vrdd_exception_detail.csv',filteredExceptions(),['month','dateCreated','ref','schemeName','schemeNo','context','amount','workType','broker','team','source','status','dateCompleted','completedBy','pendReason','spVisible','cbInformed','exType']));
+  ui.exportConfirmations.addEventListener('click',()=>{
+    const payload={
+      exportedAt:new Date().toISOString(),
+      confirmations:vrddCashConfirmations
+    };
+    const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8;'});
+    const link=document.createElement('a');
+    link.href=URL.createObjectURL(blob);
+    link.download='vrdd_cash_confirmations.json';
+    link.click();
+    URL.revokeObjectURL(link.href);
+  });
+  ui.importConfirmations.addEventListener('click',()=>ui.confirmationsImportFile.click());
+  ui.confirmationsImportFile.addEventListener('change',async(e)=>{
+    const file=e.target.files&&e.target.files[0];
+    if(!file)return;
+    try{
+      const text=await file.text();
+      const parsed=JSON.parse(text);
+      const incoming=parsed&&parsed.confirmations?parsed.confirmations:parsed;
+      mergeConfirmations(incoming);
+      saveConfirmationsToLocal();
+      refreshReview();
+      alert('Confirmed tick state imported successfully.');
+    }catch(_){
+      alert('Import failed. Please use a valid vrdd_cash_confirmations.json file.');
+    }finally{
+      ui.confirmationsImportFile.value='';
+    }
+  });
   ui.tabs.forEach(t=>t.addEventListener('click',()=>{
     ui.tabs.forEach(x=>x.classList.remove('active'));t.classList.add('active');
     Object.values(ui.pages).forEach(p=>p.classList.remove('active'));ui.pages[t.dataset.page].classList.add('active');
@@ -313,8 +458,8 @@ function filteredReview(){
   return VRDD_DATA.filter(r=>
     (ui.rvMonth.value==='All'||r.month===ui.rvMonth.value)&&
     (ui.rvScheme.value==='All'||r.schemeName===ui.rvScheme.value)&&
-    (ui.rvStatus.value==='All'||r.status===ui.rvStatus.value)&&
-    (ui.rvWorkType.value==='All'||r.workType===ui.rvWorkType.value)&&
+    (ui.rvStatus.value==='All'||mapReviewStatusGroup(r)===ui.rvStatus.value)&&
+    (ui.rvWorkType.value==='All'||mapWorkTypeGroup(r.workType)===ui.rvWorkType.value)&&
     (ui.rvTeam.value==='All'||r.team===ui.rvTeam.value)&&
     (ui.rvAutoDownload.value==='All'||(ui.rvAutoDownload.value==='Yes'?isIncludedInAutoDownload(r):!isIncludedInAutoDownload(r)))
   );
@@ -334,28 +479,38 @@ function filteredExceptions(){
 }
 function refreshReview(){
   const rows=filteredReview();
-  const complete=rows.filter(r=>r.status==='Complete Work').length;
-  const pending=rows.filter(r=>r.status==='Work In Progress'||r.status==='Pending').length;
-  const exception=rows.filter(r=>r.status==='Exception').length;
+  const paged=paginateRows(rows,pageState.review);
+  pageState.review=paged.current;
+  const complete=rows.filter(r=>mapReviewStatusGroup(r)==='Complete Work').length;
+  const pending=rows.filter(r=>mapReviewStatusGroup(r)==='Awaiting Review').length;
+  const exception=rows.filter(r=>mapReviewStatusGroup(r)==='Exception').length;
   document.getElementById('kRvTotal').textContent=rows.length;
   document.getElementById('kRvComplete').textContent=complete;
   document.getElementById('kRvPending').textContent=pending;
   document.getElementById('kRvException').textContent=exception;
   const months=uniq(rows.map(r=>r.month));
   const byM={};months.forEach(m=>{byM[m]={c:0,p:0,e:0};});
-  rows.forEach(r=>{if(r.status==='Complete Work')byM[r.month].c++;else if(r.status==='Exception')byM[r.month].e++;else byM[r.month].p++;});
+  rows.forEach(r=>{
+    const g=mapReviewStatusGroup(r);
+    if(g==='Complete Work')byM[r.month].c++;
+    else if(g==='Exception')byM[r.month].e++;
+    else byM[r.month].p++;
+  });
   drawOrUpdate('chartRvTrend','bar',{labels:months.length?months:['No data'],datasets:[
     {label:'Verified by Business',data:months.map(m=>byM[m].c),backgroundColor:'#55C2B6',stack:'s'},
     {label:'In Progress / Pending',data:months.map(m=>byM[m].p),backgroundColor:'#FAB812',stack:'s'},
     {label:'Exception',data:months.map(m=>byM[m].e),backgroundColor:'#E03E52',stack:'s'},
   ]},{scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}}});
   drawOrUpdate('chartRvMix','doughnut',{labels:['Verified by Business','In Progress / Pending','Exception'],datasets:[{data:[complete,pending,exception],backgroundColor:['#55C2B6','#FAB812','#E03E52']}]});
-  document.getElementById('rvHint').textContent=`${rows.length} work item${rows.length!==1?'s':''} | ${complete} verified by business, ${pending} awaiting review, ${exception} exception.`;
-  document.getElementById('rvBody').innerHTML=rows.map(r=>{const isAuto=isEligibleForAuto(r);const state=getVrddConfirmation(r.ref);return`<tr style="${isAuto?'background:#f0fdf8;':''}" class="${isAuto?'eligible-auto':''}">
+  document.getElementById('rvHint').textContent=`${rows.length} work item${rows.length!==1?'s':''} | ${complete} verified by business, ${pending} awaiting review, ${exception} exception. Showing ${rows.length ? (paged.start+1) : 0}-${paged.end}.`;
+  ui.rvPageInfo.textContent=`Page ${paged.current} / ${paged.totalPages}`;
+  ui.rvPrevPage.disabled=paged.current<=1;
+  ui.rvNextPage.disabled=paged.current>=paged.totalPages;
+  document.getElementById('rvBody').innerHTML=paged.rows.map(r=>{const isAuto=isEligibleForAuto(r);const state=getVrddConfirmation(r.ref);const groupedStatus=mapReviewStatusGroup(r);return`<tr style="${isAuto?'background:#f0fdf8;':''}" class="${isAuto?'eligible-auto':''}">
     <td>${r.dateCreated}</td><td><code>${r.ref}</code></td><td>${r.schemeName}</td><td>${r.schemeNo}</td>
     <td><span class="tag info">${r.context}</span></td><td style="text-align:right">${fmtAmt(r.amount)}</td>
     <td>${r.workType}</td><td style="font-size:0.72rem">${r.broker}</td><td>${r.team}</td>
-    <td>${statusTag(r.status)}</td>
+    <td>${statusTag(groupedStatus)}</td>
     <td style="text-align:center;">${isAuto?'<span class="tag good">Yes</span>':'<span class="tag bad">No</span>'}</td>
     <td style="text-align:center;"><input class="cash-confirm-vrdd" data-ref="${r.ref}" type="checkbox" ${state.confirmed?'checked':''} ${isAuto?'':'disabled'} title="${isAuto?'Cash team confirms inclusion in automated download':'Not eligible for automation'}" style="cursor:pointer;width:18px;height:18px;"/></td>
     <td>${state.confirmedBy||'-'}</td>
@@ -365,6 +520,8 @@ function refreshReview(){
 }
 function refreshException(){
   const rows=filteredExceptions();
+  const paged=paginateRows(rows,pageState.exception);
+  pageState.exception=paged.current;
   const spMissing=rows.filter(r=>r.exType==='SP Not Visible').length;
   const notInformed=rows.filter(r=>r.exType==='CB Approps Not Informed').length;
   const other=rows.filter(r=>r.exType!=='SP Not Visible'&&r.exType!=='CB Approps Not Informed').length;
@@ -377,8 +534,11 @@ function refreshException(){
   drawOrUpdate('chartExType','bar',{labels:types,datasets:[{label:'Exceptions',data:types.map(t=>tC[t]),backgroundColor:['#E03E52','#FAB812','#00B1D9','#5C61AC','#55C2B6']}]});
   const spY=rows.filter(r=>r.spVisible==='Yes').length,spN=rows.filter(r=>r.spVisible==='No').length;
   drawOrUpdate('chartExSp','doughnut',{labels:['SP Visible','SP Not Visible'],datasets:[{data:[spY,spN],backgroundColor:['#55C2B6','#E03E52']}]});
-  document.getElementById('exHint').textContent=`${rows.length} exception${rows.length!==1?'s':''} in current selection.`;
-  document.getElementById('exBody').innerHTML=rows.map(r=>`<tr>
+  document.getElementById('exHint').textContent=`${rows.length} exception${rows.length!==1?'s':''} in current selection. Showing ${rows.length ? (paged.start+1) : 0}-${paged.end}.`;
+  ui.exPageInfo.textContent=`Page ${paged.current} / ${paged.totalPages}`;
+  ui.exPrevPage.disabled=paged.current<=1;
+  ui.exNextPage.disabled=paged.current>=paged.totalPages;
+  document.getElementById('exBody').innerHTML=paged.rows.map(r=>`<tr>
     <td>${r.dateCreated}</td><td><code>${r.ref}</code></td><td>${r.schemeName}</td><td>${r.schemeNo}</td>
     <td style="text-align:right">${fmtAmt(r.amount)}</td><td>${exTypeTag(r.exType)}</td>
     <td>${r.spVisible==='Yes'?'<span class="tag good">Visible</span>':'<span class="tag bad">Not Visible</span>'}</td>
@@ -398,7 +558,7 @@ function exTypeTag(t){
   const m={'SP Not Visible':'bad','CB Approps Not Informed':'bad','Amount Mismatch':'warn','Late Preapprop':'warn','Pending Reason Unknown':'warn'};
   return`<span class="tag ${m[t]||'warn'}">${t}</span>`;
 }
-setupControls();refreshReview();refreshException();
+loadConfirmations();setupControls();refreshReview();refreshException();
 const dataSource=(window.VRDD_DATA_SOURCE==='AutomateMetrics')?'AutomateMetrics (Production Data)':'Prototype Data (Test Mode)';
 document.getElementById('lastRefresh').textContent=`Last refresh: ${new Date().toLocaleString('en-IE')} | Data: ${dataSource}`;
 </script>
