@@ -1,0 +1,1142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SecureShare Deployment Stats </title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --il-primary: #5c61ac;
+      --il-teal: #55c2b6;
+      --il-cyan: #00b1d9;
+      --il-amber: #fab812;
+      --il-rose: #e03e52;
+      --il-slate: #53565a;
+      --bg: #f5f7fc;
+      --card: #ffffff;
+      --text: #25323b;
+      --muted: #69757f;
+      --line: #e4e6ef;
+      --chip: #eef2fb;
+      --shadow: 0 14px 34px rgba(37, 50, 59, 0.08);
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 0% 0%, rgba(85, 194, 182, 0.16), transparent 34%),
+        radial-gradient(circle at 100% 0%, rgba(92, 97, 172, 0.18), transparent 38%),
+        linear-gradient(180deg, #fbfcff 0%, #f4f6fb 56%, #f1f3fa 100%);
+      min-height: 100vh;
+    }
+
+    .shell {
+      max-width: 1820px;
+      margin: 0 auto;
+      padding: 14px 16px 20px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 18px;
+      border-radius: 16px;
+      color: #fff;
+      box-shadow: var(--shadow);
+      background: linear-gradient(92deg, #3e458f 0%, var(--il-primary) 46%, #3a8eb6 100%);
+      margin-bottom: 14px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .brand img {
+      height: 42px;
+      width: auto;
+      object-fit: contain;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 4px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.12rem;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+    }
+
+    .brand p {
+      margin: 2px 0 0;
+      font-size: 0.82rem;
+      opacity: 0.92;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .badge {
+      border: 1px solid rgba(255, 255, 255, 0.34);
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 0.75rem;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .back-link {
+      color: inherit;
+      text-decoration: none;
+      font-size: 0.84rem;
+      padding: 6px 10px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      transition: all 150ms;
+    }
+
+    .back-link:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .page {
+      display: grid;
+      gap: 14px;
+    }
+
+    .panel {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .filter-grid {
+      display: grid;
+      gap: 12px;
+      grid-auto-flow: row;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 0.74rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
+
+    .field select,
+    .field input {
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.84rem;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    .field select:focus,
+    .field input:focus {
+      outline: none;
+      border-color: var(--il-primary);
+      background: #fff;
+      box-shadow: 0 0 0 2px rgba(92, 97, 172, 0.1);
+    }
+
+    .content {
+      display: grid;
+      gap: 10px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .span-6 { grid-column: span 6; }
+    .span-12 { grid-column: span 12; }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .kpi {
+      padding: 10px;
+      text-align: center;
+    }
+
+    .kpi .label {
+      color: var(--muted);
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-weight: 600;
+    }
+
+    .kpi .value {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--il-primary);
+      margin: 6px 0;
+    }
+
+    .kpi .sub {
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+
+    .chart-card {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .chart-card h2 {
+      padding: 8px 8px 0;
+      margin: 0 0 4px;
+      font-size: 0.82rem;
+    }
+
+    .chart-card > .subtle {
+      display: none;
+    }
+
+    .chart-wrap {
+      position: relative;
+      flex: 1;
+      min-height: 170px;
+      padding: 0 8px 8px;
+    }
+
+    .chart-wrap canvas {
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+    }
+
+    .table-card {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .table-head {
+      padding: 10px 12px 8px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .table-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      max-height: 420px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    th,
+    td {
+      padding: 8px 9px;
+      border-bottom: 1px solid #edf0f7;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      background: #fbfcff;
+      color: #5c6874;
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      z-index: 1;
+    }
+
+    td.num,
+    th.num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .cell-stack {
+      display: grid;
+      gap: 4px;
+    }
+
+    .cell-meta {
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+
+    .empty {
+      padding: 28px 16px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .test-badge {
+      background: #fab812;
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    @media (max-width: 1320px) {
+      .kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .filter-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 960px) {
+      .filter-grid,
+      .grid,
+      .kpis {
+        grid-template-columns: 1fr;
+      }
+
+      .span-7,
+      .span-6,
+      .span-5,
+      .span-12 {
+        grid-column: span 1;
+      }
+
+      .chart-card {
+        min-height: 360px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .topbar-actions {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <img src="../assets/Top Left IL Logo.png" alt="Irish Life" />
+        <div>
+          <h1>SecureShare Deployment Stats</h1>
+          <p>SecureShare submission-channel visibility across brokers, employers, schemes, and process usage.</p>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <a class="back-link" href="../Landing page.html">Back to Landing</a>
+        <button id="resetFilters" type="button" class="back-link" style="cursor: pointer;">Reset Filters</button>
+        <span class="badge" id="lastRefresh">Last refresh: -</span>
+        <span class="badge" id="reportWindowBadge">YTD window</span>
+      </div>
+    </header>
+
+    <div class="page">
+      <section class="panel">
+        <div class="filter-grid" style="grid-template-columns: repeat(5, minmax(0, 1fr));">
+          <div class="field">
+            <label for="monthFilter">Month</label>
+            <select id="monthFilter">
+              <option value="YTD">All Months</option>
+            </select>
+            <input id="dateFrom" type="hidden" />
+            <input id="dateTo" type="hidden" />
+          </div>
+          <div class="field">
+            <label for="orgType">Organisation Type</label>
+            <select id="orgType">
+              <option value="Broker">Brokers</option>
+              <option value="Employer">Employers</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="organisationFilter">Organisation</label>
+            <select id="organisationFilter">
+              <option value="">All Organisations</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="processFilter">Process Used</label>
+            <select id="processFilter">
+              <option value="">All Processes</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="goldFilter">Scheme Quality</label>
+            <select id="goldFilter">
+              <option value="All">All Schemes</option>
+              <option value="Gold">Gold Only</option>
+              <option value="NonGold">Non-Gold Only</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="content">
+
+        <section class="kpis">
+          <article class="card kpi">
+            <div class="label">Total Submissions</div>
+            <div class="value" id="kpiTotalSubmissions">0</div>
+            <div class="sub" id="kpiTotalSubmissionsSub">Filtered submission count</div>
+          </article>
+          <article class="card kpi">
+            <div class="label">% of Total</div>
+            <div class="value" id="kpiPctOfTotal">0.0%</div>
+            <div class="sub" id="kpiPctOfTotalSub">Share of YTD submissions</div>
+          </article>
+          <article class="card kpi">
+            <div class="label" id="kpiActiveOrgLabel">Active Brokers</div>
+            <div class="value" id="kpiActiveBrokers">0</div>
+            <div class="sub" id="kpiActiveBrokersSub">Distinct brokers in filtered rows</div>
+          </article>
+          <article class="card kpi">
+            <div class="label">Active Schemes</div>
+            <div class="value" id="kpiActiveSchemes">0</div>
+            <div class="sub" id="kpiActiveSchemesSub">Distinct schemes in filtered rows</div>
+          </article>
+        </section>
+
+        <section class="grid">
+          <article class="card chart-card span-6">
+            <h2>Process Used</h2>
+            <p class="subtle">Process groups include cash and direct debit activity as a dedicated category.</p>
+            <div class="chart-wrap"><canvas id="chartProcessMix"></canvas></div>
+          </article>
+
+          <article class="card chart-card span-6">
+            <h2>Submission Share by Organisation</h2>
+            <p class="subtle" id="topOrganisationsSubtitle">Top brokers by filtered submission volume.</p>
+            <div class="chart-wrap"><canvas id="chartTopOrganisations"></canvas></div>
+          </article>
+
+          <article class="card table-card span-12">
+            <div class="table-head">
+              <div>
+                <h2>Organisation and Process Detail</h2>
+                <p>Grouped detail showing where submissions, schemes, and completion volume are concentrated.</p>
+              </div>
+              <p id="tableMeta">0 rows</p>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Organisation</th>
+                    <th>Process Used</th>
+                    <th class="num">Submissions</th>
+                    <th class="num">% of Total</th>
+                    <th class="num">Completed</th>
+                    <th class="num">Completion %</th>
+                    <th class="num">Active Schemes</th>
+                    <th>Lead Scheme</th>
+                  </tr>
+                </thead>
+                <tbody id="detailTableBody">
+                  <tr><td class="empty" colspan="8">Loading data...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+      </section>
+    </div>
+  </div>
+
+  <script src="../Operational Reporting/data/midas_submissions_data.js"></script>
+  <script src="../Operational Reporting/data/ne_submissions_data.js"></script>
+  <script src="../Operational Reporting/data/dc_master_list_data.js"></script>
+  <script>
+    const APPROVED_PROCESSES = [
+      "Cash / Direct Debits",
+      "New Entrant Bulk Auto",
+      "New Entrant Single Auto",
+      "Auto Quote",
+      "Scheme Update"
+    ];
+
+    const ui = {
+      dateFrom: document.getElementById("dateFrom"),
+      dateTo: document.getElementById("dateTo"),
+      monthFilter: document.getElementById("monthFilter"),
+      orgType: document.getElementById("orgType"),
+      organisationFilter: document.getElementById("organisationFilter"),
+      processFilter: document.getElementById("processFilter"),
+      goldFilter: document.getElementById("goldFilter"),
+      resetFilters: document.getElementById("resetFilters"),
+      lastRefresh: document.getElementById("lastRefresh"),
+      reportWindowBadge: document.getElementById("reportWindowBadge"),
+      topOrganisationsSubtitle: document.getElementById("topOrganisationsSubtitle"),
+      tableMeta: document.getElementById("tableMeta")
+    };
+
+    const charts = {};
+    const MASTER_DATA = window.DC_MASTER_DATA || null;
+    const MASTER_SCHEMES = Array.isArray(MASTER_DATA && MASTER_DATA.schemes) ? MASTER_DATA.schemes : [];
+
+    function iso(date) {
+      return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    }
+
+    function fmt(value) {
+      return Number(value || 0).toLocaleString();
+    }
+
+    function pct(part, whole) {
+      const rate = whole > 0 ? (100 * part) / whole : 0;
+      return `${rate.toFixed(1)}%`;
+    }
+
+    function normalizeInputRow(r) {
+      return {
+        DateCreated: r['[DateCreated]'],
+        DateCompleted: r['[DateCompleted]'],
+        SchemeNumber: r['[SchemeNumber]'],
+        SchemeName: r['[SchemeName]'],
+        EmployerOrg: r['[Employer_Org]'],
+        BrokerOrg: r['[Broker_Org]'],
+        SubmitterEmail: r['[SubmitterEmail]'],
+        WorkContext: r['[WorkContext]'],
+        WorkTypeCode: r['[WorkTypeCode]'],
+        WorkTypeDescription: r['[WorkTypeDescription]'],
+        WorkStatus: r['[WorkStatus]'],
+        GoldScheme: r['[GoldScheme]'],
+        SubmissionCount: 1,
+        Source: "MIDAS"
+      };
+    }
+
+    function normalizeNeRow(r) {
+      const ym = String(r.YearMonth || "").trim();
+      const count = Number(r.SubmissionCount || 0);
+      return {
+        DateCreated: /^\d{4}-\d{2}$/.test(ym) ? `${ym}-01` : "",
+        DateCompleted: "",
+        SchemeNumber: String(r.SchemeNo || "").trim(),
+        SchemeName: "",
+        EmployerOrg: "",
+        BrokerOrg: String(r.BrokerName || "").trim(),
+        SubmitterEmail: "",
+        WorkContext: "NE",
+        WorkTypeCode: String(r.WorkTypeCode || "").trim(),
+        WorkTypeDescription: String(r.WorkTypeDesc || r.WorkTypeCode || "").trim(),
+        WorkStatus: "NE Aggregate",
+        GoldScheme: "",
+        Via: String(r.Via || "").trim(),
+        SubmissionCount: Number.isFinite(count) && count > 0 ? count : 0,
+        Source: "NE"
+      };
+    }
+
+    function deriveSubmissionChannel(row) {
+      const code = String(row.WorkTypeCode || "").toUpperCase();
+      const desc = String(row.WorkTypeDescription || "").toUpperCase();
+      const blob = `${code} ${desc}`;
+
+      if (!code && !desc) return "NotRecorded";
+      if (code.includes("AUTO") || blob.includes("SECURESHARE")) return "SecureShare";
+      if (blob.includes("MAIL") || blob.includes("POST") || blob.includes("SCAN")) return "Mail/Scan";
+      if (blob.includes("DROPZONE") || blob.includes("INTERNAL")) return "Internal/Dropzone";
+      if (blob.includes("UW")) return "UWMailbox";
+      if (blob.includes("CODE")) return "CODE";
+      if (blob.includes("CASH")) return "Cash";
+      return "NonChannelWorkType";
+    }
+
+    function deriveSubmissionChannelFromVia(via) {
+      const raw = String(via || "").trim();
+      const v = raw.toUpperCase();
+      if (!raw || v === "NULL") return "NotRecorded";
+      if (v === "SECURESHARE" || v.startsWith("SECURESHARE ")) return "SecureShare";
+      if (v.includes("MAIL") || v.includes("POST") || v.includes("SCAN")) return "Mail/Scan";
+      if (v.includes("DROPZONE") || v.includes("INTERNAL")) return "Internal/Dropzone";
+      if (v.includes("UW")) return "UWMailbox";
+      if (v.includes("CODE")) return "CODE";
+      if (v.includes("CASH")) return "Cash";
+      return raw;
+    }
+
+    function buildSchemeNameLookup(rows) {
+      const lookup = new Map();
+      rows.forEach(row => {
+        const key = (row.SchemeNumber || "").toLowerCase().trim();
+        if (key && !lookup.has(key)) {
+          lookup.set(key, row.SchemeName || "");
+        }
+      });
+      return lookup;
+    }
+
+    function isCodeLikeOrganisation(value) {
+      return /^[A-Z]\d{3,}$/i.test(String(value || "").trim());
+    }
+
+    function buildEmployerDisplayLookup(rows) {
+      const countsByEmployer = new Map();
+      rows.forEach(row => {
+        const employer = String(row.EmployerOrg || "").trim();
+        const schemeName = String(row.SchemeName || "").trim();
+        if (!employer || !schemeName) return;
+
+        if (!countsByEmployer.has(employer)) countsByEmployer.set(employer, new Map());
+        const bucket = countsByEmployer.get(employer);
+        bucket.set(schemeName, (bucket.get(schemeName) || 0) + 1);
+      });
+
+      const lookup = new Map();
+      countsByEmployer.forEach((schemeCounts, employer) => {
+        const top = [...schemeCounts.entries()].sort((a, b) => b[1] - a[1] || b[0].length - a[0].length)[0];
+        if (top && top[0]) lookup.set(employer, top[0]);
+      });
+      return lookup;
+    }
+
+    function monthKey(dateValue) {
+      return String(dateValue || "").slice(0, 7);
+    }
+
+    function monthLabel(monthValue) {
+      if (!/^\d{4}-\d{2}$/.test(monthValue)) return monthValue;
+      const [year, month] = monthValue.split("-").map(Number);
+      const date = new Date(year, month - 1, 1);
+      return date.toLocaleString("en-IE", { month: "short", year: "numeric" });
+    }
+
+    function classifyProcessRow(row) {
+      const blob = `${row.WorkTypeCode || ""} ${row.WorkTypeDescription || ""} ${row.WorkContext || ""}`.toUpperCase();
+      const isCash = blob.includes("CASH")
+        || blob.includes("PAYMENT")
+        || blob.includes("DIRECT DEBIT")
+        || blob.includes("BACS")
+        || blob.includes("EFT")
+        || blob.includes("CADD")
+        || blob.includes("VARIABLEDD")
+        || blob.includes("MULTIPLEPAYPOINT")
+        || blob.includes("BREAKDOWN");
+
+      let processName = null;
+
+      if (isCash) {
+        processName = "Cash / Direct Debits";
+      } else if (blob.includes("NEBAUTO")) {
+        processName = "New Entrant Bulk Auto";
+      } else if (blob.includes("NESAUTO")) {
+        processName = "New Entrant Single Auto";
+      } else if (blob.includes("AUTOQTE")) {
+        processName = "Auto Quote";
+      } else if (blob.includes("SCUP")) {
+        processName = "Scheme Update";
+      }
+
+      if (!processName || !APPROVED_PROCESSES.includes(processName)) {
+        return null;
+      }
+
+      return processName;
+    }
+
+    function isSecureShareChannelRow(row) {
+      if (row.Source === "NE") return deriveSubmissionChannelFromVia(row.Via) === "SecureShare";
+      return deriveSubmissionChannel(row) === "SecureShare";
+    }
+
+    const midasRows = Array.isArray(window.MIDAS_SUBMISSIONS_DATA)
+      ? window.MIDAS_SUBMISSIONS_DATA
+        .map(normalizeInputRow)
+        .filter(row => row.DateCreated)
+      : [];
+
+    const neRows = Array.isArray(window.ne_submissions_data)
+      ? window.ne_submissions_data
+        .map(normalizeNeRow)
+        .filter(row => row.DateCreated && row.SubmissionCount > 0)
+      : [];
+
+    const allRows = [...midasRows, ...neRows].filter(isSecureShareChannelRow);
+    const schemeNameLookup = buildSchemeNameLookup(allRows);
+    const employerDisplayLookup = buildEmployerDisplayLookup(allRows);
+
+    function getOrganisationRaw(row, orgTypeValue) {
+      return orgTypeValue === "Employer" ? row.EmployerOrg : row.BrokerOrg;
+    }
+
+    function getOrganisationDisplayFromRaw(rawOrg, orgTypeValue) {
+      const raw = String(rawOrg || "").trim();
+      if (!raw) return "";
+      if (orgTypeValue !== "Employer") return raw;
+
+      if (!isCodeLikeOrganisation(raw)) return raw;
+      const mapped = String(employerDisplayLookup.get(raw) || "").trim();
+      if (!mapped || mapped.toUpperCase() === raw.toUpperCase()) return raw;
+      return `${mapped} (${raw})`;
+    }
+
+    function getOrganisationDisplay(row, orgTypeValue) {
+      return getOrganisationDisplayFromRaw(getOrganisationRaw(row, orgTypeValue), orgTypeValue);
+    }
+
+    function getMonthsWithData() {
+      const rowsToCheck = allRows;
+      
+      const monthCounts = new Map();
+      rowsToCheck.forEach(row => {
+        const month = String(row.DateCreated).slice(0, 7);
+        if (/^\d{4}-\d{2}$/.test(month)) {
+          const cnt = Number(row.SubmissionCount || 0);
+          monthCounts.set(month, (monthCounts.get(month) || 0) + (Number.isFinite(cnt) ? cnt : 0));
+        }
+      });
+
+      return Array.from(monthCounts.keys()).sort().map(month => ({
+        value: month,
+        label: monthLabel(month),
+        count: monthCounts.get(month)
+      }));
+    }
+
+    function isFromJan2026(monthValue) {
+      return /^\d{4}-\d{2}$/.test(monthValue) && monthValue >= "2026-01";
+    }
+
+    function latestAvailableDate() {
+      const dates = allRows
+        .map(row => String(row.DateCreated || "").slice(0, 10))
+        .filter(value => /^\d{4}-\d{2}-\d{2}$/.test(value))
+        .sort();
+      return dates.length ? dates[dates.length - 1] : "";
+    }
+
+    function classifyProcess(row) {
+      return classifyProcessRow(row) || "Other / Unclassified";
+    }
+
+    function buildMonthOptions() {
+      const months = getMonthsWithData().filter(month => isFromJan2026(month.value));
+      const select = ui.monthFilter;
+      const currentValue = select.value;
+
+      // Rebuild options cleanly so repeated refreshes do not duplicate months.
+      select.innerHTML = '<option value="YTD">All Months</option>';
+
+      // Add month options
+      months.forEach(month => {
+        const option = document.createElement("option");
+        option.value = month.value;
+        option.textContent = `${month.label} (${month.count})`;
+        select.appendChild(option);
+      });
+
+      const allowedValues = new Set(["YTD", ...months.map(m => m.value)]);
+      select.value = allowedValues.has(currentValue) ? currentValue : "YTD";
+    }
+
+    function applyMonthFilterSelection() {
+      const monthValue = ui.monthFilter.value;
+      if (monthValue === "YTD") {
+        ui.dateFrom.value = "2026-01-01";
+        ui.dateTo.value = latestAvailableDate();
+      } else if (monthValue && /^\d{4}-\d{2}$/.test(monthValue)) {
+        const [year, month] = monthValue.split("-");
+        ui.dateFrom.value = `${year}-${month}-01`;
+        const lastDay = new Date(year, month, 0).getDate();
+        ui.dateTo.value = `${year}-${month}-${lastDay}`;
+      }
+    }
+
+    function scopedRows() {
+      return allRows;
+    }
+
+    function filteredRows() {
+      return allRows.filter(row => {
+        const dateFrom = ui.dateFrom.value;
+        const dateTo = ui.dateTo.value;
+        const orgTypeValue = ui.orgType.value;
+        const organisationValue = ui.organisationFilter.value;
+        const processValue = ui.processFilter.value;
+        const goldValue = ui.goldFilter.value;
+
+        const rowDate = String(row.DateCreated || "");
+        if (dateFrom && rowDate < dateFrom) return false;
+        if (dateTo && rowDate > dateTo) return false;
+
+        const orgType = getOrganisationRaw(row, orgTypeValue);
+        if (organisationValue && orgType !== organisationValue) return false;
+
+        if (processValue) {
+          const derived = classifyProcess(row);
+          if (derived !== processValue) return false;
+        }
+
+        const isGold = row.GoldScheme === "Yes";
+        if (goldValue === "Gold" && !isGold) return false;
+        if (goldValue === "NonGold" && isGold) return false;
+
+        return true;
+      });
+    }
+
+    function weightedSubmissionCount(rows) {
+      return rows.reduce((sum, row) => {
+        const cnt = Number(row.SubmissionCount || 0);
+        return sum + (Number.isFinite(cnt) ? cnt : 0);
+      }, 0);
+    }
+
+    function buildFilterOptions() {
+      const scope = scopedRows();
+      const filtered = filteredRows();
+
+      // Build organisation options
+      const orgs = new Set();
+      scope.forEach(row => {
+        const org = getOrganisationRaw(row, ui.orgType.value);
+        if (org) orgs.add(org);
+      });
+
+      const orgSelect = ui.organisationFilter;
+      const savedOrgValue = orgSelect.value;
+      orgSelect.innerHTML = '<option value="">All Organisations</option>';
+      Array.from(orgs).sort().forEach(org => {
+        const option = document.createElement("option");
+        option.value = org;
+        option.textContent = getOrganisationDisplayFromRaw(org, ui.orgType.value);
+        orgSelect.appendChild(option);
+      });
+      orgSelect.value = savedOrgValue || "";
+
+      // Build process options
+      const processes = new Set();
+      scope.forEach(row => {
+        const derived = classifyProcess(row);
+        processes.add(derived);
+      });
+
+      const processSelect = ui.processFilter;
+      const savedProcessValue = processSelect.value;
+      processSelect.innerHTML = '<option value="">All Processes</option>';
+      Array.from(processes).sort().forEach(process => {
+        const option = document.createElement("option");
+        option.value = process;
+        option.textContent = process;
+        processSelect.appendChild(option);
+      });
+      processSelect.value = savedProcessValue || "";
+    }
+
+    function updateSummary(scope, filtered) {
+      // Placeholder for summary updates
+    }
+
+    function updateKpis(scope, filtered) {
+      const filteredTotal = weightedSubmissionCount(filtered);
+      const scopeTotal = weightedSubmissionCount(scope);
+      document.getElementById("kpiTotalSubmissions").textContent = fmt(filteredTotal);
+      document.getElementById("kpiPctOfTotal").textContent = pct(filteredTotal, scopeTotal);
+      
+      const isEmployerView = ui.orgType.value === "Employer";
+      const orgSet = new Set();
+      filtered.forEach(r => {
+        const org = getOrganisationRaw(r, ui.orgType.value);
+        if (org) orgSet.add(org);
+      });
+      document.getElementById("kpiActiveBrokers").textContent = fmt(orgSet.size);
+      document.getElementById("kpiActiveOrgLabel").textContent = isEmployerView ? "Active Employers" : "Active Brokers";
+      document.getElementById("kpiActiveBrokersSub").textContent = isEmployerView
+        ? "Distinct employers in filtered rows"
+        : "Distinct brokers in filtered rows";
+      
+      const schemes = new Set();
+      filtered.forEach(r => {
+        if (r.SchemeNumber) schemes.add(r.SchemeNumber);
+      });
+      document.getElementById("kpiActiveSchemes").textContent = fmt(schemes.size);
+    }
+
+    function updateProcessMix(filtered) {
+      const processes = {};
+      filtered.forEach(row => {
+        const key = classifyProcess(row);
+        const cnt = Number(row.SubmissionCount || 0);
+        processes[key] = (processes[key] || 0) + (Number.isFinite(cnt) ? cnt : 0);
+      });
+
+      const entries = Object.entries(processes)
+        .sort((a, b) => b[1] - a[1]);
+
+      const labels = entries.map(([name]) => name);
+      const values = entries.map(([, count]) => count);
+
+      const ctx = document.getElementById("chartProcessMix")?.getContext("2d");
+      if (ctx) {
+        if (charts.processChart) charts.processChart.destroy();
+        charts.processChart = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels,
+            datasets: [{
+              label: "Submissions",
+              data: values,
+              backgroundColor: "#5c61ac",
+              borderRadius: 6,
+              barThickness: 20,
+              maxBarThickness: 24
+            }]
+          },
+          options: {
+            indexAxis: "y",
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false }
+            },
+            scales: {
+              x: {
+                beginAtZero: true,
+                ticks: {
+                  callback: (value) => Number(value).toLocaleString()
+                },
+                grid: {
+                  color: "rgba(83, 86, 90, 0.12)"
+                }
+              },
+              y: {
+                grid: {
+                  display: false
+                }
+              }
+            }
+          }
+        });
+      }
+    }
+
+    function updateTopOrganisations(filtered) {
+      const orgs = {};
+      filtered.forEach(row => {
+        const org = getOrganisationDisplay(row, ui.orgType.value);
+        const cnt = Number(row.SubmissionCount || 0);
+        if (org) orgs[org] = (orgs[org] || 0) + (Number.isFinite(cnt) ? cnt : 0);
+      });
+
+      const top = Object.entries(orgs)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5);
+
+      const ctx = document.getElementById("chartTopOrganisations")?.getContext("2d");
+      if (ctx) {
+        if (charts.orgChart) charts.orgChart.destroy();
+        charts.orgChart = new Chart(ctx, {
+          type: "doughnut",
+          data: {
+            labels: top.map(e => e[0]),
+            datasets: [{
+              data: top.map(e => e[1]),
+              backgroundColor: [
+                "#5c61ac",
+                "#55c2b6",
+                "#fab812",
+                "#e03e52",
+                "#7a8190"
+              ],
+              borderColor: "#ffffff",
+              borderWidth: 2,
+              hoverOffset: 4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 1.75,
+            cutout: "62%",
+            radius: "86%",
+            plugins: {
+              legend: {
+                display: true,
+                position: "bottom",
+                labels: {
+                  boxWidth: 12,
+                  boxHeight: 12,
+                  font: {
+                    size: 11
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+    }
+
+    function updateDetailTable(scope, filtered) {
+      const body = document.getElementById("detailTableBody");
+      if (!body) return;
+
+      const byBucket = new Map();
+      filtered.forEach(row => {
+        const org = getOrganisationDisplay(row, ui.orgType.value);
+        const process = classifyProcess(row);
+        const rowCount = Number(row.SubmissionCount || 0);
+        const weighted = Number.isFinite(rowCount) ? rowCount : 0;
+        
+        const key = `${org}|${process}`;
+        if (!byBucket.has(key)) {
+          byBucket.set(key, {
+            organisation: org,
+            process: process,
+            submissions: 0,
+            completed: 0,
+            schemes: new Map()
+          });
+        }
+
+        const bucket = byBucket.get(key);
+        bucket.submissions += weighted;
+        if (row.DateCompleted) bucket.completed += weighted;
+        if (row.SchemeNumber) {
+          bucket.schemes.set(row.SchemeNumber, (bucket.schemes.get(row.SchemeNumber) || 0) + weighted);
+        }
+      });
+
+      const rows = [...byBucket.values()]
+        .map(bucket => {
+          const leadScheme = [...bucket.schemes.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0];
+          return {
+            ...bucket,
+            schemeCount: bucket.schemes.size,
+            leadScheme: leadScheme ? `${leadScheme[0]} (${fmt(leadScheme[1])})` : "-"
+          };
+        })
+        .sort((a, b) => b.submissions - a.submissions || a.organisation.localeCompare(b.organisation) || a.process.localeCompare(b.process))
+        .slice(0, 150);
+
+      ui.tableMeta.textContent = `${fmt(rows.length)} grouped rows`;
+
+      if (!rows.length) {
+        body.innerHTML = '<tr><td class="empty" colspan="8">No data for the current filter selection.</td></tr>';
+        return;
+      }
+
+      body.innerHTML = rows.map(row => `
+        <tr>
+          <td>${row.organisation}</td>
+          <td>${row.process}</td>
+          <td class="num">${fmt(row.submissions)}</td>
+          <td class="num">${pct(row.submissions, weightedSubmissionCount(scope))}</td>
+          <td class="num">${fmt(row.completed)}</td>
+          <td class="num">${pct(row.completed, row.submissions)}</td>
+          <td class="num">${fmt(row.schemeCount)}</td>
+          <td>${row.leadScheme}</td>
+        </tr>
+      `).join("");
+    }
+
+    function refresh() {
+      buildFilterOptions();
+      const scope = scopedRows();
+      const filtered = filteredRows();
+      updateSummary(scope, filtered);
+      updateKpis(scope, filtered);
+      updateProcessMix(filtered);
+      updateTopOrganisations(filtered);
+      updateDetailTable(scope, filtered);
+    }
+
+    function bindEvents() {
+      [
+        ui.monthFilter,
+        ui.orgType,
+        ui.organisationFilter,
+        ui.processFilter,
+        ui.goldFilter
+      ].forEach(element => element.addEventListener("change", () => {
+        if (element === ui.monthFilter) applyMonthFilterSelection();
+        refresh();
+      }));
+
+      ui.resetFilters.addEventListener("click", () => {
+        ui.monthFilter.value = "YTD";
+        applyMonthFilterSelection();
+        ui.orgType.value = "Broker";
+        ui.organisationFilter.value = "";
+        ui.processFilter.value = "";
+        ui.goldFilter.value = "All";
+        refresh();
+      });
+    }
+
+    function init() {
+      const parsedLastModified = Date.parse(document.lastModified || "");
+      const staticLastRefresh = Number.isFinite(parsedLastModified)
+        ? new Date(parsedLastModified).toLocaleString("en-IE")
+        : "Source/report update";
+      ui.lastRefresh.textContent = `Last refresh: ${staticLastRefresh}`;
+      buildMonthOptions();
+      ui.monthFilter.value = "YTD";
+      applyMonthFilterSelection();
+      bindEvents();
+      refresh();
+    }
+
+    init();
+  </script>
+</body>
+</html>

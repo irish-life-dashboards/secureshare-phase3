@@ -97,6 +97,30 @@
       background: rgba(255,255,255,0.08);
     }
 
+    .topbar-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .landing-link {
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      white-space: nowrap;
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .landing-link:hover {
+      background: rgba(255,255,255,0.18);
+    }
+
     .tabs {
       display: flex;
       gap: 8px;
@@ -496,7 +520,10 @@
           <p>Prototype</p>
         </div>
       </div>
-      <div class="badge" id="lastRefresh">Last refresh: -</div>
+      <div class="topbar-actions">
+        <a class="landing-link" href="../Landing page.html">Back to Landing</a>
+        <div class="badge" id="lastRefresh">Last refresh: -</div>
+      </div>
     </header>
 
     <nav class="tabs">
@@ -1851,7 +1878,11 @@
       refreshScheme();
       refreshAr();
       refreshPreapprop();
-      document.getElementById('lastRefresh').textContent = `Last refresh: ${new Date().toLocaleString()}`;
+      const parsedLastModified = Date.parse(document.lastModified || '');
+      const staticLastRefresh = Number.isFinite(parsedLastModified)
+        ? new Date(parsedLastModified).toLocaleString('en-IE')
+        : 'Source/report update';
+      document.getElementById('lastRefresh').textContent = `Last refresh: ${staticLastRefresh}`;
     }
 
     setupControls();

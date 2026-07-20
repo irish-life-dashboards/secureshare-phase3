@@ -3,11 +3,15 @@ param(
   [string]$Database = 'AutomateMetrics',
   [string]$OutFile = 'c:/Users/m347/Documents/Power BI Desktop/SecureShare Report/secureshare-phase3/Operational Reporting/data/midas_submissions_data.js',
   [string]$StartDate = '2023-10-01',
-  [int]$MaxRows = 300000
+  [int]$MaxFutureDateDays = 0,
+  [int]$MaxRows = 0
 )
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
+
+$today = [DateTime]::Today
+$maxAllowedDate = $today.AddDays($MaxFutureDateDays)
 
 $sql = @"
 WITH src AS (
@@ -25,8 +29,26 @@ WITH src AS (
     WorkStatus = NULLIF(LTRIM(RTRIM(TP2V3_WI_STATUS)), ''),
     TopScheme = NULLIF(LTRIM(RTRIM(TP2V3_WI_TOP_SCHEME)), '')
   FROM dbo.vw_ILCB_CUSTOM_DATA_G360
+), filtered AS (
+  SELECT
+    DateCreated,
+    DateCompleted,
+    SchemeNumber,
+    SchemeName,
+    EmployerOrg,
+    BrokerOrg,
+    SubmitterEmail,
+    WorkContext,
+    WorkTypeCode,
+    WorkTypeDescription,
+    WorkStatus,
+    TopScheme,
+    RowNum = ROW_NUMBER() OVER (ORDER BY DateCreated DESC, SchemeNumber DESC)
+  FROM src
+  WHERE DateCreated >= TRY_CONVERT(date, @StartDate)
+    AND SchemeNumber IS NOT NULL
 ), limited AS (
-  SELECT TOP (@MaxRows)
+  SELECT
     DateCreated,
     DateCompleted,
     SchemeNumber,
@@ -39,10 +61,8 @@ WITH src AS (
     WorkTypeDescription,
     WorkStatus,
     TopScheme
-  FROM src
-  WHERE DateCreated >= TRY_CONVERT(date, @StartDate)
-    AND SchemeNumber IS NOT NULL
-  ORDER BY DateCreated DESC, SchemeNumber DESC
+  FROM filtered
+  WHERE @MaxRows <= 0 OR RowNum <= @MaxRows
 )
 SELECT
   [DateCreated] = CONVERT(varchar(10), DateCreated, 23),
@@ -94,8 +114,56 @@ $rows = foreach ($r in $dt.Rows) {
   }
 }
 
-$json = $rows | ConvertTo-Json -Depth 4 -Compress
-$payload = "window.MIDAS_SUBMISSIONS_DATA = $json;"
+$futureRows = @($rows | Where-Object {
+  $_['[DateCreated]'] -and ([DateTime]::ParseExact($_['[DateCreated]'], 'yyyy-MM-dd', $null)) -gt $maxAllowedDate
+})
+
+if ($futureRows.Count -gt 0) {
+  Write-Warning ("Excluded {0} MIDAS row(s) with DateCreated after {1}. Review source data for these schemes: {2}" -f $futureRows.Count, $maxAllowedDate.ToString('yyyy-MM-dd'), (($futureRows | ForEach-Object { '{0} ({1})' -f $_['[SchemeNumber]'], $_['[DateCreated]'] }) -join ', '))
+}
+
+$rows = @($rows | Where-Object {
+  -not $_['[DateCreated]'] -or ([DateTime]::ParseExact($_['[DateCreated]'], 'yyyy-MM-dd', $null)) -le $maxAllowedDate
+})
+
+$minDate = $null
+$maxDate = $null
+if ($rows.Count -gt 0) {
+  $orderedDates = @($rows | ForEach-Object { $_['[DateCreated]'] } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Sort-Object)
+  if ($orderedDates.Count -gt 0) {
+    $minDate = [DateTime]::ParseExact($orderedDates[0], 'yyyy-MM-dd', $null)
+    $maxDate = [DateTime]::ParseExact($orderedDates[$orderedDates.Count - 1], 'yyyy-MM-dd', $null)
+  }
+}
+
+if ($maxDate -and $maxDate -gt $today) {
+  $maxDate = $today
+}
+if ($minDate -and $maxDate -and $minDate -gt $maxDate) {
+  $minDate = $maxDate
+}
+
+$dateRange = if ($minDate -and $maxDate) {
+  '{0} to {1}' -f $minDate.ToString('yyyy-MM-dd'), $maxDate.ToString('yyyy-MM-dd')
+} else {
+  'n/a'
+}
+
+$payloadObj = [ordered]@{
+  metadata = [ordered]@{
+    generatedAt = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')
+    source = "AutomateMetrics ($Server)"
+    dateRange = $dateRange
+    startDate = $StartDate
+    maxRows = $MaxRows
+    maxFutureDateDays = $MaxFutureDateDays
+    excludedFutureRows = $futureRows.Count
+  }
+  data = $rows
+}
+
+$json = $payloadObj | ConvertTo-Json -Depth 6 -Compress
+$payload = "window.MIDAS_SUBMISSIONS_PAYLOAD = $json;`r`nwindow.MIDAS_SUBMISSIONS_META = window.MIDAS_SUBMISSIONS_PAYLOAD.metadata;`r`nwindow.MIDAS_SUBMISSIONS_DATA = window.MIDAS_SUBMISSIONS_PAYLOAD.data;"
 [System.IO.File]::WriteAllText($OutFile, $payload, (New-Object System.Text.UTF8Encoding($false)))
 
-Write-Output ("Updated midas_submissions_data.js -> rows: {0}, startDate: {1}, maxRows: {2}, server: {3}" -f $rows.Count, $StartDate, $MaxRows, $Server)
+Write-Output ("Updated midas_submissions_data.js -> rows: {0}, excludedFutureRows: {1}, startDate: {2}, maxRows: {3}, maxFutureDateDays: {4}, server: {5}" -f $rows.Count, $futureRows.Count, $StartDate, $MaxRows, $MaxFutureDateDays, $Server)

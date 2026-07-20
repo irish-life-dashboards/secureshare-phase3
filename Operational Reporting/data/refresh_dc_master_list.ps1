@@ -11,6 +11,7 @@ Set-StrictMode -Version Latest
 $sql = @"
 WITH mapped AS (
   SELECT
+    DateCreated = TRY_CONVERT(date, TP2V3_DATE_CREATED),
     SchemeNumber = COALESCE(NULLIF(LTRIM(RTRIM(TP2V3_SCHEME_NO)), ''), NULLIF(LTRIM(RTRIM(TP2V3_WI_LINK_SCHEME_NO)), '')),
     SchemeName = NULLIF(LTRIM(RTRIM(TP2V3_WI_SCHEME_NAME)), ''),
     Employer_Org = NULLIF(LTRIM(RTRIM(TP2V3_WI_SCHEME_OWNER)), ''),
@@ -22,8 +23,15 @@ WITH mapped AS (
 clean AS (
   SELECT *
   FROM mapped
-  WHERE SchemeNumber IS NOT NULL
+  WHERE DateCreated IS NOT NULL
+    AND SchemeNumber IS NOT NULL
     AND SchemeNumber NOT IN ('.', '-', '0')
+),
+date_bounds AS (
+  SELECT
+    MinDate = MIN(DateCreated),
+    MaxDate = MAX(DateCreated)
+  FROM clean
 ),
 name_rank AS (
   SELECT SchemeNumber, SchemeName, Cnt = COUNT(*)
@@ -74,12 +82,15 @@ SELECT
   n.SchemeName,
   e.Employer_Org,
   b.Broker_Org,
-  t.TopScheme
+  t.TopScheme,
+  d.MinDate,
+  d.MaxDate
 FROM (SELECT DISTINCT SchemeNumber FROM clean) s
 LEFT JOIN name_pick n ON n.SchemeNumber = s.SchemeNumber AND n.rn = 1
 LEFT JOIN emp_pick e ON e.SchemeNumber = s.SchemeNumber AND e.rn = 1
 LEFT JOIN broker_pick b ON b.SchemeNumber = s.SchemeNumber AND b.rn = 1
 LEFT JOIN top_pick t ON t.SchemeNumber = s.SchemeNumber AND t.rn = 1
+CROSS JOIN date_bounds d
 ORDER BY s.SchemeNumber;
 "@
 
@@ -113,9 +124,31 @@ $schemes = @($schemes) | Sort-Object SchemeNumber -Unique
 $employers = $schemes | ForEach-Object { $_.Employer_Org } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Sort-Object -Unique
 $brokers = $schemes | ForEach-Object { $_.Broker_Org } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Sort-Object -Unique
 
+$minDate = $null
+$maxDate = $null
+if ($dt.Rows.Count -gt 0) {
+  if ($dt.Rows[0]['MinDate'] -ne [DBNull]::Value) { $minDate = [DateTime]$dt.Rows[0]['MinDate'] }
+  if ($dt.Rows[0]['MaxDate'] -ne [DBNull]::Value) { $maxDate = [DateTime]$dt.Rows[0]['MaxDate'] }
+}
+
+$today = [DateTime]::Today
+if ($maxDate -and $maxDate -gt $today) {
+  $maxDate = $today
+}
+if ($minDate -and $maxDate -and $minDate -gt $maxDate) {
+  $minDate = $maxDate
+}
+
+$dateRange = if ($minDate -and $maxDate) {
+  '{0} to {1}' -f $minDate.ToString('yyyy-MM-dd'), $maxDate.ToString('yyyy-MM-dd')
+} else {
+  'n/a'
+}
+
 $payload = [ordered]@{
   generatedAt   = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')
   source        = "AutomateMetrics ($Server)"
+  dateRange     = $dateRange
   schemeCount   = $schemes.Count
   employerCount = $employers.Count
   brokerCount   = $brokers.Count

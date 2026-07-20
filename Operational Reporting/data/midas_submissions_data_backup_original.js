@@ -1,0 +1,72 @@
+window.MIDAS_SUBMISSIONS_DATA = [
+  {
+    "[DateCreated]": "2026-01-15",
+    "[DateCompleted]": "2026-01-18",
+    "[SchemeNumber]": "TEST001",
+    "[SchemeName]": "Test Scheme A",
+    "[Employer_Org]": "Test Employer 1",
+    "[Broker_Org]": "Test Broker 1",
+    "[SubmitterEmail]": "test1@example.com",
+    "[WorkContext]": "SecureShare",
+    "[WorkTypeCode]": "AUTO",
+    "[WorkTypeDescription]": "Auto Quote",
+    "[WorkStatus]": "Completed",
+    "[GoldScheme]": "Yes"
+  },
+  {
+    "[DateCreated]": "2026-01-20",
+    "[DateCompleted]": "2026-01-22",
+    "[SchemeNumber]": "TEST002",
+    "[SchemeName]": "Test Scheme B",
+    "[Employer_Org]": "Test Employer 2",
+    "[Broker_Org]": "Test Broker 2",
+    "[SubmitterEmail]": "test2@example.com",
+    "[WorkContext]": "SecureShare",
+    "[WorkTypeCode]": "AUTO",
+    "[WorkTypeDescription]": "New Entrant Single Auto",
+    "[WorkStatus]": "Completed",
+    "[GoldScheme]": "No"
+  },
+  {
+    "[DateCreated]": "2026-02-05",
+    "[DateCompleted]": "2026-02-08",
+    "[SchemeNumber]": "TEST003",
+    "[SchemeName]": "Test Scheme C",
+    "[Employer_Org]": "Test Employer 1",
+    "[Broker_Org]": "Test Broker 1",
+    "[SubmitterEmail]": "test1@example.com",
+    "[WorkContext]": "SecureShare",
+    "[WorkTypeCode]": "AUTO",
+    "[WorkTypeDescription]": "Cash / Direct Debits",
+    "[WorkStatus]": "Completed",
+    "[GoldScheme]": "Yes"
+  },
+  {
+    "[DateCreated]": "2026-02-10",
+    "[DateCompleted]": null,
+    "[SchemeNumber]": "TEST004",
+    "[SchemeName]": "Test Scheme D",
+    "[Employer_Org]": "Test Employer 3",
+    "[Broker_Org]": "Test Broker 3",
+    "[SubmitterEmail]": "test3@example.com",
+    "[WorkContext]": "SecureShare",
+    "[WorkTypeCode]": "AUTO",
+    "[WorkTypeDescription]": "Auto Quote",
+    "[WorkStatus]": "Pending",
+    "[GoldScheme]": "Yes"
+  },
+  {
+    "[DateCreated]": "2026-03-01",
+    "[DateCompleted]": "2026-03-03",
+    "[SchemeNumber]": "TEST005",
+    "[SchemeName]": "Test Scheme A",
+    "[Employer_Org]": "Test Employer 2",
+    "[Broker_Org]": "Test Broker 1",
+    "[SubmitterEmail]": "test2@example.com",
+    "[WorkContext]": "SecureShare",
+    "[WorkTypeCode]": "AUTO",
+    "[WorkTypeDescription]": "Scheme Update",
+    "[WorkStatus]": "Completed",
+    "[GoldScheme]": "No"
+  }
+];

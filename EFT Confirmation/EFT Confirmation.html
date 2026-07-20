@@ -18,6 +18,9 @@
     .brand h1{margin:0;font-size:1.08rem;font-weight:800;letter-spacing:0.2px;}
     .brand p{margin:2px 0 0;opacity:0.92;font-size:0.82rem;}
     .badge{border:1px solid rgba(255,255,255,0.35);border-radius:999px;padding:7px 12px;font-size:0.78rem;font-weight:700;white-space:nowrap;background:rgba(255,255,255,0.08);}
+    .topbar-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;}
+    .landing-link{border:1px solid rgba(255,255,255,0.35);border-radius:999px;padding:7px 12px;font-size:0.78rem;font-weight:700;white-space:nowrap;background:rgba(255,255,255,0.08);color:#fff;text-decoration:none;}
+    .landing-link:hover{background:rgba(255,255,255,0.18);}
     .tabs{display:flex;gap:8px;padding:10px;border-radius:14px;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);margin-bottom:14px;flex-wrap:wrap;}
     .tab{border:none;border-radius:10px;background:transparent;color:var(--il-slate);font-weight:700;padding:10px 14px;cursor:pointer;font-family:inherit;font-size:0.87rem;}
     .tab.active{color:#fff;background:linear-gradient(90deg,var(--il-primary),#4b7fb8);box-shadow:0 6px 18px rgba(92,97,172,0.35);}
@@ -63,7 +66,10 @@
         <p>Prototype | Bank confirmation and business follow-up</p>
       </div>
     </div>
-    <div class="badge" id="lastRefresh">Last refresh: —</div>
+    <div class="topbar-actions">
+      <a class="landing-link" href="../Landing page.html">Back to Landing</a>
+      <div class="badge" id="lastRefresh">Last refresh: —</div>
+    </div>
   </header>
 
   <nav class="tabs">
@@ -422,7 +428,11 @@ function scopeTag(s){
   return'<span class="tag bad">Outstanding</span>';
 }
 setupControls();refreshBreakdown();refreshActionList();
-document.getElementById('lastRefresh').textContent=`Last refresh: ${new Date().toLocaleString('en-IE')}`;
+const parsedLastModified = Date.parse(document.lastModified || '');
+const staticLastRefresh = Number.isFinite(parsedLastModified)
+  ? new Date(parsedLastModified).toLocaleString('en-IE')
+  : 'Source/report update';
+document.getElementById('lastRefresh').textContent=`Last refresh: ${staticLastRefresh}`;
 </script>
 </body>
 </html>

@@ -11,6 +11,7 @@ DIST = os.path.join(BASE, 'dist')
 
 REPORTS = [
     ('Operational Reporting', 'Operational Reporting.html'),
+    ('SecureShare Deployment Stats', 'SecureShare Deployment Stats.html'),
     ('Leavers Report', 'Leavers Report.html'),
     ('Finance Performance', 'Finance Performance.html'),
     ('EFT Confirmation', 'EFT Confirmation.html'),
@@ -20,6 +21,7 @@ REPORTS = [
 
 def inline_scripts(html_path):
     html_dir = os.path.dirname(html_path)
+    base_dir = os.path.abspath(html_dir)
     with open(html_path, 'r', encoding='utf-8') as f:
         content = f.read()
 
@@ -29,9 +31,17 @@ def inline_scripts(html_path):
     def replace_script_tag(m):
         nonlocal replaced, total_inlined_kb
         src = m.group(1)
-        if not src.startswith('./data/') and not src.startswith('data/'):
+        if not (
+            src.startswith('./data/')
+            or src.startswith('data/')
+            or src.startswith('../Operational Reporting/data/')
+        ):
             return m.group(0)  # leave CDN scripts alone
-        data_path = os.path.join(html_dir, src.replace('/', os.sep))
+
+        if src.startswith('../Operational Reporting/data/'):
+            data_path = os.path.normpath(os.path.join(base_dir, src.replace('/', os.sep)))
+        else:
+            data_path = os.path.join(html_dir, src.replace('/', os.sep))
         if not os.path.exists(data_path):
             print(f'  WARNING: {src} not found, skipping')
             return m.group(0)

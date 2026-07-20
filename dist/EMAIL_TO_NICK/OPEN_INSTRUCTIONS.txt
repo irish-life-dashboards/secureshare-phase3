@@ -1,0 +1,7 @@
+﻿Open Instructions:
+1) Save the attached HTML file to your Desktop.
+2) Right-click -> Open with -> Microsoft Edge or Google Chrome.
+3) If prompted about active content, click Allow/Keep.
+4) Do not open inside email preview.
+
+This file is fully offline and includes all data and chart libraries.

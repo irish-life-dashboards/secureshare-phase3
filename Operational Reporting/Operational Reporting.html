@@ -92,6 +92,19 @@ button, input, select { font: inherit; }
   font-weight: 700;
   background: rgba(255,255,255,0.08);
 }
+.landing-link {
+  border: 1px solid rgba(255,255,255,.35);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  text-decoration: none;
+}
+.landing-link:hover {
+  background: rgba(255,255,255,0.18);
+}
 .wrap {
   display: grid;
   grid-template-columns: 154px 1fr;
@@ -330,7 +343,74 @@ button:hover { border-color: var(--accent); }
 .ne-num-cell { text-align: right; }
 .ne-total-cell { font-weight: 600; background: #f5f7fa; }
 #viewNE .kpis { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+#viewNE .ne-chart-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 460px;
+}
+#viewNE .ne-chart-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  max-height: 330px;
+}
+#viewNE .ne-chart-wrap canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
 #viewChannelVis .kpis { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+#viewChannelVis .channel-chart-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 460px;
+}
+#viewChannelVis .channel-chart-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  max-height: 330px;
+}
+#viewChannelVis .channel-chart-wrap canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+#viewProcessVis .process-chart-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 460px;
+}
+#viewProcessVis .process-chart-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  max-height: 330px;
+}
+#viewProcessVis .process-chart-wrap canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+#viewProcessVis .process-table-wrap {
+  max-height: 330px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+#viewBrokerVis .kpis { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+#viewBrokerVis .broker-chart-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 460px;
+}
+#viewBrokerVis .broker-chart-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  max-height: 330px;
+}
+#viewBrokerVis .broker-chart-wrap canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
 </style>
 </head>
 <body>
@@ -343,6 +423,7 @@ button:hover { border-color: var(--accent); }
     </div>
   </div>
   <div class="meta">
+    <a class="landing-link" href="../Landing page.html">Back to Landing</a>
     <span class="badge">Environment: DEV/UAT</span>
     <span class="badge" id="lastRefresh">Last refresh: --</span>
   </div>
@@ -424,6 +505,7 @@ button:hover { border-color: var(--accent); }
       <button class="tab-btn" id="tabFinancial" type="button">Financial</button>
       <button class="tab-btn" id="tabScheme" type="button">Scheme Visibility</button>
       <button class="tab-btn" id="tabChannelVis" type="button">Submission Visibility</button>
+      <button class="tab-btn" id="tabBrokerVis" type="button">Broker Visibility</button>
       <button class="tab-btn" id="tabProcessVis" type="button">Process Visibility</button>
       <button class="tab-btn" id="tabNE" type="button">New Entrant Visibility</button>
     </div>
@@ -683,15 +765,15 @@ button:hover { border-color: var(--accent); }
         <div class="kpi"><div class="label">Completion Rate</div><div class="value" id="kProcessCompletion">-</div><div class="sub">Completed / total submissions</div></div>
       </section>
       <section class="grid" style="margin-top:16px;">
-        <article class="card" style="grid-column:span 7;">
+        <article class="card process-chart-card" style="grid-column:span 6;">
           <h2 style="font-size:.9rem;margin-bottom:4px;font-weight:600;">Top Processes by Submission Volume</h2>
           <p style="font-size:.7rem;color:var(--muted);margin:0 0 8px;">Process groupings based on the work type text</p>
-          <canvas id="chartProcessBreakdown" height="120"></canvas>
+          <div class="process-chart-wrap"><canvas id="chartProcessBreakdown"></canvas></div>
         </article>
-        <article class="card" style="grid-column:span 5;">
+        <article class="card process-chart-card" style="grid-column:span 6;">
           <h2 style="font-size:.9rem;margin-bottom:4px;font-weight:600;">Schemes in Current Process Filter</h2>
           <p style="font-size:.7rem;color:var(--muted);margin:0 0 8px;">Top schemes by submission volume for selected process/payment filters</p>
-          <div style="max-height:220px;overflow:auto;border:1px solid var(--border);border-radius:8px;">
+          <div class="process-table-wrap">
             <table style="width:100%;border-collapse:collapse;font-size:10px;">
               <thead>
                 <tr>
@@ -752,15 +834,15 @@ button:hover { border-color: var(--accent); }
         <div class="kpi"><div class="label">Active Brokers</div><div class="value" id="kNEBrokers">-</div><div class="sub">Brokers with submissions this month</div></div>
       </section>
       <section class="grid" style="margin-top:16px;">
-        <article class="card" style="grid-column:span 7;">
+        <article class="card ne-chart-card" style="grid-column:span 7;">
           <h2 style="font-size:.9rem;margin-bottom:4px;font-weight:600;">Suitability Breakdown</h2>
           <p style="font-size:.7rem;color:var(--muted);margin:0 0 8px;">% share of NE submissions by channel type</p>
-          <canvas id="chartNESuitabilityBar" height="120"></canvas>
+          <div class="ne-chart-wrap"><canvas id="chartNESuitabilityBar"></canvas></div>
         </article>
-        <article class="card" style="grid-column:span 5;">
+        <article class="card ne-chart-card" style="grid-column:span 5;">
           <h2 style="font-size:.9rem;margin-bottom:4px;font-weight:600;">SecureShare Submission Share by Broker</h2>
           <p style="font-size:.7rem;color:var(--muted);margin:0 0 8px;">Top NE brokers by SecureShare volume share (top 3 + Other)</p>
-          <canvas id="chartNEBrokerSSRate" height="120"></canvas>
+          <div class="ne-chart-wrap"><canvas id="chartNEBrokerSSRate"></canvas></div>
         </article>
       </section>
       <article class="card" style="margin-top:16px;overflow-x:auto;">
@@ -776,6 +858,12 @@ button:hover { border-color: var(--accent); }
 
     <section class="page-view hidden" id="viewChannelVis">
       <div class="row" style="gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px;">
+        <div>
+          <label style="display:block;font-size:.7rem;color:var(--muted);margin-bottom:2px;">Submission Channel</label>
+          <select id="channelVisSubmissionChannelFilter" style="padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:11px;min-width:220px;">
+            <option value="">(All Channels)</option>
+          </select>
+        </div>
         <div>
           <label style="display:block;font-size:.7rem;color:var(--muted);margin-bottom:2px;">Broker</label>
           <select id="channelVisBrokerFilter" style="padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:11px;min-width:220px;">
@@ -795,15 +883,15 @@ button:hover { border-color: var(--accent); }
         <div class="kpi"><div class="label">Active Brokers</div><div class="value" id="kChannelBrokers">-</div><div class="sub">Brokers with submissions in this channel</div></div>
       </section>
       <section class="grid" style="margin-top:16px;">
-        <article class="card" style="grid-column:span 7;">
+        <article class="card channel-chart-card" style="grid-column:span 6;">
           <h2 style="font-size:.9rem;margin-bottom:4px;font-weight:600;">Submissions by Channel</h2>
           <p style="font-size:.7rem;color:var(--muted);margin:0 0 8px;">Distribution of submissions across all channels</p>
-          <canvas id="chartChannelBreakdown" height="120"></canvas>
+          <div class="channel-chart-wrap"><canvas id="chartChannelBreakdown"></canvas></div>
         </article>
-        <article class="card" style="grid-column:span 5;">
+        <article class="card channel-chart-card" style="grid-column:span 6;">
           <h2 style="font-size:.9rem;margin-bottom:4px;font-weight:600;">SecureShare Submission Share by Broker</h2>
           <p style="font-size:.7rem;color:var(--muted);margin:0 0 8px;">Top brokers by SecureShare volume share (top 3 + Other)</p>
-          <canvas id="chartChannelBrokerSSRate" height="120"></canvas>
+          <div class="channel-chart-wrap"><canvas id="chartChannelBrokerSSRate"></canvas></div>
         </article>
       </section>
       <article class="card" style="margin-top:16px;overflow-x:auto;">
@@ -828,14 +916,68 @@ button:hover { border-color: var(--accent); }
       </article>
     </section>
 
+    <section class="page-view hidden" id="viewBrokerVis">
+      <div class="row" style="gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px;">
+        <div>
+          <label style="display:block;font-size:.7rem;color:var(--muted);margin-bottom:2px;">Submission Channel</label>
+          <select id="brokerVisChannelFilter" style="padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:11px;min-width:220px;">
+            <option value="">(All Channels)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:.7rem;color:var(--muted);margin-bottom:2px;">Scheme Number</label>
+          <input id="brokerVisSchemeNoFilter" type="search" placeholder="Scheme number" style="padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:11px;min-width:220px;" />
+        </div>
+      </div>
+      <section class="kpis">
+        <div class="kpi"><div class="label">Total Brokers</div><div class="value" id="kBrokerVisTotal">-</div><div class="sub">Distinct brokers in filter context</div></div>
+        <div class="kpi"><div class="label">Total Submissions</div><div class="value" id="kBrokerVisSubs">-</div><div class="sub">All submissions in filter context</div></div>
+        <div class="kpi"><div class="label">SecureShare %</div><div class="value" id="kBrokerVisSSPct">-</div><div class="sub">Share received via SecureShare</div></div>
+        <div class="kpi"><div class="label">Completion Rate</div><div class="value" id="kBrokerVisCompRate">-</div><div class="sub">Completed / total MIDAS submissions</div></div>
+        <div class="kpi"><div class="label">Avg Schemes / Broker</div><div class="value" id="kBrokerVisAvgSchemes">-</div><div class="sub">Average active schemes per broker</div></div>
+        <div class="kpi"><div class="label">Active Channels</div><div class="value" id="kBrokerVisChannels">-</div><div class="sub">Distinct submission channels in use</div></div>
+      </section>
+      <section class="grid" style="margin-top:16px;">
+        <article class="card broker-chart-card" style="grid-column:span 6;">
+          <h2 style="font-size:.9rem;margin-bottom:4px;font-weight:600;">Top Brokers by Submission Volume</h2>
+          <p style="font-size:.78rem;color:var(--muted);margin:0 0 8px;">Top 10 brokers — teal = SecureShare submissions, purple = other channels; hover for full broker name and SS%</p>
+          <div class="broker-chart-wrap"><canvas id="chartBrokerVisVolume"></canvas></div>
+        </article>
+        <article class="card broker-chart-card" style="grid-column:span 6;">
+          <h2 style="font-size:.9rem;margin-bottom:4px;font-weight:600;">SecureShare Adoption by Broker</h2>
+          <p style="font-size:.78rem;color:var(--muted);margin:0 0 8px;">Top brokers by SecureShare volume share (top 3 + Other)</p>
+          <div class="broker-chart-wrap"><canvas id="chartBrokerVisSSRate"></canvas></div>
+        </article>
+      </section>
+      <article class="card" style="margin-top:16px;overflow-x:auto;">
+        <h2 style="font-size:.9rem;margin-bottom:10px;font-weight:600;">Broker Submission Breakdown</h2>
+        <div style="max-height:500px;overflow:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:10px;">
+            <thead>
+              <tr>
+                <th style="padding:5px 6px;border-bottom:1px solid #edf0f7;text-align:left;background:#fafcff;color:var(--muted);">Broker</th>
+                <th style="padding:5px 6px;border-bottom:1px solid #edf0f7;text-align:right;background:#fafcff;color:var(--muted);">Submissions</th>
+                <th style="padding:5px 6px;border-bottom:1px solid #edf0f7;text-align:right;background:#fafcff;color:var(--muted);">Completed</th>
+                <th style="padding:5px 6px;border-bottom:1px solid #edf0f7;text-align:right;background:#fafcff;color:var(--muted);">Completion %</th>
+                <th style="padding:5px 6px;border-bottom:1px solid #edf0f7;text-align:right;background:#fafcff;color:var(--muted);">SecureShare</th>
+                <th style="padding:5px 6px;border-bottom:1px solid #edf0f7;text-align:right;background:#fafcff;color:var(--muted);">SS %</th>
+                <th style="padding:5px 6px;border-bottom:1px solid #edf0f7;text-align:right;background:#fafcff;color:var(--muted);">Active Schemes</th>
+                <th style="padding:5px 6px;border-bottom:1px solid #edf0f7;text-align:left;background:#fafcff;color:var(--muted);">Channels Used</th>
+              </tr>
+            </thead>
+            <tbody id="brokerVisibilityBody"></tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
     <section class="footer-note">
       <strong>Data Sources & Currency</strong>
       <ul>
-        <li><strong>MIDAS Submissions Data</strong> (midas_submissions_data.js): Export from AutomateMetrics view. Current range: <span id="dsMidasRange">loading...</span>.</li>
-        <li><strong>New Entrant Data</strong> (ne_submissions_data.js): Export of NE submissions by month/broker/scheme. Current range: <span id="dsNeRange">loading...</span>.</li>
-        <li><strong>Master Scheme Data</strong> (dc_master_list_data.js): Reference table for scheme attributes. Last generated: <span id="dsDcGeneratedAt">loading...</span>. Source: <span id="dsDcSource">loading...</span>.</li>
-        <li><strong>Sharpload Bulk Data</strong> (sharpload_bulk_data.js): Data transformation audit trail.</li>
-        <li>Last Refresh timestamp shown in top-right corner (browser local time).</li>
+        <li><strong>MIDAS Submissions Data</strong> (midas_submissions_data.js): Current range: <span id="dsMidasRange">loading...</span>. Source: <span id="dsMidasSource">loading...</span>.</li>
+        <li><strong>New Entrant Data</strong> (ne_submissions_data.js): Current range: <span id="dsNeRange">loading...</span>. Source: <span id="dsNeSource">loading...</span>.</li>
+        <li><strong>Master Scheme Data</strong> (dc_master_list_data.js): Reference table for scheme attributes. Current range: <span id="dsDcRange">loading...</span>. Source: <span id="dsDcSource">loading...</span>.</li>
+        <li>Last Refresh shown in top-right based on source/report update time.</li>
       </ul>
     </section>
   </main>
@@ -1066,9 +1208,10 @@ const allRows = Array.isArray(window.MIDAS_SUBMISSIONS_DATA) && window.MIDAS_SUB
 const sharploadRows = SHARPLOAD_ROWS.map(normalizeSharploadRow).filter(r => r.CREATED && r.STATUS.toUpperCase() === "COMPLETED");
 
 function computeIsoRange(rows, key) {
+  const todayStr = new Date().toISOString().split('T')[0];
   const vals = (rows || [])
     .map(r => String((r && r[key]) || "").slice(0, 10))
-    .filter(v => /^\d{4}-\d{2}-\d{2}$/.test(v))
+    .filter(v => /^\d{4}-\d{2}-\d{2}$/.test(v) && v <= todayStr)
     .sort();
   if (!vals.length) return "n/a";
   return `${vals[0]} to ${vals[vals.length - 1]}`;
@@ -1086,19 +1229,35 @@ function computeYearMonthRange(rows, key) {
 }
 
 function updateDataSourceNotes() {
-  const midasRange = computeIsoRange(allRows, "DateCreated");
-  const neRange = computeYearMonthRange(Array.isArray(window.ne_submissions_data) ? window.ne_submissions_data : [], "YearMonth");
-  const dcGeneratedAt = window.DC_MASTER_DATA && window.DC_MASTER_DATA.generatedAt ? String(window.DC_MASTER_DATA.generatedAt) : "n/a";
+  const midasRange = window.MIDAS_SUBMISSIONS_META && window.MIDAS_SUBMISSIONS_META.dateRange
+    ? String(window.MIDAS_SUBMISSIONS_META.dateRange)
+    : computeIsoRange(allRows, "DateCreated");
+  const midasSource = window.MIDAS_SUBMISSIONS_META && window.MIDAS_SUBMISSIONS_META.source
+    ? String(window.MIDAS_SUBMISSIONS_META.source)
+    : "AutomateMetrics";
+
+  const neRange = window.NE_SUBMISSIONS_META && window.NE_SUBMISSIONS_META.dateRange
+    ? String(window.NE_SUBMISSIONS_META.dateRange)
+    : computeYearMonthRange(Array.isArray(window.ne_submissions_data) ? window.ne_submissions_data : [], "YearMonth");
+  const neSource = window.NE_SUBMISSIONS_META && window.NE_SUBMISSIONS_META.source
+    ? String(window.NE_SUBMISSIONS_META.source)
+    : "AutomateMetrics";
+
+  const dcRange = window.DC_MASTER_DATA && window.DC_MASTER_DATA.dateRange ? String(window.DC_MASTER_DATA.dateRange) : "n/a";
   const dcSource = window.DC_MASTER_DATA && window.DC_MASTER_DATA.source ? String(window.DC_MASTER_DATA.source) : "n/a";
 
   const midasEl = document.getElementById("dsMidasRange");
+  const midasSourceEl = document.getElementById("dsMidasSource");
   const neEl = document.getElementById("dsNeRange");
-  const dcGenEl = document.getElementById("dsDcGeneratedAt");
+  const neSourceEl = document.getElementById("dsNeSource");
+  const dcRangeEl = document.getElementById("dsDcRange");
   const dcSrcEl = document.getElementById("dsDcSource");
 
   if (midasEl) midasEl.textContent = midasRange;
+  if (midasSourceEl) midasSourceEl.textContent = midasSource;
   if (neEl) neEl.textContent = neRange;
-  if (dcGenEl) dcGenEl.textContent = dcGeneratedAt;
+  if (neSourceEl) neSourceEl.textContent = neSource;
+  if (dcRangeEl) dcRangeEl.textContent = dcRange;
   if (dcSrcEl) dcSrcEl.textContent = dcSource;
 }
 
@@ -1122,6 +1281,7 @@ const ui = {
   schemeVisDirectClientFilter: document.getElementById("schemeVisDirectClientFilter"),
   schemeVisSchemeNoFilter: document.getElementById("schemeVisSchemeNoFilter"),
   schemeVisPaymentFilter: document.getElementById("schemeVisPaymentFilter"),
+  channelVisSubmissionChannelFilter: document.getElementById("channelVisSubmissionChannelFilter"),
   channelVisBrokerFilter: document.getElementById("channelVisBrokerFilter"),
   channelVisSchemeNoFilter: document.getElementById("channelVisSchemeNoFilter"),
   processVisProcessFilter: document.getElementById("processVisProcessFilter"),
@@ -1140,6 +1300,10 @@ const ui = {
   neSchemeNoFilter: document.getElementById("neSchemeNoFilter"),
   tabChannelVis: document.getElementById("tabChannelVis"),
   viewChannelVis: document.getElementById("viewChannelVis"),
+  tabBrokerVis: document.getElementById("tabBrokerVis"),
+  viewBrokerVis: document.getElementById("viewBrokerVis"),
+  brokerVisChannelFilter: document.getElementById("brokerVisChannelFilter"),
+  brokerVisSchemeNoFilter: document.getElementById("brokerVisSchemeNoFilter"),
   tabProcessVis: document.getElementById("tabProcessVis"),
   viewProcessVis: document.getElementById("viewProcessVis"),
   schemeTypeFilter: document.getElementById("schemeTypeFilter"),
@@ -2041,10 +2205,16 @@ function updateProcessVisibility(rows) {
     labels: topProcesses.map(x => x.paymentMethod !== "N/A" ? `${x.processName} · ${x.paymentMethod}` : x.processName),
     datasets: [{ label: "Submissions", data: topProcesses.map(x => x.submissions), backgroundColor: "#6b3fa0" }]
   }, {
+    responsive: true,
+    maintainAspectRatio: false,
+    layout: { padding: { top: 4, right: 8, bottom: 6, left: 4 } },
     indexAxis: "y",
     scales: {
-      x: { beginAtZero: true, ticks: { precision: 0 } },
-      y: { ticks: { autoSkip: false, font: { size: 11 } } }
+      x: { beginAtZero: true, ticks: { precision: 0, font: { size: 12, weight: "600" } } },
+      y: { ticks: { autoSkip: false, font: { size: 12, weight: "600" } } }
+    },
+    datasets: {
+      bar: { categoryPercentage: 0.76, barPercentage: 0.82, maxBarThickness: 26 }
     },
     plugins: { legend: { display: false } }
   });
@@ -2591,8 +2761,13 @@ function refresh() {
   updateProcessVisibility(rows);
   updateNeVisibility();
   updateChannelVisibility(rows);
+  updateBrokerVisibility(rows);
   updateDataSourceNotes();
-  document.getElementById("lastRefresh").textContent = `Last refresh: ${new Date().toLocaleString()}`;
+  const parsedLastModified = Date.parse(document.lastModified || "");
+  const staticLastRefresh = Number.isFinite(parsedLastModified)
+    ? new Date(parsedLastModified).toLocaleString("en-IE")
+    : "Source/report update";
+  document.getElementById("lastRefresh").textContent = `Last refresh: ${staticLastRefresh}`;
 }
 
 function setPage(page) {
@@ -2603,18 +2778,21 @@ function setPage(page) {
   const isProcessVis = page === "processvis";
   const isNE     = page === "ne";
   const isChannelVis = page === "channelvis";
+  const isBrokerVis = page === "brokervis";
   ui.viewOverview.classList.toggle("hidden", !isOverview);
   ui.viewFinancial.classList.toggle("hidden", !isFinancial);
   ui.viewScheme.classList.toggle("hidden", !isScheme);
   ui.viewProcessVis.classList.toggle("hidden", !isProcessVis);
   ui.viewNE.classList.toggle("hidden", !isNE);
   ui.viewChannelVis.classList.toggle("hidden", !isChannelVis);
+  ui.viewBrokerVis.classList.toggle("hidden", !isBrokerVis);
   ui.tabOverview.classList.toggle("active", isOverview);
   ui.tabFinancial.classList.toggle("active", isFinancial);
   ui.tabScheme.classList.toggle("active", isScheme);
   ui.tabProcessVis.classList.toggle("active", isProcessVis);
   ui.tabNE.classList.toggle("active", isNE);
   ui.tabChannelVis.classList.toggle("active", isChannelVis);
+  ui.tabBrokerVis.classList.toggle("active", isBrokerVis);
   refresh();
 }
 
@@ -2636,6 +2814,7 @@ function bindEvents() {
   if (ui.schemeVisDirectClientFilter) ui.schemeVisDirectClientFilter.addEventListener("change", refresh);
   if (ui.schemeVisSchemeNoFilter) ui.schemeVisSchemeNoFilter.addEventListener("input", debounce(refresh, 160));
   if (ui.schemeVisPaymentFilter) ui.schemeVisPaymentFilter.addEventListener("change", refresh);
+  if (ui.channelVisSubmissionChannelFilter) ui.channelVisSubmissionChannelFilter.addEventListener("change", refresh);
   if (ui.channelVisBrokerFilter) ui.channelVisBrokerFilter.addEventListener("change", refresh);
   if (ui.channelVisSchemeNoFilter) ui.channelVisSchemeNoFilter.addEventListener("input", debounce(refresh, 160));
   if (ui.processVisProcessFilter) ui.processVisProcessFilter.addEventListener("change", refresh);
@@ -2647,6 +2826,9 @@ function bindEvents() {
   ui.tabProcessVis.addEventListener("click", () => setPage("processvis"));
   ui.tabNE.addEventListener("click", () => setPage("ne"));
   ui.tabChannelVis.addEventListener("click", () => setPage("channelvis"));
+  ui.tabBrokerVis.addEventListener("click", () => setPage("brokervis"));
+  if (ui.brokerVisChannelFilter) ui.brokerVisChannelFilter.addEventListener("change", refresh);
+  if (ui.brokerVisSchemeNoFilter) ui.brokerVisSchemeNoFilter.addEventListener("input", debounce(refresh, 160));
   if (ui.neMonthFilter) ui.neMonthFilter.addEventListener("change", refresh);
   if (ui.neBrokerFilter) ui.neBrokerFilter.addEventListener("change", refresh);
   if (ui.neSchemeNoFilter) ui.neSchemeNoFilter.addEventListener("input", debounce(refresh, 160));
@@ -2667,8 +2849,11 @@ function bindEvents() {
     if (ui.schemeVisDirectClientFilter) ui.schemeVisDirectClientFilter.value = "";
     if (ui.schemeVisSchemeNoFilter) ui.schemeVisSchemeNoFilter.value = "";
     if (ui.schemeVisPaymentFilter) ui.schemeVisPaymentFilter.value = "";
+    if (ui.channelVisSubmissionChannelFilter) ui.channelVisSubmissionChannelFilter.value = "";
     if (ui.channelVisBrokerFilter) ui.channelVisBrokerFilter.value = "";
     if (ui.channelVisSchemeNoFilter) ui.channelVisSchemeNoFilter.value = "";
+    if (ui.brokerVisChannelFilter) ui.brokerVisChannelFilter.value = "";
+    if (ui.brokerVisSchemeNoFilter) ui.brokerVisSchemeNoFilter.value = "";
     if (ui.processVisProcessFilter) ui.processVisProcessFilter.value = "";
     if (ui.processVisPaymentFilter) ui.processVisPaymentFilter.value = "";
     if (ui.processVisSchemeNoFilter) ui.processVisSchemeNoFilter.value = "";
@@ -2690,10 +2875,41 @@ function updateChannelVisibility(rows) {
   const body = document.getElementById("channelVisibilityBody");
   if (!body) return;
 
+  let channelFilter = ui.channelVisSubmissionChannelFilter ? ui.channelVisSubmissionChannelFilter.value.trim() : "";
   let brokerFilter = ui.channelVisBrokerFilter ? ui.channelVisBrokerFilter.value : "";
   const schemeNoFilter = ui.channelVisSchemeNoFilter ? ui.channelVisSchemeNoFilter.value.trim().toLowerCase() : "";
   // Get NE rows for this period and global filter context
   const neRows = filteredNeRowsGlobal();
+
+  // Populate submission channel filter dropdown
+  if (ui.channelVisSubmissionChannelFilter) {
+    const selected = ui.channelVisSubmissionChannelFilter.value;
+    const channels = new Set();
+
+    rows.forEach(r => {
+      const rowBroker = (r.Broker_Org || "").trim();
+      const rowSchemeNo = String(r.SchemeNumber || "").trim();
+      if (brokerFilter && rowBroker !== brokerFilter) return;
+      if (schemeNoFilter && !rowSchemeNo.toLowerCase().includes(schemeNoFilter)) return;
+      channels.add(deriveSubmissionChannel(r));
+    });
+
+    neRows.forEach(r => {
+      const rowBroker = String(r.BrokerName || "").trim();
+      const rowSchemeNo = String(r.SchemeNo || "").trim();
+      if (brokerFilter && rowBroker !== brokerFilter) return;
+      if (schemeNoFilter && !rowSchemeNo.toLowerCase().includes(schemeNoFilter)) return;
+      const cnt = Number(r.SubmissionCount || 0);
+      if (!Number.isFinite(cnt) || cnt <= 0) return;
+      channels.add(deriveSubmissionChannelFromVia(r.Via));
+    });
+
+    const sortedChannels = [...channels].sort((a, b) => a.localeCompare(b));
+    ui.channelVisSubmissionChannelFilter.innerHTML = '<option value="">(All Channels)</option>';
+    sortedChannels.forEach(ch => ui.channelVisSubmissionChannelFilter.add(new Option(ch, ch)));
+    ui.channelVisSubmissionChannelFilter.value = sortedChannels.includes(selected) ? selected : "";
+    channelFilter = ui.channelVisSubmissionChannelFilter.value.trim();
+  }
 
   // Populate broker filter dropdown
   if (ui.channelVisBrokerFilter) {
@@ -2735,6 +2951,7 @@ function updateChannelVisibility(rows) {
     if (schemeNoFilter && !rowSchemeNo.toLowerCase().includes(schemeNoFilter)) return;
 
     const channel = deriveSubmissionChannel(r);
+    if (channelFilter && channel !== channelFilter) return;
     const item = ensureChannel(channel);
     item.submissions += 1;
     item.completionBasis += 1;
@@ -2756,6 +2973,7 @@ function updateChannelVisibility(rows) {
     if (!Number.isFinite(cnt) || cnt <= 0) return;
 
     const channel = deriveSubmissionChannelFromVia(r.Via);
+    if (channelFilter && channel !== channelFilter) return;
     const item = ensureChannel(channel);
     item.submissions += cnt;
     if (rowBroker) item.brokerSet.add(rowBroker);
@@ -2790,15 +3008,18 @@ function updateChannelVisibility(rows) {
     labels: top.map(x => x.channel),
     datasets: [{ label: "Submissions", data: top.map(x => x.submissions), backgroundColor: "#4b7fb8" }]
   }, {
+    responsive: true,
+    maintainAspectRatio: false,
+    layout: { padding: { top: 4, right: 8, bottom: 6, left: 4 } },
     indexAxis: "y",
     scales: {
-      x: { beginAtZero: true, ticks: { precision: 0 } },
-      y: { ticks: { autoSkip: false, font: { size: 11 } } }
+      x: { beginAtZero: true, ticks: { precision: 0, font: { size: 12, weight: "600" } } },
+      y: { ticks: { autoSkip: false, font: { size: 12, weight: "600" } } }
     },
     datasets: {
-      bar: { categoryPercentage: 0.72, barPercentage: 0.78, maxBarThickness: 18 }
+      bar: { categoryPercentage: 0.76, barPercentage: 0.82, maxBarThickness: 26 }
     },
-    plugins: { legend: { display: true } }
+    plugins: { legend: { display: true, labels: { font: { size: 12, weight: "600" } } } }
   });
 
   // Companion chart: Top brokers by SecureShare rate
@@ -2814,9 +3035,11 @@ function updateChannelVisibility(rows) {
     if (!rowBroker) return;
     if (brokerFilter && rowBroker !== brokerFilter) return;
     if (schemeNoFilter && !rowSchemeNo.toLowerCase().includes(schemeNoFilter)) return;
+    const channel = deriveSubmissionChannel(r);
+    if (channelFilter && channel !== channelFilter) return;
     const item = ensureBroker(rowBroker);
     item.total += 1;
-    if (deriveSubmissionChannel(r) === "SecureShare") item.secureShare += 1;
+    if (channel === "SecureShare") item.secureShare += 1;
   });
 
   neRows.forEach(r => {
@@ -2827,9 +3050,11 @@ function updateChannelVisibility(rows) {
     if (schemeNoFilter && !rowSchemeNo.toLowerCase().includes(schemeNoFilter)) return;
     const cnt = Number(r.SubmissionCount || 0);
     if (!Number.isFinite(cnt) || cnt <= 0) return;
+    const channel = deriveSubmissionChannelFromVia(r.Via);
+    if (channelFilter && channel !== channelFilter) return;
     const item = ensureBroker(rowBroker);
     item.total += cnt;
-    if (deriveSubmissionChannelFromVia(r.Via) === "SecureShare") item.secureShare += cnt;
+    if (channel === "SecureShare") item.secureShare += cnt;
   });
 
   const brokerShareRows = Array.from(byBroker.entries())
@@ -2860,8 +3085,11 @@ function updateChannelVisibility(rows) {
       backgroundColor: pieLabels.length ? pieColors : ["#cfd8dc"]
     }]
   }, {
+    responsive: true,
+    maintainAspectRatio: false,
+    layout: { padding: { top: 6, right: 12, bottom: 10, left: 12 } },
     plugins: {
-      legend: { display: true, position: "bottom" },
+      legend: { display: true, position: "bottom", labels: { font: { size: 12, weight: "600" }, padding: 14 } },
       tooltip: {
         callbacks: {
           label: ctx => {
@@ -3158,6 +3386,186 @@ function updateNeVisibility() {
       },
     },
   });
+}
+
+// ─── BROKER VISIBILITY ────────────────────────────────────────────────────────
+function updateBrokerVisibility(rows) {
+  if (!document.getElementById("brokerVisibilityBody")) return;
+
+  const channelFilter = ui.brokerVisChannelFilter ? ui.brokerVisChannelFilter.value.trim() : "";
+  const schemeNoFilter = ui.brokerVisSchemeNoFilter ? ui.brokerVisSchemeNoFilter.value.trim().toLowerCase() : "";
+
+  // Collect all known channels from the current filtered MIDAS rows for the dropdown
+  const allChannels = uniq(rows.map(r => deriveSubmissionChannel(r)));
+  if (ui.brokerVisChannelFilter) {
+    const selected = ui.brokerVisChannelFilter.value;
+    ui.brokerVisChannelFilter.innerHTML = '<option value="">(All Channels)</option>';
+    allChannels.forEach(c => ui.brokerVisChannelFilter.add(new Option(c, c)));
+    ui.brokerVisChannelFilter.value = allChannels.includes(selected) ? selected : "";
+  }
+
+  // Build per-broker aggregation
+  const byBroker = new Map();
+  rows.forEach(r => {
+    const broker = (r.Broker_Org || "").trim();
+    if (!broker) return;
+    const schemeNo = String(r.SchemeNumber || "").trim();
+    if (schemeNoFilter && !schemeNo.toLowerCase().includes(schemeNoFilter)) return;
+    const channel = deriveSubmissionChannel(r);
+    if (channelFilter && channel !== channelFilter) return;
+
+    if (!byBroker.has(broker)) {
+      byBroker.set(broker, { broker, subs: 0, completed: 0, ss: 0, schemeSet: new Set(), channelSet: new Set() });
+    }
+    const b = byBroker.get(broker);
+    b.subs += 1;
+    if ((r.WorkStatus || "").toUpperCase().includes("COMPLETE")) b.completed += 1;
+    if (channel === "SecureShare") b.ss += 1;
+    if (schemeNo) b.schemeSet.add(schemeNo);
+    b.channelSet.add(channel);
+  });
+
+  const items = Array.from(byBroker.values())
+    .map(b => ({
+      ...b,
+      completionPct: b.subs ? (b.completed / b.subs) * 100 : 0,
+      ssPct: b.subs ? (b.ss / b.subs) * 100 : 0,
+      schemeCount: b.schemeSet.size,
+      channelList: [...b.channelSet].sort().join(", ")
+    }))
+    .sort((a, b) => b.subs - a.subs);
+
+  const totalSubs = items.reduce((s, x) => s + x.subs, 0);
+  const totalSS = items.reduce((s, x) => s + x.ss, 0);
+  const totalCompleted = items.reduce((s, x) => s + x.completed, 0);
+  const totalSchemes = new Set(items.flatMap(x => [...x.schemeSet])).size;
+  const allChannelSet = new Set(items.flatMap(x => [...x.channelSet]));
+
+  // KPIs
+  const kTotal = document.getElementById("kBrokerVisTotal");
+  const kSubs = document.getElementById("kBrokerVisSubs");
+  const kSSPct = document.getElementById("kBrokerVisSSPct");
+  const kComp = document.getElementById("kBrokerVisCompRate");
+  const kAvg = document.getElementById("kBrokerVisAvgSchemes");
+  const kChan = document.getElementById("kBrokerVisChannels");
+  if (kTotal) kTotal.textContent = fmt(items.length);
+  if (kSubs) kSubs.textContent = fmt(totalSubs);
+  if (kSSPct) kSSPct.textContent = totalSubs ? pct(totalSS / totalSubs) : "n/a";
+  if (kComp) kComp.textContent = totalSubs ? pct(totalCompleted / totalSubs) : "n/a";
+  if (kAvg) kAvg.textContent = items.length ? (totalSchemes / items.length).toFixed(1) : "n/a";
+  if (kChan) kChan.textContent = fmt(allChannelSet.size);
+
+  // Table
+  const body = document.getElementById("brokerVisibilityBody");
+  const thStyle = "padding:5px 6px;border-bottom:1px solid #edf0f7;";
+  body.innerHTML = items.map(b => `
+    <tr>
+      <td style="${thStyle}text-align:left;">${b.broker}</td>
+      <td style="${thStyle}text-align:right;">${fmt(b.subs)}</td>
+      <td style="${thStyle}text-align:right;">${fmt(b.completed)}</td>
+      <td style="${thStyle}text-align:right;">${b.completionPct.toFixed(1)}%</td>
+      <td style="${thStyle}text-align:right;">${fmt(b.ss)}</td>
+      <td style="${thStyle}text-align:right;">${b.ssPct.toFixed(1)}%</td>
+      <td style="${thStyle}text-align:right;">${fmt(b.schemeCount)}</td>
+      <td style="${thStyle}text-align:left;color:var(--muted);">${b.channelList}</td>
+    </tr>`).join("") || `<tr><td colspan="8" style="padding:12px;text-align:center;color:var(--muted);">No data for selected filters</td></tr>`;
+
+  // ── Chart 1: Top 10 brokers by total volume, stacked SS vs Other ──
+  const top10Vol = items.slice(0, 10);
+  if (charts.brokerVisVolume) { charts.brokerVisVolume.destroy(); delete charts.brokerVisVolume; }
+  const cvVol = document.getElementById("chartBrokerVisVolume");
+  if (cvVol && top10Vol.length) {
+    const truncVol = n => n.length > 26 ? n.slice(0, 24) + "\u2026" : n;
+    charts.brokerVisVolume = new Chart(cvVol, {
+      type: "bar",
+      data: {
+        labels: top10Vol.map(b => truncVol(b.broker)),
+        datasets: [
+          { label: "SecureShare", data: top10Vol.map(b => b.ss), backgroundColor: "rgba(85,194,182,0.88)", borderColor: "rgba(85,194,182,1)", borderWidth: 1 },
+          { label: "Other channels", data: top10Vol.map(b => b.subs - b.ss), backgroundColor: "rgba(92,97,172,0.45)", borderColor: "rgba(92,97,172,0.7)", borderWidth: 1 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, indexAxis: "y",
+        layout: { padding: { top: 4, right: 8, bottom: 6, left: 4 } },
+        plugins: {
+          legend: { position: "bottom", labels: { font: { size: 12, weight: "600" }, padding: 14 } },
+          tooltip: {
+            callbacks: {
+              title: ctx => top10Vol[ctx[0].dataIndex].broker,
+              label: ctx => ` ${ctx.dataset.label}: ${fmt(Number(ctx.raw))}`,
+              afterBody: ctx => { const b = top10Vol[ctx[0].dataIndex]; return [`Total: ${fmt(b.subs)}`, `SS%: ${b.ssPct.toFixed(1)}%`, `Completion: ${b.completionPct.toFixed(1)}%`]; }
+            }
+          }
+        },
+        scales: {
+          x: { stacked: true, grid: { color: "rgba(0,0,0,0.06)" }, ticks: { font: { size: 12, weight: "600" }, callback: v => fmt(v) } },
+          y: { stacked: true, ticks: { autoSkip: false, font: { size: 12, weight: "600" } } }
+        }
+      }
+    });
+  }
+
+  // ── Chart 2: SecureShare volume share by broker (top 3 + Other) ──
+  if (charts.brokerVisSSRate) { charts.brokerVisSSRate.destroy(); delete charts.brokerVisSSRate; }
+  const cvSS = document.getElementById("chartBrokerVisSSRate");
+  const brokerShareRows = items
+    .filter(b => b.ss > 0)
+    .map(b => ({ broker: b.broker, secureShare: b.ss, ssPct: b.ssPct, subs: b.subs }))
+    .sort((a, b) => b.secureShare - a.secureShare);
+
+  if (cvSS && brokerShareRows.length) {
+    const top3 = brokerShareRows.slice(0, 3);
+    const otherSecureShare = brokerShareRows.slice(3).reduce((sum, x) => sum + x.secureShare, 0);
+
+    const pieLabels = top3.map(x => compactLabel(x.broker, 24));
+    const pieValues = top3.map(x => x.secureShare);
+    const pieColors = top3.map((_, idx) => BROKER_SHARE_RANK_COLORS[idx]);
+    if (otherSecureShare > 0) {
+      pieLabels.push("Other");
+      pieValues.push(otherSecureShare);
+      pieColors.push(BROKER_SHARE_RANK_COLORS[3]);
+    }
+
+    charts.brokerVisSSRate = new Chart(cvSS, {
+      type: "doughnut",
+      data: {
+        labels: pieLabels,
+        datasets: [{
+          label: "SecureShare submissions",
+          data: pieValues,
+          backgroundColor: pieColors,
+          borderColor: "#ffffff",
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: { padding: { top: 6, right: 12, bottom: 10, left: 12 } },
+        plugins: {
+          legend: { display: true, position: "bottom", labels: { font: { size: 12, weight: "600" }, padding: 14 } },
+          tooltip: {
+            callbacks: {
+              label: ctx => {
+                const total = pieValues.reduce((sum, v) => sum + v, 0);
+                const value = Number(ctx.raw || 0);
+                const share = total ? (value / total) * 100 : 0;
+                const rate = top3[ctx.dataIndex]?.ssPct;
+                const rateText = Number.isFinite(rate) ? ` | SS Rate: ${rate.toFixed(1)}%` : "";
+                return `${ctx.label}: ${fmt(value)} (${share.toFixed(1)}%)${rateText}`;
+              },
+              afterBody: ctx => {
+                const b = top3[ctx[0].dataIndex];
+                if (!b) return [];
+                return [`Total submissions: ${fmt(b.subs)}`];
+              }
+            }
+          }
+        }
+      }
+    });
+  }
 }
 
 initFilters();

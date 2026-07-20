@@ -78,8 +78,27 @@ $header = @(
   '// Columns: YearMonth, Via, WorkTypeCode, WorkTypeDesc, BrokerCode, BrokerName, SchemeNo, SubmissionCount'
 ) -join "`r`n"
 
-$json = $rows | ConvertTo-Json -Depth 4 -Compress
-$payload = "$header`r`nvar ne_submissions_data = $json;"
+$yearMonths = @($rows | ForEach-Object { $_.YearMonth } | Where-Object { $_ -match '^\d{4}-\d{2}$' } | Sort-Object -Unique)
+$maxCurrentYm = (Get-Date).ToString('yyyy-MM')
+$yearMonths = @($yearMonths | Where-Object { $_ -le $maxCurrentYm })
+$dateRange = if ($yearMonths.Count -gt 0) {
+  '{0} to {1}' -f $yearMonths[0], $yearMonths[$yearMonths.Count - 1]
+} else {
+  'n/a'
+}
+
+$payloadObj = [ordered]@{
+  metadata = [ordered]@{
+    generatedAt = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')
+    source = "AutomateMetrics ($Server)"
+    dateRange = $dateRange
+    startDate = $StartDate
+  }
+  data = $rows
+}
+
+$json = $payloadObj | ConvertTo-Json -Depth 6 -Compress
+$payload = "$header`r`nwindow.NE_SUBMISSIONS_PAYLOAD = $json;`r`nwindow.NE_SUBMISSIONS_META = window.NE_SUBMISSIONS_PAYLOAD.metadata;`r`nvar ne_submissions_data = window.NE_SUBMISSIONS_PAYLOAD.data;"
 [System.IO.File]::WriteAllText($OutFile, $payload, (New-Object System.Text.UTF8Encoding($false)))
 
 Write-Output ("Updated ne_submissions_data.js -> rows: {0}, startDate: {1}, server: {2}" -f $rows.Count, $StartDate, $Server)

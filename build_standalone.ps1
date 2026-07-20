@@ -3,6 +3,7 @@ $DIST = "$BASE\dist"
 
 $REPORTS = @(
     @{ folder = 'Operational Reporting'; file = 'Operational Reporting.html' },
+    @{ folder = 'SecureShare Deployment Stats'; file = 'SecureShare Deployment Stats.html' },
     @{ folder = 'Leavers Report'; file = 'Leavers Report.html' },
     @{ folder = 'Finance Performance'; file = 'Finance Performance.html' },
     @{ folder = 'EFT Confirmation'; file = 'EFT Confirmation.html' },
@@ -20,14 +21,24 @@ foreach ($r in $REPORTS) {
 
     $content = [System.IO.File]::ReadAllText($htmlPath)
 
-    # Find and replace <script src="./data/filename.js"></script> with inline content
-    $pattern = '<script\s+src=[''"](\./data/[^''"]+)[''"](?:\s*/>|>\s*</script>)'
+    # Find and replace data script references with inline content
+    $pattern = '<script\s+src=[''"]([^''"]+)[''"](?:\s*/>|>\s*</script>)'
     $regex = [regex]::new($pattern, 'IgnoreCase')
     $matches = $regex.Matches($content)
 
     foreach ($m in $matches) {
         $src = $m.Groups[1].Value
-        $dataFile = "$BASE\$($r.folder)\$($src.Replace('/', '\'))"
+        $isLocalData = $src.StartsWith('./data/') -or $src.StartsWith('data/')
+        $isSharedData = $src.StartsWith('../Operational Reporting/data/')
+        if (-not ($isLocalData -or $isSharedData)) { continue }
+
+        if ($isSharedData) {
+            $dataFile = Join-Path "$BASE\\$($r.folder)" ($src.Replace('/', '\\'))
+            $dataFile = [System.IO.Path]::GetFullPath($dataFile)
+        } else {
+            $dataFile = "$BASE\$($r.folder)\$($src.Replace('/', '\'))"
+        }
+
         if (Test-Path $dataFile) {
             $size = (Get-Item $dataFile).Length
             Write-Host "  + Inlining $src ($([math]::Round($size/1KB)) KB)"
