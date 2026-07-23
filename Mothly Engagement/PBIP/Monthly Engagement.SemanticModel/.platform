@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "Monthly Engagement"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "8e4a107e-5bef-4a61-91d8-33f0975a0b5a"
+  }
+}

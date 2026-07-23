@@ -1,0 +1,38 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "html_p3_quarterly",
+  "position": {
+    "x": 0,
+    "y": 120,
+    "z": 0,
+    "height": 600,
+    "width": 1280,
+    "tabOrder": 3000
+  },
+  "visual": {
+    "visualType": "htmlContent443BE3AD55E043BF878BED274D3A6855",
+    "query": {
+      "queryState": {
+        "content": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "UshurHub"
+                    }
+                  },
+                  "Property": "HTML Quarterly Trends"
+                }
+              },
+              "queryRef": "UshurHub.HTML Quarterly Trends",
+              "nativeQueryRef": "HTML Quarterly Trends"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

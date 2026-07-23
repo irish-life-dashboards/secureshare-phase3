@@ -1,0 +1,5 @@
+relationship 270929af-4ffe-45b6-8097-256e5f7be38b
+	joinOnDateBehavior: datePartOnly
+	fromColumn: UshurHub.SubmissionDate
+	toColumn: LocalDateTable_ac95ec40-9ab7-4cf2-bb1d-0cf6523a6b5c.Date
+

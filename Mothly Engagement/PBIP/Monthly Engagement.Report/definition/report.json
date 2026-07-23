@@ -27,8 +27,7 @@
     ]
   },
   "publicCustomVisuals": [
-    "htmlContent443BE3AD55E043BF878BED274D3A6855",
-    "deneb7E15AEF80B9E4D4F8E12924291ECE89A"
+    "htmlContent443BE3AD55E043BF878BED274D3A6855"
   ],
   "resourcePackages": [
     {
@@ -39,6 +38,17 @@
           "name": "CY25SU10",
           "path": "BaseThemes/CY25SU10.json",
           "type": "BaseTheme"
+        }
+      ]
+    },
+    {
+      "name": "RegisteredResources",
+      "type": "RegisteredResources",
+      "items": [
+        {
+          "name": "Top_Left_IL_Logo6071935741752026.png",
+          "path": "Top_Left_IL_Logo6071935741752026.png",
+          "type": "Image"
         }
       ]
     }

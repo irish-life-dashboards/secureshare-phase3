@@ -1,0 +1,292 @@
+table UshurHub
+	lineageTag: 573abe37-2573-41f6-abe0-33d703cf87ff
+
+	measure 'Total Submissions' = COUNTA(UshurHub[ReferenceNumber])
+		formatString: #,0
+		displayFolder: KPIs
+		lineageTag: 6636b129-e80e-4d0d-ad2b-597955f08989
+
+	measure 'Completed Submissions' = CALCULATE(COUNTA(UshurHub[ReferenceNumber]), UshurHub[Status] = "Completed")
+		formatString: #,0
+		displayFolder: KPIs
+		lineageTag: 427101df-82df-4458-9848-4f62052f507f
+
+	measure 'Completion Rate' = DIVIDE([Completed Submissions], [Total Submissions], 0)
+		formatString: 0.0%
+		displayFolder: KPIs
+		lineageTag: f1a7cf3a-aa90-4b71-b770-3d476e5619af
+
+	measure 'Active Organizations' = DISTINCTCOUNT(UshurHub[Organization])
+		formatString: #,0
+		displayFolder: KPIs
+		lineageTag: 294e857c-8fca-4616-a58a-ff5457ca0d4a
+
+	measure 'Total Errors' = CALCULATE(COUNTA(UshurHub[ReferenceNumber]), UshurHub[Status] = "Error during submission")
+		formatString: #,0
+		displayFolder: KPIs
+		lineageTag: 297a6ec9-337d-4803-bd97-2dcd0e71be66
+
+	measure 'Error Rate' = DIVIDE([Total Errors], [Total Submissions], 0)
+		formatString: 0.0%
+		displayFolder: KPIs
+		lineageTag: 47a48751-ea31-4292-9c7a-7f062b9a31f3
+
+	measure 'Cancelled Submissions' = CALCULATE(COUNTA(UshurHub[ReferenceNumber]), UshurHub[Status] = "Cancelled")
+		formatString: #,0
+		displayFolder: KPIs
+		lineageTag: 501bb000-1c7d-4486-8d26-3168ab30a992
+
+	measure 'Received Submissions' = CALCULATE(COUNTA(UshurHub[ReferenceNumber]), UshurHub[Status] = "Received")
+		formatString: #,0
+		displayFolder: KPIs
+		lineageTag: 4151002f-decb-485a-bc5c-02edbbb8cf97
+
+	measure 'Submitted Submissions' = CALCULATE(COUNTA(UshurHub[ReferenceNumber]), UshurHub[Status] = "Submitted")
+		formatString: #,0
+		displayFolder: KPIs
+		lineageTag: 7356ec52-7bd7-47f2-acec-ce31a16ded97
+
+	measure 'HTML Summary' =
+			VAR _css = "body{margin:0;padding:10px 12px;font-family:Segoe UI,sans-serif;background:#f4f7fb;color:#25323b;font-size:13px}.topbar{background:linear-gradient(96deg,#3f468e,#5c61ac 45%,#4f88ba);color:#fff;border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}.ttl{font-size:.92rem;font-weight:800}.sub{font-size:.76rem;opacity:.9}.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px}.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}.card{background:#fff;border:1px solid #dce3ee;border-radius:12px;padding:12px;box-shadow:0 4px 16px rgba(37,50,59,.07)}.kl{font-size:.69rem;text-transform:uppercase;color:#67747f;font-weight:700}.kv{font-size:1.5rem;font-weight:800;margin-top:3px}.km{font-size:.73rem;color:#5f6b75;margin-top:3px}h3{margin:0 0 8px;font-size:.85rem;font-weight:800;color:#2f3f49}table{width:100%;border-collapse:collapse;font-size:.74rem}th{background:linear-gradient(90deg,#5c61ac,#4f86b8);color:#fff;padding:6px 8px;text-align:left;position:sticky;top:0;font-size:.69rem;text-transform:uppercase}td{padding:6px 8px;border-bottom:1px solid #ebeff6;vertical-align:top}.wrap{border:1px solid #dce3ee;border-radius:8px;overflow:auto;background:#fff}.flag{color:#c33d4b;font-weight:700}.br{display:flex;align-items:center;gap:6px;margin:3px 0}.bl{width:70px;font-size:.69rem;text-align:right;color:#67747f;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bt{flex:1;background:#eef1f8;border-radius:3px;height:13px}.bf{height:13px;border-radius:3px;min-width:2px}.bv{width:52px;font-size:.7rem;font-weight:700;padding-left:4px}.fstep{border:1px solid #dce3ee;border-radius:8px;padding:8px 10px;background:#fff;margin:3px 0}.fstep strong{font-size:.95rem;color:#2f3f49}.fmeta{font-size:.73rem;color:#5f6b75}"
+			VAR _tot = [Total Submissions]
+			VAR _cmp = [Completed Submissions]
+			VAR _rt  = [Completion Rate]
+			VAR _org = [Active Organizations]
+			VAR _err = [Total Errors]
+			VAR _ert = [Error Rate]
+			VAR _cc  = IF(_rt >= 0.8, "#14763d", IF(_rt >= 0.6, "#5c61ac", "#e03e52"))
+			VAR _ec  = IF(_ert > 0.05, "#e03e52", IF(_ert > 0.02, "#fab812", "#14763d"))
+			VAR _all = CALCULATETABLE(SUMMARIZE(UshurHub, UshurHub[MonthKey], UshurHub[MonthYear]), ALL(UshurHub[MonthKey]), ALL(UshurHub[MonthYear]))
+			VAR _mxK = MAXX(_all, UshurHub[MonthKey])
+			VAR _pvK = MAXX(FILTER(_all, UshurHub[MonthKey] < _mxK), UshurHub[MonthKey])
+			VAR _mxY = MAXX(FILTER(_all, UshurHub[MonthKey] = _mxK), UshurHub[MonthYear])
+			VAR _pvY = IF(ISBLANK(_pvK), "(no prior month)", MAXX(FILTER(_all, UshurHub[MonthKey] = _pvK), UshurHub[MonthYear]))
+			VAR _wBase = ADDCOLUMNS(CALCULATETABLE(SUMMARIZE(UshurHub, UshurHub[Organization]), ALL(UshurHub[MonthKey]), ALL(UshurHub[MonthYear])), "_pv", CALCULATE([Total Submissions], ALL(UshurHub[MonthKey]), ALL(UshurHub[MonthYear]), UshurHub[MonthKey] = _pvK), "_cv", CALCULATE([Total Submissions], ALL(UshurHub[MonthKey]), ALL(UshurHub[MonthYear]), UshurHub[MonthKey] = _mxK), "_pc", CALCULATE([Completion Rate], ALL(UshurHub[MonthKey]), ALL(UshurHub[MonthYear]), UshurHub[MonthKey] = _pvK), "_cc", CALCULATE([Completion Rate], ALL(UshurHub[MonthKey]), ALL(UshurHub[MonthYear]), UshurHub[MonthKey] = _mxK))
+			VAR _wf  = FILTER(_wBase, [_pv] >= 3 && (DIVIDE([_cv] - [_pv], [_pv]) <= -0.5 || [_cc] - [_pc] <= -0.15))
+			VAR _wr  = CONCATENATEX(TOPN(15, _wf, [_pv], DESC), "<tr><td>" & UshurHub[Organization] & "</td><td>" & FORMAT([_pv], "#,0") & "</td><td>" & FORMAT([_cv], "#,0") & "</td><td>" & FORMAT([_pc], "0.0%") & "</td><td>" & FORMAT([_cc], "0.0%") & "</td><td>" & IF(DIVIDE([_cv]-[_pv],[_pv]) <= -0.5 && [_cc]-[_pc] <= -0.15, "<span style='color:#e03e52'>Volume drop and completion drop</span>", IF(DIVIDE([_cv]-[_pv],[_pv]) <= -0.5, "<span style='color:#e03e52'>Volume drop</span>", "<span style='color:#e03e52'>Completion drop</span>")) & "</td></tr>", "")
+			VAR _wh  = IF(COUNTROWS(_wf) = 0, "<tr><td colspan='6' style='text-align:center;color:#67747f;padding:12px'>No flagged organisations</td></tr>", _wr)
+			VAR _tBase = ADDCOLUMNS(SUMMARIZE(UshurHub, UshurHub[Organization]), "_ts", [Total Submissions], "_cs", [Completed Submissions], "_cr", [Completion Rate])
+			VAR _tr  = CONCATENATEX(TOPN(20, _tBase, [_ts], DESC), "<tr><td>" & UshurHub[Organization] & "</td><td>" & FORMAT([_ts], "#,0") & "</td><td>" & FORMAT([_cs], "#,0") & "</td><td>" & FORMAT([_cr], "0.0%") & "</td></tr>", "", [_ts], DESC)
+			RETURN "<!DOCTYPE html><html><head><meta charset='utf-8'/><style>" & _css & "</style></head><body><div class='g4'><div class='card'><div class='kl'>Total Submissions</div><div class='kv'>" & FORMAT(_tot, "#,0") & "</div><div class='km'>Unique by reference</div></div><div class='card'><div class='kl'>Completion Rate</div><div class='kv' style='color:" & _cc & "'>" & FORMAT(_rt, "0.0%") & "</div><div class='km'>" & FORMAT(_cmp, "#,0") & " completed</div></div><div class='card'><div class='kl'>Active Organizations</div><div class='kv'>" & FORMAT(_org, "#,0") & "</div><div class='km'>Submitted at least once</div></div><div class='card'><div class='kl'>Error Rate</div><div class='kv' style='color:" & _ec & "'>" & FORMAT(_ert, "0.0%") & "</div><div class='km'>" & FORMAT(_err, "#,0") & " errors</div></div></div><div class='card' style='margin-bottom:10px'><h3>Watch List - " & _pvY & " to " & _mxY & "</h3><div class='wrap' style='max-height:200px'><table><thead><tr><th>Organization</th><th>Prior Volume</th><th>Current Volume</th><th>Prior Completion</th><th>Current Completion</th><th>Why flagged</th></tr></thead><tbody>" & _wh & "</tbody></table></div></div><div class='card'><h3>Top 20 Organizations</h3><div class='wrap' style='max-height:260px'><table><thead><tr><th>Organization</th><th>Submissions</th><th>Completed</th><th>Comp Rate</th></tr></thead><tbody>" & _tr & "</tbody></table></div></div></body></html>"
+		displayFolder: HTML Pages
+		lineageTag: 3f8e7a6d-1c2b-4a59-8f0e-9b7d6c5a4e3f
+
+	measure 'HTML Monthly Trends' =
+			VAR _css  = "body{margin:0;padding:10px 12px;font-family:Segoe UI,sans-serif;background:#f4f7fb;color:#25323b;font-size:13px}.topbar{background:linear-gradient(96deg,#3f468e,#5c61ac 45%,#4f88ba);color:#fff;border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}.ttl{font-size:.92rem;font-weight:800}.sub{font-size:.76rem;opacity:.9}.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px}.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}.card{background:#fff;border:1px solid #dce3ee;border-radius:12px;padding:12px;box-shadow:0 4px 16px rgba(37,50,59,.07)}.kl{font-size:.69rem;text-transform:uppercase;color:#67747f;font-weight:700}.kv{font-size:1.5rem;font-weight:800;margin-top:3px}.km{font-size:.73rem;color:#5f6b75;margin-top:3px}h3{margin:0 0 8px;font-size:.85rem;font-weight:800;color:#2f3f49}table{width:100%;border-collapse:collapse;font-size:.74rem}th{background:linear-gradient(90deg,#5c61ac,#4f86b8);color:#fff;padding:6px 8px;text-align:left;position:sticky;top:0;font-size:.69rem;text-transform:uppercase}td{padding:6px 8px;border-bottom:1px solid #ebeff6;vertical-align:top}.wrap{border:1px solid #dce3ee;border-radius:8px;overflow:auto;background:#fff}.flag{color:#c33d4b;font-weight:700}.br{display:flex;align-items:center;gap:6px;margin:3px 0}.bl{width:70px;font-size:.69rem;text-align:right;color:#67747f;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bt{flex:1;background:#eef1f8;border-radius:3px;height:13px}.bf{height:13px;border-radius:3px;min-width:2px}.bv{width:52px;font-size:.7rem;font-weight:700;padding-left:4px}.fstep{border:1px solid #dce3ee;border-radius:8px;padding:8px 10px;background:#fff;margin:3px 0}.fstep strong{font-size:.95rem;color:#2f3f49}.fmeta{font-size:.73rem;color:#5f6b75}"
+			VAR _base = SUMMARIZE(UshurHub, UshurHub[MonthKey], UshurHub[MonthYear])
+			VAR _data = ADDCOLUMNS(_base, "_ts", [Total Submissions], "_cs", [Completed Submissions], "_cr", [Completion Rate], "_ao", [Active Organizations], "_te", [Total Errors], "_er", [Error Rate], "_p", RANKX(_base, UshurHub[MonthKey], , ASC, Dense) - 1)
+			VAR _n    = COUNTROWS(_data)
+			VAR _mxT  = IF(MAXX(_data, [_ts]) = 0, 1, MAXX(_data, [_ts]))
+			VAR _mxA  = IF(MAXX(_data, [_ao]) = 0, 1, MAXX(_data, [_ao]))
+			VAR _mxE  = IF(MAXX(_data, [_er]) = 0, 0.001, MAXX(_data, [_er]))
+			VAR _lM   = 54
+			VAR _tM   = 12
+			VAR _cW   = 438
+			VAR _cH   = 167
+			VAR _gap  = 5
+			VAR _bW   = DIVIDE(_cW - IF(_n > 1, (_n - 1) * _gap, 0), IF(_n > 0, _n, 1))
+			VAR _y0   = _tM + _cH
+			VAR _y1   = _tM + _cH * 0.75
+			VAR _y2   = _tM + _cH * 0.5
+			VAR _y3   = _tM + _cH * 0.25
+			VAR _y4   = _tM
+			VAR _x0   = _lM
+			VAR _x1   = _lM + _cW
+			VAR _fx   = _lM + _bW / 2
+			VAR _lxN  = _lM + (_n - 1) * (_bW + _gap) + _bW / 2
+			VAR _gL   = "<line x1='" & FORMAT(_x0,"0") & "' x2='" & FORMAT(_x1,"0") & "' y1='" & FORMAT(_y0,"0.0") & "' y2='" & FORMAT(_y0,"0.0") & "' stroke='#e8edf4' stroke-width='1'/><line x1='" & FORMAT(_x0,"0") & "' x2='" & FORMAT(_x1,"0") & "' y1='" & FORMAT(_y1,"0.0") & "' y2='" & FORMAT(_y1,"0.0") & "' stroke='#e8edf4' stroke-width='1'/><line x1='" & FORMAT(_x0,"0") & "' x2='" & FORMAT(_x1,"0") & "' y1='" & FORMAT(_y2,"0.0") & "' y2='" & FORMAT(_y2,"0.0") & "' stroke='#e8edf4' stroke-width='1'/><line x1='" & FORMAT(_x0,"0") & "' x2='" & FORMAT(_x1,"0") & "' y1='" & FORMAT(_y3,"0.0") & "' y2='" & FORMAT(_y3,"0.0") & "' stroke='#e8edf4' stroke-width='1'/><line x1='" & FORMAT(_x0,"0") & "' x2='" & FORMAT(_x1,"0") & "' y1='" & FORMAT(_y4,"0") & "' y2='" & FORMAT(_y4,"0") & "' stroke='#e8edf4' stroke-width='1'/>"
+			VAR _ylT  = "<text x='" & FORMAT(_lM-3,"0") & "' y='" & FORMAT(_y4+4,"0.0") & "' text-anchor='end' font-size='9' fill='#67747f'>" & FORMAT(_mxT,"#,0") & "</text><text x='" & FORMAT(_lM-3,"0") & "' y='" & FORMAT(_y1+4,"0.0") & "' text-anchor='end' font-size='9' fill='#67747f'>" & FORMAT(_mxT*0.75,"#,0") & "</text><text x='" & FORMAT(_lM-3,"0") & "' y='" & FORMAT(_y2+4,"0.0") & "' text-anchor='end' font-size='9' fill='#67747f'>" & FORMAT(_mxT*0.5,"#,0") & "</text><text x='" & FORMAT(_lM-3,"0") & "' y='" & FORMAT(_y3+4,"0.0") & "' text-anchor='end' font-size='9' fill='#67747f'>" & FORMAT(_mxT*0.25,"#,0") & "</text><text x='" & FORMAT(_lM-3,"0") & "' y='" & FORMAT(_y0+4,"0.0") & "' text-anchor='end' font-size='9' fill='#67747f'>0</text>"
+			VAR _ylA  = "<text x='" & FORMAT(_lM-3,"0") & "' y='" & FORMAT(_y4+4,"0.0") & "' text-anchor='end' font-size='9' fill='#67747f'>" & FORMAT(_mxA,"#,0") & "</text><text x='" & FORMAT(_lM-3,"0") & "' y='" & FORMAT(_y2+4,"0.0") & "' text-anchor='end' font-size='9' fill='#67747f'>" & FORMAT(_mxA*0.5,"#,0") & "</text><text x='" & FORMAT(_lM-3,"0") & "' y='" & FORMAT(_y0+4,"0.0") & "' text-anchor='end' font-size='9' fill='#67747f'>0</text>"
+			VAR _ylC  = "<text x='" & FORMAT(_lM-3,"0") & "' y='" & FORMAT(_y4+4,"0.0") & "' text-anchor='end' font-size='9' fill='#67747f'>100%</text><text x='" & FORMAT(_lM-3,"0") & "' y='" & FORMAT(_y1+4,"0.0") & "' text-anchor='end' font-size='9' fill='#67747f'>75%</text><text x='" & FORMAT(_lM-3,"0") & "' y='" & FORMAT(_y2+4,"0.0") & "' text-anchor='end' font-size='9' fill='#67747f'>50%</text><text x='" & FORMAT(_lM-3,"0") & "' y='" & FORMAT(_y3+4,"0.0") & "' text-anchor='end' font-size='9' fill='#67747f'>25%</text><text x='" & FORMAT(_lM-3,"0") & "' y='" & FORMAT(_y0+4,"0.0") & "' text-anchor='end' font-size='9' fill='#67747f'>0%</text>"
+			VAR _ylE  = "<text x='" & FORMAT(_lM-3,"0") & "' y='" & FORMAT(_y4+4,"0.0") & "' text-anchor='end' font-size='9' fill='#67747f'>" & FORMAT(_mxE,"0.0%") & "</text><text x='" & FORMAT(_lM-3,"0") & "' y='" & FORMAT(_y2+4,"0.0") & "' text-anchor='end' font-size='9' fill='#67747f'>" & FORMAT(_mxE*0.5,"0.0%") & "</text><text x='" & FORMAT(_lM-3,"0") & "' y='" & FORMAT(_y0+4,"0.0") & "' text-anchor='end' font-size='9' fill='#67747f'>0%</text>"
+			VAR _bT   = CONCATENATEX(_data, VAR _bx = FORMAT(_lM + [_p] * (_bW + _gap), "0.0") VAR _bh = FORMAT(DIVIDE([_ts], _mxT) * _cH, "0.0") VAR _by = FORMAT(_tM + _cH - DIVIDE([_ts], _mxT) * _cH, "0.0") VAR _cx = FORMAT(_lM + [_p] * (_bW + _gap) + _bW / 2, "0.0") RETURN "<rect x='" & _bx & "' y='" & _by & "' width='" & FORMAT(_bW, "0.0") & "' height='" & _bh & "' fill='#5c61ac' rx='2'/><text x='" & _cx & "' y='209' text-anchor='middle' font-size='9' fill='#67747f'>" & UshurHub[MonthYear] & "</text>", "", UshurHub[MonthKey], ASC)
+			VAR _bA   = CONCATENATEX(_data, VAR _bx = FORMAT(_lM + [_p] * (_bW + _gap), "0.0") VAR _bh = FORMAT(DIVIDE([_ao], _mxA) * _cH, "0.0") VAR _by = FORMAT(_tM + _cH - DIVIDE([_ao], _mxA) * _cH, "0.0") VAR _cx = FORMAT(_lM + [_p] * (_bW + _gap) + _bW / 2, "0.0") RETURN "<rect x='" & _bx & "' y='" & _by & "' width='" & FORMAT(_bW, "0.0") & "' height='" & _bh & "' fill='#00b1d9' rx='2'/><text x='" & _cx & "' y='209' text-anchor='middle' font-size='9' fill='#67747f'>" & UshurHub[MonthYear] & "</text>", "", UshurHub[MonthKey], ASC)
+			VAR _ptC  = CONCATENATEX(_data, FORMAT(_lM + [_p] * (_bW + _gap) + _bW / 2, "0.0") & "," & FORMAT(_tM + _cH - [_cr] * _cH, "0.0"), " ", UshurHub[MonthKey], ASC)
+			VAR _dtC  = CONCATENATEX(_data, VAR _cx = FORMAT(_lM + [_p] * (_bW + _gap) + _bW / 2, "0.0") VAR _cy = FORMAT(_tM + _cH - [_cr] * _cH, "0.0") RETURN "<circle cx='" & _cx & "' cy='" & _cy & "' r='3' fill='white' stroke='#55c2b6' stroke-width='2'/><text x='" & _cx & "' y='209' text-anchor='middle' font-size='9' fill='#67747f'>" & UshurHub[MonthYear] & "</text>", "", UshurHub[MonthKey], ASC)
+			VAR _aC   = "<polygon points='" & FORMAT(_fx,"0.0") & "," & FORMAT(_y0,"0.0") & " " & _ptC & " " & FORMAT(_lxN,"0.0") & "," & FORMAT(_y0,"0.0") & "' fill='rgba(85,194,182,0.12)' stroke='none'/>"
+			VAR _ptE  = CONCATENATEX(_data, FORMAT(_lM + [_p] * (_bW + _gap) + _bW / 2, "0.0") & "," & FORMAT(_tM + _cH - DIVIDE([_er], _mxE) * _cH, "0.0"), " ", UshurHub[MonthKey], ASC)
+			VAR _dtE  = CONCATENATEX(_data, VAR _cx = FORMAT(_lM + [_p] * (_bW + _gap) + _bW / 2, "0.0") VAR _cy = FORMAT(_tM + _cH - DIVIDE([_er], _mxE) * _cH, "0.0") RETURN "<circle cx='" & _cx & "' cy='" & _cy & "' r='3' fill='white' stroke='#e03e52' stroke-width='2'/><text x='" & _cx & "' y='209' text-anchor='middle' font-size='9' fill='#67747f'>" & UshurHub[MonthYear] & "</text>", "", UshurHub[MonthKey], ASC)
+			VAR _aE   = "<polygon points='" & FORMAT(_fx,"0.0") & "," & FORMAT(_y0,"0.0") & " " & _ptE & " " & FORMAT(_lxN,"0.0") & "," & FORMAT(_y0,"0.0") & "' fill='rgba(224,62,82,0.08)' stroke='none'/>"
+			VAR _tr   = CONCATENATEX(_data, "<tr><td>" & UshurHub[MonthYear] & "</td><td>" & FORMAT([_ts],"#,0") & "</td><td>" & FORMAT([_cs],"#,0") & "</td><td>" & FORMAT([_cr],"0.0%") & "</td><td>" & FORMAT([_ao],"#,0") & "</td><td>" & FORMAT([_te],"#,0") & "</td><td>" & FORMAT([_er],"0.0%") & "</td></tr>", "", UshurHub[MonthKey], ASC)
+			VAR _sTS  = "<svg viewBox='0 0 500 215' style='width:100%;height:210px'>" & _gL & _ylT & _bT & "</svg>"
+			VAR _sAO  = "<svg viewBox='0 0 500 215' style='width:100%;height:210px'>" & _gL & _ylA & _bA & "</svg>"
+			VAR _sCR  = "<svg viewBox='0 0 500 215' style='width:100%;height:210px'>" & _gL & _ylC & _aC & "<polyline points='" & _ptC & "' fill='none' stroke='#55c2b6' stroke-width='2.5'/>" & _dtC & "</svg>"
+			VAR _sER  = "<svg viewBox='0 0 500 215' style='width:100%;height:210px'>" & _gL & _ylE & _aE & "<polyline points='" & _ptE & "' fill='none' stroke='#e03e52' stroke-width='2.5'/>" & _dtE & "</svg>"
+			RETURN "<!DOCTYPE html><html><head><meta charset='utf-8'/><style>" & _css & "</style></head><body><div class='g2'><div class='card'><h3>Monthly Total Submissions</h3>" & _sTS & "</div><div class='card'><h3>Monthly Completion Rate (%)</h3>" & _sCR & "</div><div class='card'><h3>Monthly Active Organizations</h3>" & _sAO & "</div><div class='card'><h3>Monthly Error Rate (%)</h3>" & _sER & "</div><div class='card' style='grid-column:span 2'><h3>Monthly Trend Data</h3><div class='wrap'><table><thead><tr><th>Month</th><th>Submissions</th><th>Completed</th><th>Completion Rate</th><th>Active Orgs</th><th>Errors</th><th>Error Rate</th></tr></thead><tbody>" & _tr & "</tbody></table></div></div></div></body></html>"
+		displayFolder: HTML Pages
+		lineageTag: 7c4b9d2e-5a1f-4862-b390-e1d8c6a5f2b4
+	measure 'HTML Quarterly Trends' =
+			VAR _css = "body{margin:0;padding:10px 12px;font-family:Segoe UI,sans-serif;background:#f4f7fb;color:#25323b;font-size:13px}.topbar{background:linear-gradient(96deg,#3f468e,#5c61ac 45%,#4f88ba);color:#fff;border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}.ttl{font-size:.92rem;font-weight:800}.sub{font-size:.76rem;opacity:.9}.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px}.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}.card{background:#fff;border:1px solid #dce3ee;border-radius:12px;padding:12px;box-shadow:0 4px 16px rgba(37,50,59,.07)}.kl{font-size:.69rem;text-transform:uppercase;color:#67747f;font-weight:700}.kv{font-size:1.5rem;font-weight:800;margin-top:3px}.km{font-size:.73rem;color:#5f6b75;margin-top:3px}h3{margin:0 0 8px;font-size:.85rem;font-weight:800;color:#2f3f49}table{width:100%;border-collapse:collapse;font-size:.74rem}th{background:linear-gradient(90deg,#5c61ac,#4f86b8);color:#fff;padding:6px 8px;text-align:left;position:sticky;top:0;font-size:.69rem;text-transform:uppercase}td{padding:6px 8px;border-bottom:1px solid #ebeff6;vertical-align:top}.wrap{border:1px solid #dce3ee;border-radius:8px;overflow:auto;background:#fff}.flag{color:#c33d4b;font-weight:700}.br{display:flex;align-items:center;gap:6px;margin:3px 0}.bl{width:70px;font-size:.69rem;text-align:right;color:#67747f;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bt{flex:1;background:#eef1f8;border-radius:3px;height:13px}.bf{height:13px;border-radius:3px;min-width:2px}.bv{width:52px;font-size:.7rem;font-weight:700;padding-left:4px}.fstep{border:1px solid #dce3ee;border-radius:8px;padding:8px 10px;background:#fff;margin:3px 0}.fstep strong{font-size:.95rem;color:#2f3f49}.fmeta{font-size:.73rem;color:#5f6b75}"
+			VAR _qb  = ADDCOLUMNS(SUMMARIZE(UshurHub, UshurHub[YearQuarter]), "_ts", [Total Submissions], "_cs", [Completed Submissions], "_cr", [Completion Rate], "_ao", [Active Organizations], "_te", [Total Errors], "_er", [Error Rate])
+			VAR _mxQTS = MAXX(_qb, [_ts])
+			VAR _bQ  = CONCATENATEX(_qb, "<div class='br'><div class='bl'>" & UshurHub[YearQuarter] & "</div><div class='bt'><div class='bf' style='width:" & FORMAT(MIN(DIVIDE([_ts],_mxQTS)*100,100),"0") & "%;background:#5c61ac'></div></div><div class='bv'>" & FORMAT([_ts],"#,0") & "</div></div>", "", UshurHub[YearQuarter], ASC)
+			VAR _bCR = CONCATENATEX(_qb, "<div class='br'><div class='bl'>" & UshurHub[YearQuarter] & "</div><div class='bt'><div class='bf' style='width:" & FORMAT([_cr]*100,"0") & "%;background:#55c2b6'></div></div><div class='bv'>" & FORMAT([_cr],"0.0%") & "</div></div>", "", UshurHub[YearQuarter], ASC)
+			VAR _tr  = CONCATENATEX(_qb, "<tr><td>" & UshurHub[YearQuarter] & "</td><td>" & FORMAT([_ts],"#,0") & "</td><td>" & FORMAT([_cs],"#,0") & "</td><td>" & FORMAT([_cr],"0.0%") & "</td><td>" & FORMAT([_ao],"#,0") & "</td><td>" & FORMAT([_te],"#,0") & "</td><td>" & FORMAT([_er],"0.0%") & "</td></tr>", "", UshurHub[YearQuarter], ASC)
+			RETURN "<!DOCTYPE html><html><head><meta charset='utf-8'/><style>" & _css & "</style></head><body><div class='g2'><div class='card'><h3>Quarterly Submissions</h3>" & _bQ & "</div><div class='card'><h3>Quarterly Completion Rate</h3>" & _bCR & "</div><div class='card' style='grid-column:span 2'><h3>Quarterly Trend Data</h3><div class='wrap'><table><thead><tr><th>Quarter</th><th>Submissions</th><th>Completed</th><th>Comp Rate</th><th>Active Orgs</th><th>Errors</th><th>Error Rate</th></tr></thead><tbody>" & _tr & "</tbody></table></div></div></div></body></html>"
+		displayFolder: HTML Pages
+		lineageTag: 9e6d4b8a-3f5c-4271-a0b9-d7e2c4f8a1e6
+
+	measure 'HTML Detail' =
+			VAR _css = "body{margin:0;padding:10px 12px;font-family:Segoe UI,sans-serif;background:#f4f7fb;color:#25323b;font-size:13px}.topbar{background:linear-gradient(96deg,#3f468e,#5c61ac 45%,#4f88ba);color:#fff;border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}.ttl{font-size:.92rem;font-weight:800}.sub{font-size:.76rem;opacity:.9}.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px}.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}.card{background:#fff;border:1px solid #dce3ee;border-radius:12px;padding:12px;box-shadow:0 4px 16px rgba(37,50,59,.07)}.kl{font-size:.69rem;text-transform:uppercase;color:#67747f;font-weight:700}.kv{font-size:1.5rem;font-weight:800;margin-top:3px}.km{font-size:.73rem;color:#5f6b75;margin-top:3px}h3{margin:0 0 8px;font-size:.85rem;font-weight:800;color:#2f3f49}table{width:100%;border-collapse:collapse;font-size:.74rem}th{background:linear-gradient(90deg,#5c61ac,#4f86b8);color:#fff;padding:6px 8px;text-align:left;position:sticky;top:0;font-size:.69rem;text-transform:uppercase}td{padding:6px 8px;border-bottom:1px solid #ebeff6;vertical-align:top}.wrap{border:1px solid #dce3ee;border-radius:8px;overflow:auto;background:#fff}.flag{color:#c33d4b;font-weight:700}.br{display:flex;align-items:center;gap:6px;margin:3px 0}.bl{width:70px;font-size:.69rem;text-align:right;color:#67747f;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bt{flex:1;background:#eef1f8;border-radius:3px;height:13px}.bf{height:13px;border-radius:3px;min-width:2px}.bv{width:52px;font-size:.7rem;font-weight:700;padding-left:4px}.fstep{border:1px solid #dce3ee;border-radius:8px;padding:8px 10px;background:#fff;margin:3px 0}.fstep strong{font-size:.95rem;color:#2f3f49}.fmeta{font-size:.73rem;color:#5f6b75}"
+			VAR _ucB = ADDCOLUMNS(SUMMARIZE(UshurHub, UshurHub[UseCase]), "_ts", [Total Submissions])
+			VAR _mxUC = MAXX(_ucB, [_ts])
+			VAR _bUC = CONCATENATEX(TOPN(15,_ucB,[_ts],DESC), "<div class='br'><div class='bl'>" & UshurHub[UseCase] & "</div><div class='bt'><div class='bf' style='width:" & FORMAT(MIN(DIVIDE([_ts],_mxUC)*100,100),"0") & "%;background:#5c61ac'></div></div><div class='bv'>" & FORMAT([_ts],"#,0") & "</div></div>", "", [_ts], DESC)
+			VAR _stB = ADDCOLUMNS(SUMMARIZE(UshurHub, UshurHub[Status]), "_ts", [Total Submissions])
+			VAR _mxST = MAXX(_stB, [_ts])
+			VAR _bST = CONCATENATEX(_stB, "<div class='br'><div class='bl'>" & UshurHub[Status] & "</div><div class='bt'><div class='bf' style='width:" & FORMAT(MIN(DIVIDE([_ts],_mxST)*100,100),"0") & "%;background:#55c2b6'></div></div><div class='bv'>" & FORMAT([_ts],"#,0") & "</div></div>", "", [_ts], DESC)
+			VAR _ttl = [Total Submissions]
+			VAR _cmp = [Completed Submissions]
+			VAR _can = [Cancelled Submissions]
+			VAR _err = [Total Errors]
+			VAR _fun = "<div class='fstep'><strong>" & FORMAT(_ttl,"#,0") & "</strong><div class='fmeta'>Total Received</div></div><div class='fstep'><strong style='color:#5c61ac'>" & FORMAT(_cmp+_err+_can,"#,0") & " (" & FORMAT(DIVIDE(_cmp+_err+_can,_ttl),"0.0%") & ")</strong><div class='fmeta'>Processed</div></div><div class='fstep'><strong style='color:#14763d'>" & FORMAT(_cmp,"#,0") & " (" & FORMAT(DIVIDE(_cmp,_ttl),"0.0%") & ")</strong><div class='fmeta'>Completed</div></div><div class='fstep'><strong style='color:#e03e52'>" & FORMAT(_err,"#,0") & " (" & FORMAT(DIVIDE(_err,_ttl),"0.0%") & ")</strong><div class='fmeta'>Errors</div></div>"
+			VAR _mBase = ADDCOLUMNS(SUMMARIZE(UshurHub, UshurHub[UseCase]), "_tot", [Total Submissions], "_can", CALCULATE([Cancelled Submissions]), "_cmp", CALCULATE([Completed Submissions]), "_err", CALCULATE([Total Errors]), "_rec", CALCULATE([Received Submissions]), "_sub", CALCULATE([Submitted Submissions]))
+			VAR _mr  = CONCATENATEX(TOPN(15,_mBase,[_tot],DESC), "<tr><td>" & UshurHub[UseCase] & "</td><td>" & FORMAT([_can],"#,0") & "</td><td>" & FORMAT([_cmp],"#,0") & "</td><td>" & FORMAT([_err],"#,0") & "</td><td>" & FORMAT([_rec],"#,0") & "</td><td>" & FORMAT([_sub],"#,0") & "</td><td>" & FORMAT([_tot],"#,0") & "</td></tr>", "", [_tot], DESC)
+			VAR _eBase = ADDCOLUMNS(SUMMARIZE(UshurHub, UshurHub[UseCase]), "_te", CALCULATE([Total Errors]))
+			VAR _er  = CONCATENATEX(TOPN(10,FILTER(_eBase,[_te]>0),[_te],DESC), "<tr><td>" & UshurHub[UseCase] & "</td><td>" & FORMAT([_te],"#,0") & "</td><td>" & FORMAT(DIVIDE([_te],_err),"0.0%") & " of all</td></tr>", "", [_te], DESC)
+			VAR _eH  = IF(_err=0,"<tr><td colspan='3' style='text-align:center;color:#67747f;padding:10px'>No errors in selection</td></tr>",_er)
+			RETURN "<!DOCTYPE html><html><head><meta charset='utf-8'/><style>" & _css & "</style></head><body><div class='g2'><div class='card'><h3>Submissions by Use Case</h3>" & _bUC & "</div><div class='card'><h3>Status Breakdown</h3>" & _bST & "</div><div class='card'><h3>Completion Funnel</h3>" & _fun & "</div><div class='card'><h3>Error Concentration</h3><div class='wrap' style='max-height:220px'><table><thead><tr><th>Use Case</th><th>Errors</th><th>Share</th></tr></thead><tbody>" & _eH & "</tbody></table></div></div><div class='card' style='grid-column:span 2'><h3>Use Case x Status Matrix</h3><div class='wrap'><table><thead><tr><th>Use Case</th><th>Cancelled</th><th>Completed</th><th>Error</th><th>Received</th><th>Submitted</th><th>Total</th></tr></thead><tbody>" & _mr & "</tbody></table></div></div></div></body></html>"
+		displayFolder: HTML Pages
+		lineageTag: 1a5f8c3e-9b7d-4e62-8a4f-c2b6d0e9f3a7
+
+	column Organization
+		dataType: string
+		lineageTag: 205f19c5-c880-4571-869f-ca6b6c11de0d
+		summarizeBy: none
+		sourceColumn: Organization
+
+		annotation SummarizationSetBy = Automatic
+
+	column UseCase
+		dataType: string
+		lineageTag: 67161fb1-5d63-444d-9d95-2435d3709216
+		summarizeBy: none
+		sourceColumn: UseCase
+
+		annotation SummarizationSetBy = Automatic
+
+	column SubmissionDateTime
+		dataType: string
+		lineageTag: 19e72d85-22ab-4a43-9b31-456fff163795
+		summarizeBy: none
+		sourceColumn: SubmissionDateTime
+
+		annotation SummarizationSetBy = Automatic
+
+	column ReferenceNumber
+		dataType: string
+		lineageTag: 712d0760-86bc-48a7-9eea-4ae841f5a9f1
+		summarizeBy: none
+		sourceColumn: ReferenceNumber
+
+		annotation SummarizationSetBy = Automatic
+
+	column Status
+		dataType: string
+		lineageTag: 608cbeaa-7422-4bd0-9fa2-eb49cff5092f
+		summarizeBy: none
+		sourceColumn: Status
+
+		annotation SummarizationSetBy = Automatic
+
+	column OrgStatus
+		dataType: string
+		lineageTag: 943f993d-2c6f-4033-afce-f5e78654301f
+		summarizeBy: none
+		sourceColumn: OrgStatus
+
+		annotation SummarizationSetBy = Automatic
+
+	column SubmissionDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 2dfad900-3386-4230-be76-f3396a3db789
+		summarizeBy: none
+		sourceColumn: SubmissionDate
+
+		variation Variation
+			isDefault
+			relationship: 270929af-4ffe-45b6-8097-256e5f7be38b
+			defaultHierarchy: LocalDateTable_ac95ec40-9ab7-4cf2-bb1d-0cf6523a6b5c.'Date Hierarchy'
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthKey
+		dataType: int64
+		lineageTag: 1e05f22e-34fe-4e5f-8901-cf195cd2fa17
+		summarizeBy: count
+		sourceColumn: MonthKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthYear
+		dataType: string
+		lineageTag: 35301db3-a054-4ddb-a0ea-808a595be21e
+		summarizeBy: none
+		sourceColumn: MonthYear
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year
+		dataType: int64
+		lineageTag: eb665608-e329-487f-b70f-3dc6e8bde718
+		summarizeBy: sum
+		sourceColumn: Year
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quarter
+		dataType: string
+		lineageTag: cdab1406-3b76-48d0-950d-90b82e93f6e8
+		summarizeBy: none
+		sourceColumn: Quarter
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearQuarter
+		dataType: string
+		lineageTag: 9c0bd5ca-2a99-46a4-9899-89694bdeb7d8
+		summarizeBy: none
+		sourceColumn: YearQuarter
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthNumber
+		dataType: int64
+		lineageTag: ccc4561f-ca95-4e38-9312-fe88c9971ae3
+		summarizeBy: sum
+		sourceColumn: MonthNumber
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthShort
+		dataType: string
+		lineageTag: 814cb4a7-9fe5-449c-9519-72f0da5d67bc
+		summarizeBy: none
+		sourceColumn: MonthShort
+
+		annotation SummarizationSetBy = Automatic
+
+	partition UshurHub = m
+		mode: import
+		source =
+				let
+				    Source_May    = Csv.Document(File.Contents("C:\\Users\\m347\\Documents\\Power BI Desktop\\SecureShare Report\\secureshare-phase3\\Mothly Engagement\\data\\UshurHub_MONTHLY_May2026.csv"),  [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    May_Hdr       = Table.PromoteHeaders(Source_May,  [PromoteAllScalars=true]),
+				    Source_Jun    = Csv.Document(File.Contents("C:\\Users\\m347\\Documents\\Power BI Desktop\\SecureShare Report\\secureshare-phase3\\Mothly Engagement\\data\\UshurHub_MONTHLY_June2026.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    Jun_Hdr       = Table.PromoteHeaders(Source_Jun,  [PromoteAllScalars=true]),
+				    Combined      = Table.Combine({May_Hdr, Jun_Hdr}),
+				    Renamed       = Table.RenameColumns(Combined, {{"Organization Name","Organization"},{"Use Case Name","UseCase"},{"Submission Date and Time (UTC)","SubmissionDateTime"},{"Reference Number","ReferenceNumber"},{"Submission Status","Status"},{"Organization Status","OrgStatus"}}),
+				    AddDate       = Table.AddColumn(Renamed, "SubmissionDate", each try DateTime.Date(DateTime.FromText([SubmissionDateTime])) otherwise null, type date),
+				    AddMonthKey   = Table.AddColumn(AddDate, "MonthKey", each if [SubmissionDate] = null then null else Date.Year([SubmissionDate]) * 100 + Date.Month([SubmissionDate]), Int64.Type),
+				    AddMonthYr    = Table.AddColumn(AddMonthKey, "MonthYear", each if [SubmissionDate] = null then null else Date.ToText([SubmissionDate], "MMM yyyy"), type text),
+				    AddYear       = Table.AddColumn(AddMonthYr, "Year", each if [SubmissionDate] = null then null else Date.Year([SubmissionDate]), Int64.Type),
+				    AddQtr        = Table.AddColumn(AddYear, "Quarter", each if [SubmissionDate] = null then null else "Q" & Text.From(Date.QuarterOfYear([SubmissionDate])), type text),
+				    AddYearQtr    = Table.AddColumn(AddQtr, "YearQuarter", each if [SubmissionDate] = null then null else Text.From(Date.Year([SubmissionDate])) & " Q" & Text.From(Date.QuarterOfYear([SubmissionDate])), type text),
+				    AddMonthNum   = Table.AddColumn(AddYearQtr, "MonthNumber", each if [SubmissionDate] = null then null else Date.Month([SubmissionDate]), Int64.Type),
+				    AddMonthShort = Table.AddColumn(AddMonthNum, "MonthShort", each if [SubmissionDate] = null then null else Date.ToText([SubmissionDate], "MMM"), type text),
+				    SetTypes      = Table.TransformColumnTypes(AddMonthShort, {{"Organization", type text},{"UseCase", type text},{"SubmissionDateTime", type text},{"ReferenceNumber", type text},{"Status", type text},{"OrgStatus", type text}})
+				in
+				    SetTypes
+
